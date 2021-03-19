@@ -1,0 +1,541 @@
+"";"orgao";"ano";"forca_trabalho"
+"1";"Presidência da República";1997;5370
+"2";"Presidência da República";1998;5401
+"3";"Presidência da República";1999;2519
+"4";"Presidência da República";2000;3318
+"5";"Presidência da República";2001;3284
+"6";"Presidência da República";2002;3147
+"7";"Presidência da República";2003;3744
+"8";"Presidência da República";2004;3767
+"9";"Presidência da República";2005;4222
+"10";"Presidência da República";2006;4875
+"11";"Presidência da República";2007;5697
+"12";"Presidência da República";2008;7513
+"13";"Presidência da República";2009;7917
+"14";"Presidência da República";2010;7799
+"15";"Presidência da República";2011;6873
+"16";"Presidência da República";2012;8437
+"17";"Presidência da República";2013;9113
+"18";"Presidência da República";2014;9151
+"19";"Presidência da República";2015;18493
+"20";"Presidência da República";2016;17437
+"21";"AdvocaciaGeral da União";1997;16
+"22";"AdvocaciaGeral da União";1998;2068
+"23";"AdvocaciaGeral da União";1999;2196
+"24";"AdvocaciaGeral da União";2000;2615
+"25";"AdvocaciaGeral da União";2001;3161
+"26";"AdvocaciaGeral da União";2002;1683
+"27";"AdvocaciaGeral da União";2003;3804
+"28";"AdvocaciaGeral da União";2004;7382
+"29";"AdvocaciaGeral da União";2005;7766
+"30";"AdvocaciaGeral da União";2006;8249
+"31";"AdvocaciaGeral da União";2007;8900
+"32";"AdvocaciaGeral da União";2008;8977
+"33";"AdvocaciaGeral da União";2009;9111
+"34";"AdvocaciaGeral da União";2010;7351
+"35";"AdvocaciaGeral da União";2011;7621
+"36";"AdvocaciaGeral da União";2012;7487
+"37";"AdvocaciaGeral da União";2013;7435
+"38";"AdvocaciaGeral da União";2014;9197
+"39";"AdvocaciaGeral da União";2015;NA
+"40";"AdvocaciaGeral da União";2016;NA
+"41";"Ministério da Agricultura, Pec. e do Abastecimento";1997;11703
+"42";"Ministério da Agricultura, Pec. e do Abastecimento";1998;11151
+"43";"Ministério da Agricultura, Pec. e do Abastecimento";1999;10771
+"44";"Ministério da Agricultura, Pec. e do Abastecimento";2000;10696
+"45";"Ministério da Agricultura, Pec. e do Abastecimento";2001;11164
+"46";"Ministério da Agricultura, Pec. e do Abastecimento";2002;11415
+"47";"Ministério da Agricultura, Pec. e do Abastecimento";2003;10973
+"48";"Ministério da Agricultura, Pec. e do Abastecimento";2004;11373
+"49";"Ministério da Agricultura, Pec. e do Abastecimento";2005;11742
+"50";"Ministério da Agricultura, Pec. e do Abastecimento";2006;11409
+"51";"Ministério da Agricultura, Pec. e do Abastecimento";2007;11551
+"52";"Ministério da Agricultura, Pec. e do Abastecimento";2008;11588
+"53";"Ministério da Agricultura, Pec. e do Abastecimento";2009;12119
+"54";"Ministério da Agricultura, Pec. e do Abastecimento";2010;11696
+"55";"Ministério da Agricultura, Pec. e do Abastecimento";2011;11357
+"56";"Ministério da Agricultura, Pec. e do Abastecimento";2012;11314
+"57";"Ministério da Agricultura, Pec. e do Abastecimento";2013;10668
+"58";"Ministério da Agricultura, Pec. e do Abastecimento";2014;11082
+"59";"Ministério da Agricultura, Pec. e do Abastecimento";2015;10774
+"60";"Ministério da Agricultura, Pec. e do Abastecimento";2016;10620
+"61";"Ministério das Cidades";1997;NA
+"62";"Ministério das Cidades";1998;NA
+"63";"Ministério das Cidades";1999;NA
+"64";"Ministério das Cidades";2000;NA
+"65";"Ministério das Cidades";2001;NA
+"66";"Ministério das Cidades";2002;NA
+"67";"Ministério das Cidades";2003;207
+"68";"Ministério das Cidades";2004;280
+"69";"Ministério das Cidades";2005;320
+"70";"Ministério das Cidades";2006;430
+"71";"Ministério das Cidades";2007;418
+"72";"Ministério das Cidades";2008;460
+"73";"Ministério das Cidades";2009;604
+"74";"Ministério das Cidades";2010;565
+"75";"Ministério das Cidades";2011;542
+"76";"Ministério das Cidades";2012;519
+"77";"Ministério das Cidades";2013;496
+"78";"Ministério das Cidades";2014;437
+"79";"Ministério das Cidades";2015;432
+"80";"Ministério das Cidades";2016;392
+"81";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";1997;4571
+"82";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";1998;4355
+"83";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";1999;6875
+"84";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2000;6893
+"85";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2001;6750
+"86";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2002;7051
+"87";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2003;6972
+"88";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2004;7152
+"89";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2005;7243
+"90";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2006;7111
+"91";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2007;6959
+"92";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2008;6806
+"93";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2009;6931
+"94";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2010;7192
+"95";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2011;7043
+"96";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2012;6889
+"97";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2013;7258
+"98";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2014;6887
+"99";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2015;6652
+"100";"Ministério da Ciência, Tecnologia, Inovação e Comunicações";2016;8654
+"101";"Ministério das Comunicações";1997;1313
+"102";"Ministério das Comunicações";1998;1322
+"103";"Ministério das Comunicações";1999;1657
+"104";"Ministério das Comunicações";2000;1525
+"105";"Ministério das Comunicações";2001;1644
+"106";"Ministério das Comunicações";2002;1761
+"107";"Ministério das Comunicações";2003;1685
+"108";"Ministério das Comunicações";2004;1604
+"109";"Ministério das Comunicações";2005;2000
+"110";"Ministério das Comunicações";2006;2009
+"111";"Ministério das Comunicações";2007;2048
+"112";"Ministério das Comunicações";2008;1971
+"113";"Ministério das Comunicações";2009;2156
+"114";"Ministério das Comunicações";2010;2348
+"115";"Ministério das Comunicações";2011;2383
+"116";"Ministério das Comunicações";2012;2271
+"117";"Ministério das Comunicações";2013;2299
+"118";"Ministério das Comunicações";2014;2404
+"119";"Ministério das Comunicações";2015;2440
+"120";"Ministério das Comunicações";2016;NA
+"121";"Ministério da Cultura";1997;2844
+"122";"Ministério da Cultura";1998;2695
+"123";"Ministério da Cultura";1999;2585
+"124";"Ministério da Cultura";2000;2539
+"125";"Ministério da Cultura";2001;2508
+"126";"Ministério da Cultura";2002;2477
+"127";"Ministério da Cultura";2003;2391
+"128";"Ministério da Cultura";2004;2589
+"129";"Ministério da Cultura";2005;2591
+"130";"Ministério da Cultura";2006;2960
+"131";"Ministério da Cultura";2007;2976
+"132";"Ministério da Cultura";2008;2946
+"133";"Ministério da Cultura";2009;3157
+"134";"Ministério da Cultura";2010;3774
+"135";"Ministério da Cultura";2011;3724
+"136";"Ministério da Cultura";2012;3612
+"137";"Ministério da Cultura";2013;3775
+"138";"Ministério da Cultura";2014;3851
+"139";"Ministério da Cultura";2015;3832
+"140";"Ministério da Cultura";2016;3536
+"141";"Ministério da Defesa";1997;35362
+"142";"Ministério da Defesa";1998;33901
+"143";"Ministério da Defesa";1999;32031
+"144";"Ministério da Defesa";2000;31004
+"145";"Ministério da Defesa";2001;29782
+"146";"Ministério da Defesa";2002;29608
+"147";"Ministério da Defesa";2003;28710
+"148";"Ministério da Defesa";2004;28899
+"149";"Ministério da Defesa";2005;29002
+"150";"Ministério da Defesa";2006;28369
+"151";"Ministério da Defesa";2007;27518
+"152";"Ministério da Defesa";2008;27246
+"153";"Ministério da Defesa";2009;27702
+"154";"Ministério da Defesa";2010;27152
+"155";"Ministério da Defesa";2011;25783
+"156";"Ministério da Defesa";2012;22988
+"157";"Ministério da Defesa";2013;21735
+"158";"Ministério da Defesa";2014;21080
+"159";"Ministério da Defesa";2015;20384
+"160";"Ministério da Defesa";2016;19435
+"161";"Ministério do Desenvolvimento Agrário";1997;6267
+"162";"Ministério do Desenvolvimento Agrário";1998;6004
+"163";"Ministério do Desenvolvimento Agrário";1999;5798
+"164";"Ministério do Desenvolvimento Agrário";2000;5713
+"165";"Ministério do Desenvolvimento Agrário";2001;5703
+"166";"Ministério do Desenvolvimento Agrário";2002;5663
+"167";"Ministério do Desenvolvimento Agrário";2003;5243
+"168";"Ministério do Desenvolvimento Agrário";2004;5567
+"169";"Ministério do Desenvolvimento Agrário";2005;5670
+"170";"Ministério do Desenvolvimento Agrário";2006;6538
+"171";"Ministério do Desenvolvimento Agrário";2007;6576
+"172";"Ministério do Desenvolvimento Agrário";2008;6709
+"173";"Ministério do Desenvolvimento Agrário";2009;6706
+"174";"Ministério do Desenvolvimento Agrário";2010;6539
+"175";"Ministério do Desenvolvimento Agrário";2011;6295
+"176";"Ministério do Desenvolvimento Agrário";2012;6089
+"177";"Ministério do Desenvolvimento Agrário";2013;6222
+"178";"Ministério do Desenvolvimento Agrário";2014;5946
+"179";"Ministério do Desenvolvimento Agrário";2015;5641
+"180";"Ministério do Desenvolvimento Agrário";2016;5266
+"181";"Ministério do Desenv. Social e Combate à Fome";1997;NA
+"182";"Ministério do Desenv. Social e Combate à Fome";1998;NA
+"183";"Ministério do Desenv. Social e Combate à Fome";1999;NA
+"184";"Ministério do Desenv. Social e Combate à Fome";2000;NA
+"185";"Ministério do Desenv. Social e Combate à Fome";2001;NA
+"186";"Ministério do Desenv. Social e Combate à Fome";2002;NA
+"187";"Ministério do Desenv. Social e Combate à Fome";2003;NA
+"188";"Ministério do Desenv. Social e Combate à Fome";2004;383
+"189";"Ministério do Desenv. Social e Combate à Fome";2005;381
+"190";"Ministério do Desenv. Social e Combate à Fome";2006;522
+"191";"Ministério do Desenv. Social e Combate à Fome";2007;594
+"192";"Ministério do Desenv. Social e Combate à Fome";2008;632
+"193";"Ministério do Desenv. Social e Combate à Fome";2009;661
+"194";"Ministério do Desenv. Social e Combate à Fome";2010;869
+"195";"Ministério do Desenv. Social e Combate à Fome";2011;835
+"196";"Ministério do Desenv. Social e Combate à Fome";2012;808
+"197";"Ministério do Desenv. Social e Combate à Fome";2013;1006
+"198";"Ministério do Desenv. Social e Combate à Fome";2014;862
+"199";"Ministério do Desenv. Social e Combate à Fome";2015;834
+"200";"Ministério do Desenv. Social e Combate à Fome";2016;768
+"201";"Ministério do Desenv., Ind. e Comércio Exterior";1997;2411
+"202";"Ministério do Desenv., Ind. e Comércio Exterior";1998;2335
+"203";"Ministério do Desenv., Ind. e Comércio Exterior";1999;2580
+"204";"Ministério do Desenv., Ind. e Comércio Exterior";2000;2260
+"205";"Ministério do Desenv., Ind. e Comércio Exterior";2001;2436
+"206";"Ministério do Desenv., Ind. e Comércio Exterior";2002;2401
+"207";"Ministério do Desenv., Ind. e Comércio Exterior";2003;2293
+"208";"Ministério do Desenv., Ind. e Comércio Exterior";2004;2338
+"209";"Ministério do Desenv., Ind. e Comércio Exterior";2005;2328
+"210";"Ministério do Desenv., Ind. e Comércio Exterior";2006;2641
+"211";"Ministério do Desenv., Ind. e Comércio Exterior";2007;2677
+"212";"Ministério do Desenv., Ind. e Comércio Exterior";2008;2780
+"213";"Ministério do Desenv., Ind. e Comércio Exterior";2009;2776
+"214";"Ministério do Desenv., Ind. e Comércio Exterior";2010;3112
+"215";"Ministério do Desenv., Ind. e Comércio Exterior";2011;3163
+"216";"Ministério do Desenv., Ind. e Comércio Exterior";2012;3159
+"217";"Ministério do Desenv., Ind. e Comércio Exterior";2013;3244
+"218";"Ministério do Desenv., Ind. e Comércio Exterior";2014;3410
+"219";"Ministério do Desenv., Ind. e Comércio Exterior";2015;3236
+"220";"Ministério do Desenv., Ind. e Comércio Exterior";2016;3190
+"221";"Ministério da Educação";1997;174966
+"222";"Ministério da Educação";1998;168403
+"223";"Ministério da Educação";1999;165510
+"224";"Ministério da Educação";2000;165595
+"225";"Ministério da Educação";2001;163479
+"226";"Ministério da Educação";2002;165163
+"227";"Ministério da Educação";2003;164870
+"228";"Ministério da Educação";2004;171925
+"229";"Ministério da Educação";2005;173181
+"230";"Ministério da Educação";2006;179449
+"231";"Ministério da Educação";2007;180895
+"232";"Ministério da Educação";2008;188440
+"233";"Ministério da Educação";2009;199174
+"234";"Ministério da Educação";2010;215025
+"235";"Ministério da Educação";2011;227848
+"236";"Ministério da Educação";2012;238335
+"237";"Ministério da Educação";2013;247961
+"238";"Ministério da Educação";2014;270024
+"239";"Ministério da Educação";2015;278444
+"240";"Ministério da Educação";2016;288314
+"241";"Ministério do Esporte";1997;169
+"242";"Ministério do Esporte";1998;159
+"243";"Ministério do Esporte";1999;185
+"244";"Ministério do Esporte";2000;325
+"245";"Ministério do Esporte";2001;402
+"246";"Ministério do Esporte";2002;396
+"247";"Ministério do Esporte";2003;209
+"248";"Ministério do Esporte";2004;221
+"249";"Ministério do Esporte";2005;219
+"250";"Ministério do Esporte";2006;215
+"251";"Ministério do Esporte";2007;233
+"252";"Ministério do Esporte";2008;236
+"253";"Ministério do Esporte";2009;304
+"254";"Ministério do Esporte";2010;340
+"255";"Ministério do Esporte";2011;333
+"256";"Ministério do Esporte";2012;389
+"257";"Ministério do Esporte";2013;441
+"258";"Ministério do Esporte";2014;459
+"259";"Ministério do Esporte";2015;444
+"260";"Ministério do Esporte";2016;367
+"261";"Ministério da Fazenda";1997;26207
+"262";"Ministério da Fazenda";1998;28080
+"263";"Ministério da Fazenda";1999;26958
+"264";"Ministério da Fazenda";2000;25331
+"265";"Ministério da Fazenda";2001;26098
+"266";"Ministério da Fazenda";2002;26297
+"267";"Ministério da Fazenda";2003;25622
+"268";"Ministério da Fazenda";2004;26098
+"269";"Ministério da Fazenda";2005;26404
+"270";"Ministério da Fazenda";2006;28672
+"271";"Ministério da Fazenda";2007;33233
+"272";"Ministério da Fazenda";2008;33033
+"273";"Ministério da Fazenda";2009;34301
+"274";"Ministério da Fazenda";2010;35380
+"275";"Ministério da Fazenda";2011;34348
+"276";"Ministério da Fazenda";2012;33292
+"277";"Ministério da Fazenda";2013;33228
+"278";"Ministério da Fazenda";2014;33075
+"279";"Ministério da Fazenda";2015;32673
+"280";"Ministério da Fazenda";2016;31857
+"281";"Governo dos ExTerritórios e Antigo Estado da Guanabara";1997;25247
+"282";"Governo dos ExTerritórios e Antigo Estado da Guanabara";1998;24573
+"283";"Governo dos ExTerritórios e Antigo Estado da Guanabara";1999;23315
+"284";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2000;23829
+"285";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2001;23198
+"286";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2002;23407
+"287";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2003;22227
+"288";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2004;21464
+"289";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2005;19233
+"290";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2006;18269
+"291";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2007;17399
+"292";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2008;16623
+"293";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2009;15798
+"294";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2010;14996
+"295";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2011;14233
+"296";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2012;13318
+"297";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2013;12687
+"298";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2014;12168
+"299";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2015;NA
+"300";"Governo dos ExTerritórios e Antigo Estado da Guanabara";2016;NA
+"301";"Ministério da Integração  Nacional";1997;NA
+"302";"Ministério da Integração  Nacional";1998;NA
+"303";"Ministério da Integração  Nacional";1999;184
+"304";"Ministério da Integração  Nacional";2000;3905
+"305";"Ministério da Integração  Nacional";2001;2480
+"306";"Ministério da Integração  Nacional";2002;2537
+"307";"Ministério da Integração  Nacional";2003;2469
+"308";"Ministério da Integração  Nacional";2004;2764
+"309";"Ministério da Integração  Nacional";2005;2674
+"310";"Ministério da Integração  Nacional";2006;2667
+"311";"Ministério da Integração  Nacional";2007;2719
+"312";"Ministério da Integração  Nacional";2008;2759
+"313";"Ministério da Integração  Nacional";2009;2793
+"314";"Ministério da Integração  Nacional";2010;3060
+"315";"Ministério da Integração  Nacional";2011;2962
+"316";"Ministério da Integração  Nacional";2012;2871
+"317";"Ministério da Integração  Nacional";2013;2930
+"318";"Ministério da Integração  Nacional";2014;2798
+"319";"Ministério da Integração  Nacional";2015;2675
+"320";"Ministério da Integração  Nacional";2016;2571
+"321";"Ministério da Justiça";1997;23261
+"322";"Ministério da Justiça";1998;22490
+"323";"Ministério da Justiça";1999;23113
+"324";"Ministério da Justiça";2000;21197
+"325";"Ministério da Justiça";2001;20685
+"326";"Ministério da Justiça";2002;20729
+"327";"Ministério da Justiça";2003;21244
+"328";"Ministério da Justiça";2004;23463
+"329";"Ministério da Justiça";2005;25502
+"330";"Ministério da Justiça";2006;27516
+"331";"Ministério da Justiça";2007;27915
+"332";"Ministério da Justiça";2008;28168
+"333";"Ministério da Justiça";2009;29130
+"334";"Ministério da Justiça";2010;30969
+"335";"Ministério da Justiça";2011;31183
+"336";"Ministério da Justiça";2012;31497
+"337";"Ministério da Justiça";2013;32063
+"338";"Ministério da Justiça";2014;32897
+"339";"Ministério da Justiça";2015;32156
+"340";"Ministério da Justiça";2016;32777
+"341";"Ministério do Meio Ambiente";1997;8609
+"342";"Ministério do Meio Ambiente";1998;8322
+"343";"Ministério do Meio Ambiente";1999;8024
+"344";"Ministério do Meio Ambiente";2000;5644
+"345";"Ministério do Meio Ambiente";2001;6409
+"346";"Ministério do Meio Ambiente";2002;7115
+"347";"Ministério do Meio Ambiente";2003;7242
+"348";"Ministério do Meio Ambiente";2004;7894
+"349";"Ministério do Meio Ambiente";2005;8013
+"350";"Ministério do Meio Ambiente";2006;8469
+"351";"Ministério do Meio Ambiente";2007;8559
+"352";"Ministério do Meio Ambiente";2008;9511
+"353";"Ministério do Meio Ambiente";2009;9481
+"354";"Ministério do Meio Ambiente";2010;9973
+"355";"Ministério do Meio Ambiente";2011;9357
+"356";"Ministério do Meio Ambiente";2012;8865
+"357";"Ministério do Meio Ambiente";2013;8884
+"358";"Ministério do Meio Ambiente";2014;8914
+"359";"Ministério do Meio Ambiente";2015;8639
+"360";"Ministério do Meio Ambiente";2016;7709
+"361";"Ministério de Minas e Energia";1997;2000
+"362";"Ministério de Minas e Energia";1998;2030
+"363";"Ministério de Minas e Energia";1999;1872
+"364";"Ministério de Minas e Energia";2000;1936
+"365";"Ministério de Minas e Energia";2001;1902
+"366";"Ministério de Minas e Energia";2002;2104
+"367";"Ministério de Minas e Energia";2003;2022
+"368";"Ministério de Minas e Energia";2004;2028
+"369";"Ministério de Minas e Energia";2005;2351
+"370";"Ministério de Minas e Energia";2006;2678
+"371";"Ministério de Minas e Energia";2007;2645
+"372";"Ministério de Minas e Energia";2008;2957
+"373";"Ministério de Minas e Energia";2009;3257
+"374";"Ministério de Minas e Energia";2010;3353
+"375";"Ministério de Minas e Energia";2011;3596
+"376";"Ministério de Minas e Energia";2012;3385
+"377";"Ministério de Minas e Energia";2013;3418
+"378";"Ministério de Minas e Energia";2014;4202
+"379";"Ministério de Minas e Energia";2015;4196
+"380";"Ministério de Minas e Energia";2016;4101
+"381";"Ministério do Planejamento, Orçamento e Gestão";1997;16072
+"382";"Ministério do Planejamento, Orçamento e Gestão";1998;14088
+"383";"Ministério do Planejamento, Orçamento e Gestão";1999;13164
+"384";"Ministério do Planejamento, Orçamento e Gestão";2000;13868
+"385";"Ministério do Planejamento, Orçamento e Gestão";2001;13783
+"386";"Ministério do Planejamento, Orçamento e Gestão";2002;14079
+"387";"Ministério do Planejamento, Orçamento e Gestão";2003;14259
+"388";"Ministério do Planejamento, Orçamento e Gestão";2004;12932
+"389";"Ministério do Planejamento, Orçamento e Gestão";2005;14550
+"390";"Ministério do Planejamento, Orçamento e Gestão";2006;16235
+"391";"Ministério do Planejamento, Orçamento e Gestão";2007;16453
+"392";"Ministério do Planejamento, Orçamento e Gestão";2008;18076
+"393";"Ministério do Planejamento, Orçamento e Gestão";2009;15538
+"394";"Ministério do Planejamento, Orçamento e Gestão";2010;14002
+"395";"Ministério do Planejamento, Orçamento e Gestão";2011;13900
+"396";"Ministério do Planejamento, Orçamento e Gestão";2012;14490
+"397";"Ministério do Planejamento, Orçamento e Gestão";2013;14369
+"398";"Ministério do Planejamento, Orçamento e Gestão";2014;16582
+"399";"Ministério do Planejamento, Orçamento e Gestão";2015;28056
+"400";"Ministério do Planejamento, Orçamento e Gestão";2016;28803
+"401";"Ministério da Pesca e Aquicultura";1997;NA
+"402";"Ministério da Pesca e Aquicultura";1998;NA
+"403";"Ministério da Pesca e Aquicultura";1999;NA
+"404";"Ministério da Pesca e Aquicultura";2000;NA
+"405";"Ministério da Pesca e Aquicultura";2001;NA
+"406";"Ministério da Pesca e Aquicultura";2002;NA
+"407";"Ministério da Pesca e Aquicultura";2003;NA
+"408";"Ministério da Pesca e Aquicultura";2004;NA
+"409";"Ministério da Pesca e Aquicultura";2005;NA
+"410";"Ministério da Pesca e Aquicultura";2006;NA
+"411";"Ministério da Pesca e Aquicultura";2007;NA
+"412";"Ministério da Pesca e Aquicultura";2008;NA
+"413";"Ministério da Pesca e Aquicultura";2009;NA
+"414";"Ministério da Pesca e Aquicultura";2010;605
+"415";"Ministério da Pesca e Aquicultura";2011;593
+"416";"Ministério da Pesca e Aquicultura";2012;594
+"417";"Ministério da Pesca e Aquicultura";2013;572
+"418";"Ministério da Pesca e Aquicultura";2014;531
+"419";"Ministério da Pesca e Aquicultura";2015;371
+"420";"Ministério da Pesca e Aquicultura";2016;NA
+"421";"Ministério da Previdência Social";1997;45718
+"422";"Ministério da Previdência Social";1998;43789
+"423";"Ministério da Previdência Social";1999;41566
+"424";"Ministério da Previdência Social";2000;40664
+"425";"Ministério da Previdência Social";2001;40121
+"426";"Ministério da Previdência Social";2002;39523
+"427";"Ministério da Previdência Social";2003;40254
+"428";"Ministério da Previdência Social";2004;40660
+"429";"Ministério da Previdência Social";2005;42202
+"430";"Ministério da Previdência Social";2006;43782
+"431";"Ministério da Previdência Social";2007;39771
+"432";"Ministério da Previdência Social";2008;39983
+"433";"Ministério da Previdência Social";2009;39006
+"434";"Ministério da Previdência Social";2010;39557
+"435";"Ministério da Previdência Social";2011;38239
+"436";"Ministério da Previdência Social";2012;38906
+"437";"Ministério da Previdência Social";2013;40285
+"438";"Ministério da Previdência Social";2014;39205
+"439";"Ministério da Previdência Social";2015;37924
+"440";"Ministério da Previdência Social";2016;36709
+"441";"Ministério das Relações Exteriores";1997;3099
+"442";"Ministério das Relações Exteriores";1998;3140
+"443";"Ministério das Relações Exteriores";1999;3051
+"444";"Ministério das Relações Exteriores";2000;2993
+"445";"Ministério das Relações Exteriores";2001;2943
+"446";"Ministério das Relações Exteriores";2002;2998
+"447";"Ministério das Relações Exteriores";2003;2917
+"448";"Ministério das Relações Exteriores";2004;2962
+"449";"Ministério das Relações Exteriores";2005;3173
+"450";"Ministério das Relações Exteriores";2006;3214
+"451";"Ministério das Relações Exteriores";2007;3335
+"452";"Ministério das Relações Exteriores";2008;3467
+"453";"Ministério das Relações Exteriores";2009;3619
+"454";"Ministério das Relações Exteriores";2010;3727
+"455";"Ministério das Relações Exteriores";2011;3670
+"456";"Ministério das Relações Exteriores";2012;3619
+"457";"Ministério das Relações Exteriores";2013;3528
+"458";"Ministério das Relações Exteriores";2014;3451
+"459";"Ministério das Relações Exteriores";2015;3353
+"460";"Ministério das Relações Exteriores";2016;3321
+"461";"Ministério da Saúde";1997;123159
+"462";"Ministério da Saúde";1998;116862
+"463";"Ministério da Saúde";1999;110804
+"464";"Ministério da Saúde";2000;102480
+"465";"Ministério da Saúde";2001;104948
+"466";"Ministério da Saúde";2002;103634
+"467";"Ministério da Saúde";2003;105238
+"468";"Ministério da Saúde";2004;103483
+"469";"Ministério da Saúde";2005;106079
+"470";"Ministério da Saúde";2006;109107
+"471";"Ministério da Saúde";2007;106259
+"472";"Ministério da Saúde";2008;105621
+"473";"Ministério da Saúde";2009;105456
+"474";"Ministério da Saúde";2010;102865
+"475";"Ministério da Saúde";2011;99962
+"476";"Ministério da Saúde";2012;97798
+"477";"Ministério da Saúde";2013;97632
+"478";"Ministério da Saúde";2014;99751
+"479";"Ministério da Saúde";2015;100806
+"480";"Ministério da Saúde";2016;102314
+"481";"Ministério do Trabalho e Emprego";1997;8126
+"482";"Ministério do Trabalho e Emprego";1998;7810
+"483";"Ministério do Trabalho e Emprego";1999;7863
+"484";"Ministério do Trabalho e Emprego";2000;7787
+"485";"Ministério do Trabalho e Emprego";2001;7699
+"486";"Ministério do Trabalho e Emprego";2002;7671
+"487";"Ministério do Trabalho e Emprego";2003;7221
+"488";"Ministério do Trabalho e Emprego";2004;7268
+"489";"Ministério do Trabalho e Emprego";2005;7195
+"490";"Ministério do Trabalho e Emprego";2006;7044
+"491";"Ministério do Trabalho e Emprego";2007;7270
+"492";"Ministério do Trabalho e Emprego";2008;7091
+"493";"Ministério do Trabalho e Emprego";2009;8837
+"494";"Ministério do Trabalho e Emprego";2010;8975
+"495";"Ministério do Trabalho e Emprego";2011;8924
+"496";"Ministério do Trabalho e Emprego";2012;8650
+"497";"Ministério do Trabalho e Emprego";2013;8333
+"498";"Ministério do Trabalho e Emprego";2014;8338
+"499";"Ministério do Trabalho e Emprego";2015;7971
+"500";"Ministério do Trabalho e Emprego";2016;7762
+"501";"Ministério dos Transportes";1997;5235
+"502";"Ministério dos Transportes";1998;4742
+"503";"Ministério dos Transportes";1999;4504
+"504";"Ministério dos Transportes";2000;4795
+"505";"Ministério dos Transportes";2001;4724
+"506";"Ministério dos Transportes";2002;4882
+"507";"Ministério dos Transportes";2003;3878
+"508";"Ministério dos Transportes";2004;4348
+"509";"Ministério dos Transportes";2005;4651
+"510";"Ministério dos Transportes";2006;5337
+"511";"Ministério dos Transportes";2007;5454
+"512";"Ministério dos Transportes";2008;5254
+"513";"Ministério dos Transportes";2009;5895
+"514";"Ministério dos Transportes";2010;6140
+"515";"Ministério dos Transportes";2011;6136
+"516";"Ministério dos Transportes";2012;6002
+"517";"Ministério dos Transportes";2013;6264
+"518";"Ministério dos Transportes";2014;6434
+"519";"Ministério dos Transportes";2015;6251
+"520";"Ministério dos Transportes";2016;6037
+"521";"Ministérios do Turismo";1997;NA
+"522";"Ministérios do Turismo";1998;NA
+"523";"Ministérios do Turismo";1999;NA
+"524";"Ministérios do Turismo";2000;NA
+"525";"Ministérios do Turismo";2001;NA
+"526";"Ministérios do Turismo";2002;NA
+"527";"Ministérios do Turismo";2003;286
+"528";"Ministérios do Turismo";2004;294
+"529";"Ministérios do Turismo";2005;271
+"530";"Ministérios do Turismo";2006;357
+"531";"Ministérios do Turismo";2007;366
+"532";"Ministérios do Turismo";2008;388
+"533";"Ministérios do Turismo";2009;464
+"534";"Ministérios do Turismo";2010;444
+"535";"Ministérios do Turismo";2011;502
+"536";"Ministérios do Turismo";2012;554
+"537";"Ministérios do Turismo";2013;514
+"538";"Ministérios do Turismo";2014;503
+"539";"Ministérios do Turismo";2015;469
+"540";"Ministérios do Turismo";2016;416
