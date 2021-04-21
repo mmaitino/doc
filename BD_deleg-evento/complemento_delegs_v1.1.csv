@@ -1,0 +1,770 @@
+"";"titulo";"nome";"desc";"cargo_deleg";"org";"org_detalhe";"cargo_org";"conf";"pais";"nline";"fonte";"id_org_dupla"
+"1";"Doutor";"Itamar Augusto Cautiero Franco";"Vice-Presidente da República";NA;"Vice-Presidência da República";NA;"Vice-Presidente da República";"UNCED, Conf";"Brasil";1;"LAI MRE";2738
+"2";"Professor";"Celso Lafer";"Ministro de Estado das Relações Exteriores, Presidente da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério das Relações Exteriores";NA;"Ministro";"UNCED, Conf";"Brasil";2;"LAI MRE";2739
+"3";"Doutor";"Célio de Oliveira Borja";"Ministro de Estado da Justiça";NA;"Ministério da Justiça";NA;NA;"UNCED, Conf";"Brasil";3;"LAI MRE";2740
+"4";"Almirante-de-Esquadra";"Mário Cezar Flores";"Ministro de Estado da Marinha";NA;"Ministério da Marinha";NA;"Ministro; Almirante-de-Esquadra";"UNCED, Conf";"Brasil";4;"LAI MRE";2741
+"5";"General-de-Exército";"Carlos Tinoco Ribeiro Gomes";"Ministro de Estado do Exército";NA;"Ministério do Exército";NA;"Ministro; General-de-Exército";"UNCED, Conf";"Brasil";5;"LAI MRE";2742
+"6";"Embaixador";"Marcílio Marques Moreira";"Ministro de Estado da Economia, Fazenda e Planejamento";NA;"Ministério da Economia, Fazenda e Planejamento";NA;NA;"UNCED, Conf";"Brasil";6;"LAI MRE";2743
+"7";"Doutor";"Antonio Cabrera Mano Filho";"Ministro de Estado da Agricultura e Reforma Agrária";NA;"Ministério da Agricultura e Reforma Agrária";NA;NA;"UNCED, Conf";"Brasil";7;"LAI MRE";2744
+"8";"Professor";"José Goldemberg";"Ministro de Estado da Educação, Secretário Interino do Meio Ambiente da Presidência da República e membro da Comissão Interministerial para a Preparação da Confederação das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Educação; Secretaria de Meio Ambiente da Presidência";NA;"Ministro; Secretário Interino da SEMA";"UNCED, Conf";"Brasil";8;"LAI MRE";2745
+"9";"Tenente-Brigadeiro-do-Ar";"Sócrates da Costa Monteiro";"Ministro de Estado da Aeronáutica";NA;"Ministério da Aeronáutica";NA;"Ministro; Tenente-Brigadeiro-do-Ar";"UNCED, Conf";"Brasil";9;"LAI MRE";2746
+"10";"Doutor";"Adib Jatene";"Ministro de Estado da Saúde";NA;"Ministério da Saúde";NA;"Ministro";"UNCED, Conf";"Brasil";10;"LAI MRE";2747
+"11";"Doutor";"Ricardo Fiuza";"Ministro de Estado da Ação Social";NA;"Ministério da Ação Social";NA;"Ministro";"UNCED, Conf";"Brasil";11;"LAI MRE";2748
+"12";"Doutor";"Marcus Vinicius Pratini de Moraes";"Ministro de Estado de Minas e Energia";NA;"Ministério de Minas e Energia";NA;"Ministro";"UNCED, Conf";"Brasil";12;"LAI MRE";2749
+"13";"Doutor";"Affonso Camargo";"Ministro de Estado dos Transporte e das Comunicações";NA;"Ministério dos Transportes e das Comunicações";NA;"Ministro";"UNCED, Conf";"Brasil";13;"LAI MRE";2750
+"14";"Doutor";"Reinhold Stephanes";"Ministro de Estado da Previdência Social";NA;"Ministério da Previdência Social";NA;"Ministro";"UNCED, Conf";"Brasil";14;"LAI MRE";2751
+"15";"Doutor";"João Mellão Neto";"Ministro de Estado do Trabalho e da Administração";NA;"Ministério do Trabalho e da Administração Federal";NA;"Ministro";"UNCED, Conf";"Brasil";15;"LAI MRE";2752
+"16";"Doutor";"Jorge Bornhausen";"Ministro de Estado Chefe da Secretaria de Governo";NA;"Secretaria de Governo da Presidência";NA;"Ministro";"UNCED, Conf";"Brasil";16;"LAI MRE";2753
+"17";"Doutor";"Angelo Calmon de Sá";"Ministro de Estado Chefe da Secretaria de Desenvolvimento Regional da Presidência da República e membro da Comissão Interministerial para Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Secretaria de Desenvolvimento Regional da Presidência";NA;"Ministro";"UNCED, Conf";"Brasil";17;"LAI MRE";2754
+"18";"Embaixador";"Marcos Antônio de Salvo Coimbra";"Secretário-Geral da Presidência da República";NA;"Secretaria-Geral da Presidência";NA;"Secretário-Geral";"UNCED, Conf";"Brasil";18;"LAI MRE";2755
+"19";"General-de-Brigada";"Agenor Francisco Homem de Carvalho";"Chefe do Gabinete Militar da Presidência da República";NA;"Gabinete Militar da Presidência";NA;"Chefe do Gabinete Militar da PR; General-de-Brigada";"UNCED, Conf";"Brasil";19;"LAI MRE";2756
+"20";"General-de-Exército";"Antônio Luiz Rocha Veneu";"Chefe do Estado-Maior das Forças Armadas";NA;"Estado-Maior das Forças Armadas";NA;"Chefe do Estado-Maior das FFAA; General-de-Exército";"UNCED, Conf";"Brasil";20;"LAI MRE";2757
+"21";"Doutor";"Célio Silva";"Consultor-Geral da República";NA;"Consultoria-Geral da República";NA;"Consultor-Geral";"UNCED, Conf";"Brasil";21;"LAI MRE";2758
+"22";"Embaixador";"Sérgio Paulo Rouanet";"Secretário de Cultura da Presidência da República";NA;"Secretaria de Cultura da Presidência";NA;"Secretário";"UNCED, Conf";"Brasil";22;"LAI MRE";2759
+"23";"Professor";"Hélio Jaguaribe de Mattos";"Secretário de Ciência e Tecnologia da Presidência da República e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Secretaria de Ciência e Tecnologia da Presidência";NA;"Secretário";"UNCED, Conf";"Brasil";23;"LAI MRE";2760
+"24";"Doutor";"Bernard Rajzman";"Secretaria de Desportos da Presidência da República";NA;"Secretaria de Desportos da Presidência";NA;"Secretário";"UNCED, Conf";"Brasil";24;"LAI MRE";2761
+"25";"Doutor";"Eliezer Batista da Silva";"Secretário de Assuntos Estratégicos da Presidência da República e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Secretaria de Assuntos Estratégicos da Presidência";NA;"Secretário";"UNCED, Conf";"Brasil";25;"LAI MRE";2762
+"26";"Doutor";"Joaquim Domingos Roriz";"Governador do Distrito Federal";NA;"Distrito Federal";NA;"Governador";"UNCED, Conf";"Brasil";26;"LAI MRE";2763
+"27";"Doutor";"Antônio Carlos Peixoto Magalhães";"Governador do Estado da Bahia";NA;"Estado da Bahia";NA;"Governador";"UNCED, Conf";"Brasil";27;"LAI MRE";2764
+"28";"Engenheiro";"Leonel de Moura Brizola";"Governador do Estado do Rio de Janeiro";NA;"Estado do Rio de Janeiro";NA;"Governador";"UNCED, Conf";"Brasil";28;"LAI MRE";2765
+"29";"Doutor";"Edson Lobão";"Governador do Estado do Maranhão";NA;"Estado do Maranhão";NA;"Governador";"UNCED, Conf";"Brasil";29;"LAI MRE";2766
+"30";"Doutor";"Jader Fontenelli Barbalho";"Governador do Pará";NA;"Estado do Pará";NA;"Governador";"UNCED, Conf";"Brasil";30;"LAI MRE";2767
+"31";"Doutor";"Joaquim Francisco de Freitas Cavalcante";"Governador do Estado de Pernambuco";NA;"Estado de Pernambuco";NA;"Governador";"UNCED, Conf";"Brasil";31;"LAI MRE";2768
+"32";"Doutor";"Luiz Antônio Fleury Filho";"Governador do Estado de São Paulo";NA;"Estado de São Paulo";NA;"Governador";"UNCED, Conf";"Brasil";32;"LAI MRE";2769
+"33";"Doutor";"Hélio Carvalho Garcia";"Governador do Estado de Minas Gerais";NA;"Estado de Minas Gerais";NA;"Governador";"UNCED, Conf";"Brasil";33;"LAI MRE";2770
+"34";"Doutor";"Iris Rezende";"Governador do Estado de Goiás";NA;"Estado de Goiás";NA;"Governador";"UNCED, Conf";"Brasil";34;"LAI MRE";2771
+"35";"Doutor";"Jayme Veríssimo de Campos";"Governador do Estado do Mato Grosso";NA;"Estado do Mato Grosso";NA;"Governador";"UNCED, Conf";"Brasil";35;"LAI MRE";2772
+"36";"Doutor";"Alceu de Deus Collares";"Governador do Estado do Rio Grande do Sul";NA;"Estado do Rio Grande do Sul";NA;"Governador";"UNCED, Conf";"Brasil";36;"LAI MRE";2773
+"37";"Doutor";"Ciro Ferreira Gomes";"Governador do Estado do Ceará";NA;"Estado do Ceará";NA;"Governador";"UNCED, Conf";"Brasil";37;"LAI MRE";2774
+"38";"Doutor";"Ronaldo Cunha Lima";"Governador do Estado da Paraíba";NA;"Estado da Paraíba";NA;"Governador";"UNCED, Conf";"Brasil";38;"LAI MRE";2775
+"39";"Doutor";"Albuíno Cunha de Azeredo";"Governador do Estado do Espirito Santo";NA;"Estado do Espírito Santo";NA;"Governador";"UNCED, Conf";"Brasil";39;"LAI MRE";2776
+"40";"Doutor";"Antonio de Almendra Freitas Neto";"Governador do Estado do Piauí";NA;"Estado do Piauí";NA;"Governador";"UNCED, Conf";"Brasil";40;"LAI MRE";2777
+"41";"Doutor";"José Agripino Maia";"Governador do Estado do Rio Grande do Norte";NA;"Estado do Rio Grande do Norte";NA;"Governador";"UNCED, Conf";"Brasil";41;"LAI MRE";2778
+"42";"Doutor";"Vilson Pedro Kleinübing";"Governador do Estado de Santa Catarina";NA;"Estado de Santa Catarina";NA;"Governador";"UNCED, Conf";"Brasil";42;"LAI MRE";2779
+"43";"Doutor";"Geraldo Bulhões Barros";"Governador do Estado de Alagoas";NA;"Estado de Alagoas";NA;"Governador";"UNCED, Conf";"Brasil";43;"LAI MRE";1279
+"44";"Doutor";"João Alves Filho";"Governador do Estado de Sergipe";NA;"Estado de Sergipe";NA;"Governador";"UNCED, Conf";"Brasil";44;"LAI MRE";2780
+"45";"Doutor";"Gilberto Mestrinho de Medeiros Raposo";"Governador do Estado do Amazonas";NA;"Estado do Amazonas";NA;"Governador";"UNCED, Conf";"Brasil";45;"LAI MRE";2781
+"46";"Doutor";"Roberto Requião de Mello e Silva";"Governador do Estado do Paraná";NA;"Estado do Paraná";NA;"Governador";"UNCED, Conf";"Brasil";46;"LAI MRE";2782
+"47";"Doutor";"Romildo Magalhães Silva";"Governador do Estado do Acre";NA;"Estado do Acre";NA;"Governador";"UNCED, Conf";"Brasil";47;"LAI MRE";2783
+"48";"Doutor";"Pedro Pedrossian";"Governador do Estado do Mato Grosso do Sul";NA;"Estado do Mato Grosso do Sul";NA;"Governador";"UNCED, Conf";"Brasil";48;"LAI MRE";2784
+"49";"Doutor";"Oswaldo Pianna Filho";"Governador do Estado de Rondônia";NA;"Estado de Rondônia";NA;"Governador";"UNCED, Conf";"Brasil";49;"LAI MRE";2785
+"50";"Doutor";"Moisés Nogueira Avelino";"Governador do Estado do Tocantins";NA;"Estado do Tocantins";NA;"Governador";"UNCED, Conf";"Brasil";50;"LAI MRE";2786
+"51";"Doutor";"Ottomar de Souza Pinto";"Governador do Estado de Roraima";NA;"Estado de Roraima";NA;"Governador";"UNCED, Conf";"Brasil";51;"LAI MRE";2787
+"52";"Doutor";"Aníbal Barcellos";"Governador do Estado de Amapá";NA;"Estado de Amapá";NA;"Governador";"UNCED, Conf";"Brasil";52;"LAI MRE";2788
+"53";"Doutor";"Fernando César Mesquita";"Secretário do Meio Ambiente e Turismo do Estado do Maranhão";NA;"Estado do Maranhão";"Secretaria do Meio Ambiente e Turismo";"Secretário";"UNCED, Conf";"Brasil";53;"LAI MRE";2789
+"54";"Doutor";"Alaor Caffé Alves";"Secretário do Meio Ambiente do Estado de São Paulo";NA;"Estado de São Paulo";"Secretaria do Meio Ambiente";"Secretário";"UNCED, Conf";"Brasil";54;"LAI MRE";2790
+"55";"Doutora";"Neusa Canabarro";"Secretária de Educação do Estado do Rio Grande do Sul";NA;"Estado do Rio Grande do Sul";"Secretaria de Educação";"Secretário";"UNCED, Conf";"Brasil";55;"LAI MRE";2791
+"56";"Doutora";"Marfisa Maria Aguar Ferreira";"Secretária de Desenvolvimento Urbano e Meio Ambiente do Estado do Ceará";NA;"Estado do Ceará";"Secretaria de Desenvolvimento Urbano e Meio Ambiente";"Secretário";"UNCED, Conf";"Brasil";56;"LAI MRE";2792
+"57";"Doutor";"Inaldo Rocha Leitão";"Secretário da Justiça, Cidadania e Meio Ambiente do Estado da Paraíba";NA;"Estado da Paraíba";"Secretaria de Justiça, Cidadania e Meio Ambiente";"Secretário";"UNCED, Conf";"Brasil";57;"LAI MRE";2793
+"58";"Doutor";"José Saldanha Fontenelle Filho";"Secretário Extraordinário de Representação do Governo do Estado do Piauí em Brasília";NA;"Estado do Piauí";"Secretaria Extraordinária de Representação do Governo em Brasília";"Secretário";"UNCED, Conf";"Brasil";58;"LAI MRE";2794
+"59";"Doutor";"Rogério Kracik Rosa";"Secretário da Tecnologia, Energia e Meio Ambiente do Estado de Santa Catarina";NA;"Estado de Santa Catarina";"Secretaria de Tecnologia, Energia e Meio Ambiente";"Secretário";"UNCED, Conf";"Brasil";59;"LAI MRE";2795
+"60";"Doutor";"Francisco José Silveira Pereira";"Secretário do Desenvolvimento Ambiental do Estado de Rondônia";NA;"Estado de Rondônia";"Secretaria do Desenvolvimento Ambiental";"Secretário";"UNCED, Conf";"Brasil";60;"LAI MRE";2796
+"61";"Doutor";"Marcello Alencar";"Prefeito da Cidade do Rio de Janeiro";NA;"Cidade do Rio de Janeiro";NA;NA;"UNCED, Conf";"Brasil";61;"LAI MRE";2797
+"62";"Senador";"Mauro Benevides";"Presidente do Congresso Nacional";NA;"Senado Federal";NA;"Senador; Presidente do Senado";"UNCED, Conf";"Brasil";62;"LAI MRE";2798
+"63";"Deputado";"Ibsen Pinheiro";"Presidente da Câmara dos Deputados";NA;"Câmara dos Deputados";NA;"Deputado; Presidente da Câmara";"UNCED, Conf";"Brasil";63;"LAI MRE";2799
+"64";"Embaixador";"Luiz Felipe de Seixas Corrêa";"Secretário-Geral de Política Exterior";NA;"Ministério das Relações Exteriores";"Secretaria-Geral de Política Exterior";"Secretário-Geral";"UNCED, Conf";"Brasil";64;"LAI MRE";2800
+"65";"Almirante-de-Esquadra";"Ivan da Silveira Serpa";"Chefe do Estado-Maior da Armada e membro da Comissão lnterministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento CIMA";NA;"Marinha do Brasil";"Estado-Maior da Armada";"Chefe do Estado-Maior da Armada; Almirante-de-Esquadra";"UNCED, Conf";"Brasil";65;"LAI MRE";2801
+"66";"General";"Antonio Joaquim Soares Moreira";"Chefe do Estado-Maior do Exército e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre o Meio Ambiente e Desenvolvimento - CIMA";NA;"Exército do Brasil";"Estado-Maior do Exército";"Chefe do Estado-Maior do Exército; General";"UNCED, Conf";"Brasil";66;"LAI MRE";2802
+"67";"Tenente-Brigadeiro-do-Ar";"Lélio Viana Lôbo";"Chefe do Estado Maior da Aeronáutica e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento - CIMA";NA;"Força Aérea Brasileira";"Estado-Maior da Aeronáutica";"Chefe do Estado Maior da Aeronáutica; Tenente-Brigadeiro-do-Ar";"UNCED, Conf";"Brasil";67;"LAI MRE";2803
+"68";"Ministro";"Carlos Moreira Garcia";"Secretário da Administração Federal e Presidente do Grupo de Trabalho Nacional para a Organização da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento;";NA;NA;NA;NA;"UNCED, Conf";"Brasil";68;"LAI MRE";24
+"69";"Embaixador";"Marcos Castrioto de Azambuja";"Representante Especial para Coordenar as Posições Brasileiras à Conferência do Rio";NA;"Ministério das Relações Exteriores";"Representação Especial para Coordenar as Posições Brasileiras à Conferência do Rio";"Representante Especial; Embaixador";"UNCED, Conf";"Brasil";69;"LAI MRE";2804
+"70";"Doutor";"Pedro Parente";"Secretário Nacional de Planejamento e membro da Comissão Interministerial para a Preparação da Conferência das Nações sobre Meio Ambiente e Desenvolvimento - CIMA";NA;"Ministério da Economia, Fazenda e Planejamento";"Secretaria Nacional de Planejamento";"Secretário";"UNCED, Conf";"Brasil";70;"LAI MRE";2805
+"71";"Doutora";"Dorothea Fonseca Furquim Werneck";"Secretária Nacional da Economia e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Economia, Fazenda e Planejamento";"Secretaria Nacional de Economia";"Secretário";"UNCED, Conf";"Brasil";71;"LAI MRE";2806
+"72";"Doutor";"Armando Ribeiro de Araújo";"Secretário Nacional de Energia e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Infra-Estrutura";"Secretaria Nacional de Energia";"Secretário";"UNCED, Conf";"Brasil";72;"LAI MRE";2807
+"73";"Doutor";"Luiz André Rico Vicente";"Secretário Nacional de Minas e Metalurgia e Membro da Comissão Interministerial para a preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Infra-Estrutura";"Secretaria Nacional de Minas e Metalurgia";"Secretário";"UNCED, Conf";"Brasil";73;"LAI MRE";2808
+"74";"Doutor";"João Batista Risi Junior";"Secretário Nacional da Vigilância Sanitária e Membro da Comissão Interministerial para a preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Saúde";"Secretaria Nacional da Vigilância Sanitária";"Secretário";"UNCED, Conf";"Brasil";74;"LAI MRE";2809
+"75";"Doutor";"Paulo Bezerril Junior";"Secretário Nacional de Saneamento e Membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério da Ação Social";"Secretaria Nacional de Saneamento";"Secretário";"UNCED, Conf";"Brasil";75;"LAI MRE";2810
+"76";"General-de-Exército";"Angelo Barata Filho";"Comandante Militar do Leste";NA;"Exército do Brasil";NA;"Comandante Militar do Leste; General-de-Exército";"UNCED, Conf";"Brasil";76;"LAI MRE";2811
+"77";"Embaixador";"Rubens Ricupero";"Embaixador em Washington";NA;"Ministério das Relações Exteriores";"Embaixada em Washington";"Embaixador";"UNCED, Conf";"Brasil";77;"LAI MRE";2812
+"78";"Embaixador";"Ronaldo Mota Sardenberg";"Representante Permanente junto às Nações Unidas, em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";"Embaixador; Representante";"UNCED, Conf";"Brasil";78;"LAI MRE";2813
+"79";"Embaixador";"Luiz Felipe de La Torre Benitez Teixeira Soares";"Representante Permanente Junto ao Programa das Nações Unidas para o Meio Ambiente (PNUMA), em Nairóbi";NA;"Ministério das Relações Exteriores";"Missão Permanente Junto ao Programa das Nações Unidas para o Meio Ambiente (PNUMA), em Nairóbi";"Embaixador; Representante";"UNCED, Conf";"Brasil";79;"LAI MRE";2814
+"80";"Embaixador";"Bernardo Pericás Neto";"Representante junto à Organização dos Estados Americanos (OEA)";NA;"Ministério das Relações Exteriores";"Missão Permanente junto à Organização dos Estados Americanos (OEA)";"Embaixador; Representante";"UNCED, Conf";"Brasil";80;"LAI MRE";2815
+"81";"Embaixador";"Luiz Augusto Saint-Brisson de Araújo Castro";"Representante Permanente Adjunto Junto ás Nações Unidas em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";"Embaixador; Representante permanente adjunto";"UNCED, Conf";"Brasil";81;"LAI MRE";2813
+"82";"Embaixador";"Celso Luiz Nunes Amorim";"Representante Permanente Junto às Nações Unidas, em Genebra";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Genebra";NA;"UNCED, Conf";"Brasil";82;"LAI MRE";2816
+"83";"Embaixador";"José Artur Denot Medeiros";"Diretor do Departamento de Assuntos Internacionais da Secretaria Nacional de Planejamento do Ministério da Economia, Fazenda e Planejamento";NA;"Ministério da Economia, Fazenda e Planejamento";"Departamento de Assuntos Internacionais, Secretaria Nacional de Planejamento";"Diretor";"UNCED, Conf";"Brasil";83;"LAI MRE";2817
+"84";"Embaixador";"Oto Agripino Maia";"Subsecretário-Geral da Presidência da República";NA;"Secretaria-Geral da Presidência";NA;"Subsecretário-geral";"UNCED, Conf";"Brasil";84;"LAI MRE";2755
+"85";"Embaixador";"Gelson Fonseca Junior";"Assessor-Chefe da Assessoria Diplomática da Presidência da República";NA;"Presidência da República";"Assessoria Diplomática";"Assessor-chefe";"UNCED, Conf";"Brasil";85;"LAI MRE";2818
+"86";"Doutor";"Mauro Durante";"Chefe de Gabinete do Vice-Presidente da República";NA;"Vice-Presidência da República";"Gabinete do vice-presidente";"Chefe de gabinete";"UNCED, Conf";"Brasil";86;"LAI MRE";2819
+"87";"Embaixador";"Synesio Sampaio Goes Filho";"Chefe de Gabinete do Ministro das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Gabinete do ministro";"Chefe de gabinete do ministro";"UNCED, Conf";"Brasil";87;"LAI MRE";2820
+"88";"Embaixador";"Gilberto Vergne Saboia";"Chefe de Gabinete do Secretário-Geral de Política Exterior";NA;"Ministério das Relações Exteriores";"Secretaria-Geral de Política Exterior";"Chefe de gabinete do secretário-geral";"UNCED, Conf";"Brasil";88;"LAI MRE";2800
+"89";"Doutor";"José Gregori";"Chefe de Gabinete do Ministro de Estado da Economia, Fazenda e Planejamento;";NA;"Ministério da Economia, Fazenda e Planejamento";"Gabinete do ministro";"Chefe de gabinete do ministro";"UNCED, Conf";"Brasil";89;"LAI MRE";2821
+"90";"Ministro";"Flávio Miragaia Perri";"Secretário-Executivo do grupo de Trabalho Nacional para Organização da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério das Relações Exteriores";"Grupo de Trabalho Nacional para Organização da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento, CIMA - Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento]";"Secretário-Executivo; Ministro (diplomata)";"UNCED, Conf";"Brasil";90;"LAI MRE";2822
+"91";"Ministro";"Luiz Fernando de Oliveira e Cruz Benedini";"Secretário de Imprensa do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Secretaria de Imprensa";"Secretário; Ministro (diplomata)";"UNCED, Conf";"Brasil";91;"LAI MRE";2823
+"92";"Ministro";"Adhemar Gabriel Bahadian";"da Missão Permanente Junto ás Nações Unidas em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";"Ministro";"UNCED, Conf";"Brasil";92;"LAI MRE";2813
+"93";"Ministro";"Luiz Filipe de Macedo Soares";"Chefe da Divisão de Meio Ambiente do Ministério das Relações Exteriores e Secretário-Executivo da Comissão Interministerial, para Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente; CIMA";"Ministro; Chefe de divisão; Secretário-Executivo da CIMA";"UNCED, Conf";"Brasil";93;"LAI MRE";2824
+"94";"Ministro";"Roberto Rodrigues Krause";"Assessor para Assuntos Sociais da Secretaria-Geral da Presidência da República";NA;"Secretaria-Geral da Presidência";"Assessoria para Assuntos Sociais";"Assessor";"UNCED, Conf";"Brasil";94;"LAI MRE";2825
+"95";"Ministro";"Frederico Cezar de Araújo";"Cônsul-Geral em Londres e Chefe da Comissão de Cerimonial do Grupo de Trabalho Nacional para a Organização da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento - CIMA";NA;"Ministério das Relações Exteriores";"Comissão de Cerimonial do Grupo de Trabalho Nacional para a Organização da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento, CIMA; Consulado-Geral em Londres";"Chefe da comissão; Cônsul-geral; Ministro";"UNCED, Conf";"Brasil";95;"LAI MRE";2826
+"96";"Ministro";"Marcus Camacho de Vincenzi";"Chefe da Subchefia Internacional da Vice-Presidência da República";NA;"Vice-Presidência da República";"Subchefia Internacional";"Chefe";"UNCED, Conf";"Brasil";96;"LAI MRE";2827
+"97";"Doutor";"Romeu Tuma";"Secretário da Polícia Federal e membro da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Departamento de Polícia Federal";NA;"Secretário";"UNCED, Conf";"Brasil";97;"LAI MRE";2828
+"98";"Doutor";"Luiz Fernando Gusmão Wellisch";"Secretário da Fazenda Nacional e Diretor do Departamento da Receita Federal";NA;"Ministério da Economia, Fazenda e Planejamento";"Secretaria da Fazenda Nacional; Departamento da Receita Federal";"Secretário; Diretor";"UNCED, Conf";"Brasil";98;"LAI MRE";2829
+"99";"Contra-Almirante";"Roberto Costa Ferrenho";"Secretário da Comissão Interministerial para os Recursos do Mar (SECIRM) e assessor da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"Comissão Interministerial para os Recursos do Mar (SECIRM); CIMA";NA;"Contra-Almirante; Secretário da SECIRM; Assessor da CIMA";"UNCED, Conf";"Brasil";99;"LAI MRE";2830
+"100";"Doutor";"Herbert Otto Roger Schubart";"da Secretaria de Assuntos Estratégicos da Presidência da República";NA;"Secretaria de Assuntos Estratégicos da Presidência";NA;NA;"UNCED, Conf";"Brasil";100;"LAI MRE";2762
+"101";"Doutor";"Luiz Antônio Barreto de Castro";"da Secretária da Ciência e Tecnologia da Presidência da República";NA;"Secretaria de Ciência e Tecnologia da Presidência";NA;NA;"UNCED, Conf";"Brasil";101;"LAI MRE";2760
+"102";"Doutora";"Maria Teresa Jorge Pádua";"Presidente do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renovaveis (IBAMA) e assessora da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;"Presidente";"UNCED, Conf";"Brasil";102;"LAI MRE";2831
+"103";"Doutora";"Tânia Maria Tonelli Munhoz";"Ex-Presidente do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis - IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;"Ex-presidente";"UNCED, Conf";"Brasil";103;"LAI MRE";2831
+"104";"Doutor";"José Márcio de Oliveira Ayres";"Ex-Diretor do Instituto Brasileiro de Meio Ambiente e dos Recursos Naturais Renováveis - IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;"Ex-diretor";"UNCED, Conf";"Brasil";104;"LAI MRE";2831
+"105";"Doutor";"Eurico de Andrade Neves Borba";"Presidente da Fundação Instituto Brasileiro de Geografia e Estatísticas";NA;"Fundação Instituto Brasileiro de Geografia e Estatísticas";NA;"Presidente";"UNCED, Conf";"Brasil";105;"LAI MRE";2832
+"106";"Doutor";"Marcos Luiz dos Mares Guia";"Presidente do Conselho Nacional do Desenvolvimento Científico e Tecnológico";NA;"CNPq - Conselho Nacional do Desenvolvimento Científico e Tecnológico";NA;"Presidente";"UNCED, Conf";"Brasil";106;"LAI MRE";2833
+"107";"Doutor";"Sydney Ferreira Possuelo";"Presidente da Fundação Nacional do Índio";NA;"FUNAI - Fundação Nacional do Índio";NA;"Presidente";"UNCED, Conf";"Brasil";107;"LAI MRE";2834
+"108";"Doutor";"Márcio Nogueira Barbosa";"Diretor-Geral do Instituto Nacional de Pesquisas Especiais (INPE) e assessor da Comissão Internacional para Preparação da Conferência das Nações sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"INPE - Instituto Nacional de Pesquisas Especiais";NA;"Diretor-Geral";"UNCED, Conf";"Brasil";108;"LAI MRE";2835
+"109";"Doutor";"Murilo Xavier Flores";"Presidente da Empresa Brasileira de Pesquisa Agropecuária (EMBRAPA) e assessor da Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIM";NA;"EMBRAPA - Empresa Brasileira de Pesquisa Agropecuária";NA;"Presidente";"UNCED, Conf";"Brasil";109;"LAI MRE";2836
+"110";"Doutor";"Jorge Carlos de Jesus Marques";"Diretor do Departamento Nacional de Meteorologia (DNEMET), e assessor da Comissão Interministerial para a Preparação da Conferência das Nações sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"DNEMET - Departamento Nacional de Meteorologia";NA;"Diretor";"UNCED, Conf";"Brasil";110;"LAI MRE";2837
+"111";"Doutor";"José Seixas Lourenço";"Diretor-Geral do Instituto Nacional de Pesquisas da Amazônia (INPA) e assessor da Comissão Interministerial para a Preparação da Conferência das Nações Unidas Sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"INPA - Instituto Nacional de Pesquisas da Amazônia";NA;NA;"UNCED, Conf";"Brasil";111;"LAI MRE";2838
+"112";"Doutor";"Ronaldo do Monte Rosa";"Presidente do Instituto Brasileiro do Turismo (EMBRATUR) e Assessor da Comissão Interministerial para a Preparação da Conferência das Nações Unidas Sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"EMBRATUR - Instituto Brasileiro do Turismo";NA;NA;"UNCED, Conf";"Brasil";112;"LAI MRE";2839
+"113";"Conselheiro";"Ruy de Lima Casaes e Silva";"Introdutor Diplomático, do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";NA;"Conselheiro; Introdutor Diplomático";"UNCED, Conf";"Brasil";113;"LAI MRE";2739
+"114";"Conselheiro";"Pedro Motta Pinto Coelho";"da Delegação Permanente do Brasil junto aos Organismos Internacionais sediados em Genebra";NA;"Ministério das Relações Exteriores";"Delegação Permanente do Brasil junto aos Organismos Internacionais sediados em Genebra";"Conselheiro";"UNCED, Conf";"Brasil";114;"LAI MRE";2840
+"115";"Conselheira";"Maria Luiza Ribeiro Viotti";"Coordenadora-Executiva do Gabinete do Ministro de Estado das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Gabinete do ministro";"Conselheiro; Coordenadora-Executiva";"UNCED, Conf";"Brasil";115;"LAI MRE";2820
+"116";"Conselheiro";"Everton Vieira Vargas";"da Missão Permanente Junto às Nações Unidas, em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";"Conselheiro";"UNCED, Conf";"Brasil";116;"LAI MRE";2813
+"117";"Conselheiro";"Georges Lamazière";"Coordenador-Executivo do Gabinete do Ministro de Estado das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Gabinete do ministro";"Conselheiro; Coordenador-Executivo";"UNCED, Conf";"Brasil";117;"LAI MRE";2820
+"118";"Secretário";"José Antônio Marcondes de Carvalho";"da Assessoria de Assuntos Sociais da Presidência da República";NA;"Presidência da República";"Assessoria de Assuntos Sociais";NA;"UNCED, Conf";"Brasil";118;"LAI MRE";2841
+"119";"Secretária";"Ana Maria Sampaio Fernandes";"Assessora do Representante Especial para Coordenar as Posições Brasileiras à Conferência das Nações Unidas Sobre Meio Ambiente e Desenvolvimento;";NA;"Ministério das Relações Exteriores";"Representação Especial para Coordenar as Posições Brasileiras à Conferência do Rio";"Secretária; Assessora do representante especial";"UNCED, Conf";"Brasil";119;"LAI MRE";2804
+"120";"Secretária";"Ligia Maria Scherer";"da Divisão do Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";120;"LAI MRE";1271
+"121";"Secretário";"Sérgio França Danese";"da Embaixada no México (Secretário-Geral da Delegação)";NA;"Ministério das Relações Exteriores";"Embaixada do Brasil no México";"Secretário-geral";"UNCED, Conf";"Brasil";121;"LAI MRE";2842
+"122";"Secretário";"Bruno de Rísios Bath";"da Divisão de Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";122;"LAI MRE";1271
+"123";"Secretário";"Hadil da Rocha Vianna";"da Divisão de Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";123;"LAI MRE";1271
+"124";"Secretário";"José Carlos da Fonseca Junior";"Assessor Especial do Ministro de Estado da Economia, Fazenda e Planejamento";NA;"Ministério da Economia, Fazenda e Planejamento";NA;"Assessor especial do ministro";"UNCED, Conf";"Brasil";124;"LAI MRE";2743
+"125";"Secretário";"Paulo Roberto de Castilhos França";"da Divisão do Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";125;"LAI MRE";1271
+"126";"Secretário";"José Humberto de Brito Cruz";"da Missão Permanente Junto ás Nações Unidas, em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";NA;"UNCED, Conf";"Brasil";126;"LAI MRE";2813
+"127";"Secretário";"Júlio Glinternick Bitelli";"da Missão Permanente Junto as Nações Unidas, em Nova York";NA;"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";NA;"UNCED, Conf";"Brasil";127;"LAI MRE";2813
+"128";"Doutor";"Paulo César Ximenes";"Representante Brasileiro no Banco Mundial";NA;"Banco Mundial";"Diretoria-Executiva;Representação brasileira";"Diretor-Executivo";"UNCED, Conf";"Brasil";128;"LAI MRE";2843
+"129";"Secretário";"Antônio Otávio Sá Ricarte";"da Divisão do Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";129;"LAI MRE";1271
+"130";"Secretária";"Márcia Donner Abreu";"da Embaixada em Washington;";NA;"Ministério das Relações Exteriores";"Embaixada em Washington";NA;"UNCED, Conf";"Brasil";130;"LAI MRE";2812
+"131";"Secretário";"Fernando E. Lins de Salvo Coimbra";"da Embaixada em Washington";NA;"Ministério das Relações Exteriores";"Embaixada em Washington";NA;"UNCED, Conf";"Brasil";131;"LAI MRE";2812
+"132";"Secretário";"Santiago Irazabal Mourão";"da Embaixada em Assunção";NA;"Ministério das Relações Exteriores";"Embaixada em Assunção";NA;"UNCED, Conf";"Brasil";132;"LAI MRE";2844
+"133";"Secretário";"Marcos Arbizu de Sousa Campos";"da Divisão do Meio Ambiente do Ministério das Relações Exteriores";NA;"Ministério das Relações Exteriores";"Divisão de Meio Ambiente";NA;"UNCED, Conf";"Brasil";133;"LAI MRE";1271
+"134";"Doutor";"Wanderley Messias da Costa";"do Ministério da Educação";NA;"Ministério da Educação";NA;NA;"UNCED, Conf";"Brasil";134;"LAI MRE";2845
+"135";"Doutor";"Paulo Elpidio Menezes";"do Ministério da Educação";NA;"Ministério da Educação";NA;NA;"UNCED, Conf";"Brasil";135;"LAI MRE";2845
+"136";"Doutora";"Eunice Ribeiro Durham";"do Ministério da Educação";NA;"Ministério da Educação";NA;NA;"UNCED, Conf";"Brasil";136;"LAI MRE";2845
+"137";"Doutor";"Marcio Fortes de Almeida";"do Ministério de Minas e Energia";NA;"Ministério de Minas e Energia";NA;NA;"UNCED, Conf";"Brasil";137;"LAI MRE";2749
+"138";"Doutor";"Antonio Maria Amazonas Mac Dowell";"da Secretaria de Ciências e Tecnologia da Presidência da República";NA;"Secretaria de Ciência e Tecnologia da Presidência";NA;NA;"UNCED, Conf";"Brasil";138;"LAI MRE";2760
+"139";"Doutor";"Luiz Gylvan Meira Filho";"da Secretaria de Ciência e Tecnologia da Presidência da República";NA;"Secretaria de Ciência e Tecnologia da Presidência";NA;NA;"UNCED, Conf";"Brasil";139;"LAI MRE";2760
+"140";"Doutora";"Maria de Lourdes Davies de Freitas";"da Secretaria do Meio Ambiente da Presidência da República";NA;"Secretaria de Meio Ambiente da Presidência";NA;NA;"UNCED, Conf";"Brasil";140;"LAI MRE";2846
+"141";"Doutor";"Lidio Coradin";"da Secretaria do Meio Ambiente da Presidência da República";NA;"Secretaria de Meio Ambiente da Presidência";NA;NA;"UNCED, Conf";"Brasil";141;"LAI MRE";2846
+"142";"Doutor";"José Edil Benedito";"da Secretaria do Meio Ambiente da Presidência da República";NA;"Secretaria de Meio Ambiente da Presidência";NA;NA;"UNCED, Conf";"Brasil";142;"LAI MRE";2846
+"143";"Doutor";"Paulo Nogueira Neto";"da Universidade de São Paulo";NA;"Universidade de São Paulo";NA;NA;"UNCED, Conf";"Brasil";143;"LAI MRE";2847
+"144";"Doutor";"Manoel Malheiros Tourinho";"da Empresa Brasileira de Pesquisa Agropecuária – EMBRAPA";NA;"EMBRAPA - Empresa Brasileira de Pesquisa Agropecuária";NA;NA;"UNCED, Conf";"Brasil";144;"LAI MRE";2836
+"145";"Doutor";"Enéas Salati";"do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis – IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;NA;"UNCED, Conf";"Brasil";145;"LAI MRE";2831
+"146";"Doutor";"Arlindo Phillipi Junior";"do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;NA;"UNCED, Conf";"Brasil";146;"LAI MRE";2831
+"147";"Doutor";"Braúlio Ferreira de Souza Dias";"do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis – IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;NA;"UNCED, Conf";"Brasil";147;"LAI MRE";2831
+"148";"Doutor";"Miguel Serediuk Milano";"do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis – IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;NA;"UNCED, Conf";"Brasil";148;"LAI MRE";2831
+"149";"Doutor";"Werner Eugenio Zulauf";"do Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis – IBAMA";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;NA;"UNCED, Conf";"Brasil";149;"LAI MRE";2831
+"150";"Doutora";"Johanna Döbereiner";"Representante não governamental";"Representante não governamental";NA;NA;NA;"UNCED, Conf";"Brasil";150;"LAI MRE";24
+"151";"Professor";"Aziz Nacib Ab’Sáber";"Representante não governamental";"Representante não governamental";NA;NA;NA;"UNCED, Conf";"Brasil";151;"LAI MRE";24
+"152";"Professor";"José Israel Vargas";"Representante não governamental";"Representante não governamental";NA;NA;NA;"UNCED, Conf";"Brasil";152;"LAI MRE";24
+"153";"Doutor";"Albano do Prado Franco";"Presidente da Confederação Nacional da Indústria (CNI) e observador na Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobre Meio Ambiente e Desenvolvimento – CIMA";NA;"CNI - Confederação Nacional da Indústria";NA;"Presidente";"UNCED, Conf";"Brasil";153;"LAI MRE";2848
+"154";"Doutor";"Antônio José Domingues de Oliveira Santos";"Presidente da Confederação Nacional de Comércio e observador na Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobe Ambiente e Desenvolvimento – CIMA";NA;"Confederação Nacional de Comércio";NA;"Presidente";"UNCED, Conf";"Brasil";154;"LAI MRE";2849
+"155";"Doutor";"Antonio Ernesto W. de Salvo";"Presidente da Confederação da Agricultura (CNA) e observador na Comissão Interministerial para a Preparação da Conferência das Nações Unidas sobe Ambiente e Desenvolvimento – CIMA";NA;"CNA - Confederação da Agricultura e da Pecuária do Brasil";NA;"Presidente";"UNCED, Conf";"Brasil";155;"LAI MRE";2850
+"156";"Doutor";"João Paulo Capobianco";"Representante do Fórum das Organizações Não-Governamentais Brasileiras, observador na Comissão Interministerial para a Preparação da Confederação das Nações Unidas sobe Ambiente e Desenvolvimento – CIMA";NA;"Fórum das Organizações Não-Governamentais Brasileiras";NA;"Representante";"UNCED, Conf";"Brasil";156;"LAI MRE";2851
+"157";"Doutor";"Antônio Rocha Magalhães";"da Fundação Esquel";NA;"Fundação Esquel";NA;NA;"UNCED, Conf";"Brasil";157;"LAI MRE";2852
+"158";"Senhor";"Fernando Henrique Cardoso";"Chefe da Delegação
+Presidente da República";"Chefe da delegação";"Presidência da República";NA;"Presidente";"WSSD, Conf";"Brasil";1;"LAI MRE";2853
+"159";"Deputado";"Aécio Neves";"Presidente da Câmara dos Deputados";NA;"Câmara dos Deputados";NA;"Deputado; Presidente da Câmara";"WSSD, Conf";"Brasil";2;"LAI MRE";2799
+"160";"Senador";"Ramez Tebet";"Presidente do Senado Federal";NA;"Senado Federal";NA;"Senador; Presidente do Senado";"WSSD, Conf";"Brasil";3;"LAI MRE";2798
+"161";"Professor";"Celso Lafer";"Delegado
+Ministro das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";NA;"Ministro";"WSSD, Conf";"Brasil";4;"LAI MRE";2739
+"162";"Embaixador";"Ronaldo Mota Sardenberg";"Delegado
+Ministro de Ciência e
+Tecnologia";"Delegado";"Ministério de Ciência e Tecnologia";NA;"Ministro; Embaixador";"WSSD, Conf";"Brasil";5;"LAI MRE";2854
+"163";"Senhor";"José Carlos Carvalho";"Delegado
+Ministro do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";NA;"Ministro";"WSSD, Conf";"Brasil";6;"LAI MRE";252
+"164";"Senhor";"José Luciano Barbosa da Silva";"Delegado
+Ministro da Integração Nacional";"Delegado";"Ministério da Integração Nacional";NA;NA;"WSSD, Conf";"Brasil";7;"LAI MRE";2855
+"165";"Embaixador";"Gelson Fonseca Jr.";"Delegado
+Representante Permanente junto às Nações Unidas";"Delegado";"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas em Nova York";"Embaixador; Representante";"WSSD, Conf";"Brasil";8;"LAI MRE";2813
+"166";"Embaixador";"Jório Salgado Gama Filho";"Delegado
+Embaixador em Pretória";"Delegado";"Ministério das Relações Exteriores";"Embaixada em Pretória";"Embaixador";"WSSD, Conf";"Brasil";9;"LAI MRE";2856
+"167";"Embaixador";"João Carlos de SouzaGomes";"Delegado
+Chefe da Assessoria de Relações com o Congresso do Ministério das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Assessoria de Relações com o Congresso";"Chefe";"WSSD, Conf";"Brasil";10;"LAI MRE";2857
+"168";"Embaixador";"Joaquim Augusto Whitaker Salles";"Delegado
+Embaixador em Nairóbi";"Delegado";"Ministério das Relações Exteriores";"Embaixada em Nairóbi";"Embaixador";"WSSD, Conf";"Brasil";11;"LAI MRE";2858
+"169";"Embaixador";"José Israel Vargas";"Delegado
+Representante Permanente junto à Organização das Nações Unidas para Educação, Ciência e Cultura";"Delegado";"Ministério das Relações Exteriores";"Missão Permanente junto à Organização das Nações Unidas para Educação, Ciência e Cultura (UNESCO)";"Embaixador; Representante";"WSSD, Conf";"Brasil";12;"LAI MRE";2859
+"170";"Senhor";"Fábio Feldmann";"Delegado
+Representante do Presidente da República para Assuntos Relativos à Rio+10";"Delegado";"Presidência da República";"Representação do Presidente da República para Assuntos Relativos à Rio+10";"Representante";"WSSD, Conf";"Brasil";13;"LAI MRE";2860
+"171";"Senhor";"José Goldemberg";"Delegado
+Secretário de Meio Ambiente do Estado de São Paulo";"Delegado";"Estado de São Paulo";"Secretaria de Meio Ambiente";"Secretário";"WSSD, Conf";"Brasil";14;"LAI MRE";2861
+"172";"Ministro";"Fernando Paulo de Mello Barreto Filho";"Delegado
+Chefe de Gabinete do Ministro de Estado das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Gabinete do ministro";"Chefe de gabinete do ministro";"WSSD, Conf";"Brasil";15;"LAI MRE";2820
+"173";"Ministro";"Paulo Fernando Telles Ribeiro";"Delegado
+Ministro-Conselheiro da Embaixada em Pretória";"Delegado";"Ministério das Relações Exteriores";"Embaixada do Brasil em Pretória";"Ministro-conselheiro";"WSSD, Conf";"Brasil";16;"LAI MRE";2862
+"174";"Ministra";"Maria Luiza Ribeiro Viotti";"Delegado
+Ministra-Conselheira da Missão junto às Nações Unidas";"Delegado";"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas";"Ministro-conselheiro";"WSSD, Conf";"Brasil";17;"LAI MRE";2863
+"175";"Ministro";"Everton Vieira Vargas";"Delegado
+Diretor-Geral do Departamento de Meio Ambiente e Temas Especiais do Ministério das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Departamento de Meio Ambiente e Temas Especiais";"Diretor-Geral; Ministro";"WSSD, Conf";"Brasil";18;"LAI MRE";2864
+"176";"Ministro";"Antônio Fernando Cruz de Mello";"Delegado
+Assessor Especial para Assuntos Internacionais/Ministério do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";"Assessoria para Assuntos Internacionais";"Assessor Especial; Ministro";"WSSD, Conf";"Brasil";19;"LAI MRE";2865
+"177";"Ministro";"Pedro Luiz Rodrigues";"Delegado
+Chefe da Assessoria de Comunicação Social do Ministério das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Assessoria de Comunicação Social";"Chefe da assessoria; Ministro";"WSSD, Conf";"Brasil";20;"LAI MRE";2866
+"178";"Senhor";"Luiz Gylvan de Meira Filho";"Delegado
+Secretário de Políticas e Programas de Ciência e Tecnologia do Ministério de Ciência e Tecnologia";"Delegado";"Ministério da Ciência e Tecnologia";"Secretaria de Políticas e Programas";"Secretário";"WSSD, Conf";"Brasil";21;"LAI MRE";2867
+"179";"Senhora";"Mary Dayse Kinzo";"Delegado
+Secretária de Programas Regionais Integrados do Ministério da Integração Nacional";"Delegado";"Ministério da Integração Nacional";"Secretaria de Programas Regionais Integrados";"Secretária";"WSSD, Conf";"Brasil";22;"LAI MRE";2868
+"180";"Senhor";"José Pedro de Oliveira Costa";"Delegado
+Secretário de Biodiversidade e Florestas/Ministério do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";"Secretaria de Biodiversidade e Florestas";"Secretário";"WSSD, Conf";"Brasil";23;"LAI MRE";2869
+"181";"Senhora";"Regina Elena Crespo Gualda";"Delegado
+Secretária de Qualidade Ambiental nos Assentamentos Humanos/Ministério do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";"Secretaria de Qualidade Ambiental nos Assentamentos Humanos";"Secretária";"WSSD, Conf";"Brasil";24;"LAI MRE";2870
+"182";"Senhor";"Raymundo José dos Santos Garrido";"Delegado
+Secretário de Recursos Hídricos/Ministério do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";"Secretaria de Recursos Hídricos";"Secretário";"WSSD, Conf";"Brasil";25;"LAI MRE";1266
+"183";"Senhora";"Mary Helena Allegreti";"Delegado
+Secretária de Coordenação da Amazônia/Ministério do Meio Ambiente";"Delegado";"Ministério do Meio Ambiente";"Secretaria de Coordenação da Amazônia";"Secretária";"WSSD, Conf";"Brasil";26;"LAI MRE";2871
+"184";"Senhor";"João Brígido Bezerra Lima";"Delegado
+Chefe de Gabinete do Ministro de Estado da Defesa";"Delegado";"Ministério da Defesa";"Gabinete do ministro";"Chefe de gabinete do ministro";"WSSD, Conf";"Brasil";27;"LAI MRE";2872
+"185";"Conselheiro";"Luiz Alberto Figueiredo Machado";"Delegado
+Chefe da Divisão de Política Ambiental e Desenvolvimento Sustentável do Ministério das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Divisão de Política Ambiental e Desenvolvimento Sustentável";"Conselheiro; Chefe da divisão";"WSSD, Conf";"Brasil";28;"LAI MRE";2873
+"186";"Conselheiro";"Carlos Sérgio Sobral Duarte";"Delegado
+Assessor do Ministro de Estado das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";NA;"Conselheiro; Assessor do ministro";"WSSD, Conf";"Brasil";29;"LAI MRE";2739
+"187";"Conselheiro";"André Aranha Corrêa do Lago";"Delegado
+Assessor do Diretor-Geral do Departamento de Meio Ambiente e Temas Especiais do Ministério das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";"Departamento de Meio Ambiente e Temas Especiais";"Conselheiro; Assessor do diretor-geral";"WSSD, Conf";"Brasil";30;"LAI MRE";2864
+"188";"Conselheiro";"Paulo Estivallet de Mesquita";"Delegado
+Assessor do Ministro de Estado das Relações Exteriores";"Delegado";"Ministério das Relações Exteriores";NA;"Conselheiro; Assessor do ministro";"WSSD, Conf";"Brasil";31;"LAI MRE";2739
+"189";"Senhor";"Jerson Kelman";"Delegado
+Diretor-Presidente da Agência Nacional de Águas/Ministério do Meio Ambiente";"Delegado";"ANA - Agência Nacional de Águas";NA;"Diretor-Presidente";"WSSD, Conf";"Brasil";32;"LAI MRE";2874
+"190";"Senhor";"Henrique Brandão Cavalcanti";"Delegado
+Presidente do Fórum Intergovernamental de Segurança Química";"Delegado";"Fórum Intergovernamental de Segurança Química";NA;"Presidente";"WSSD, Conf";"Brasil";33;"LAI MRE";2875
+"191";"Senhor";"Rômulo José Fernandes Barreto Mello";"Delegado
+Presidente do Instituto Brasileiro de Meio Ambiente e Recursos Naturais Renováveis/Ministério do Meio Ambiente";"Delegado";"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";NA;"Presidente";"WSSD, Conf";"Brasil";34;"LAI MRE";2831
+"192";"Senhor";"José Eli da Veiga";"Delegado
+Secretário Executivo do Conselho Nacional do Desenvolvimento Rural Sustentável do Ministério do Desenvolvimento Agrário";"Delegado";"Ministério do Desenvolvimento Agrário";"Conselho Nacional do Desenvolvimento Rural Sustentável";"Secretário Executivo";"WSSD, Conf";"Brasil";35;"LAI MRE";2876
+"193";"Senador";"Juvêncio César da Fonseca";"Representante do Poder Legislativo
+Senador";"Representante do Poder Legislativo";"Senado Federal";NA;"Senador";"WSSD, Conf";"Brasil";36;"LAI MRE";2798
+"194";"Senador";"Luiz Otávio Oliveira Campos";"Representante do Poder Legislativo
+Senador";"Representante do Poder Legislativo";"Senado Federal";NA;"Senador";"WSSD, Conf";"Brasil";37;"LAI MRE";2798
+"195";"Senhora";"Fairte Nassar Tebet";"Representante do Poder Legislativo";"Representante do Poder Legislativo";NA;NA;NA;"WSSD, Conf";"Brasil";38;"LAI MRE";24
+"196";"Senhora";"Suely Brandão de Souza";"Representante do Poder Legislativo";"Representante do Poder Legislativo";NA;NA;NA;"WSSD, Conf";"Brasil";39;"LAI MRE";24
+"197";"Senhora";"Liliam Lúcia Cabral de Campos";"Representante do Poder Legislativo";"Representante do Poder Legislativo";NA;NA;NA;"WSSD, Conf";"Brasil";40;"LAI MRE";24
+"198";"Senhor";"Umberto Aspesi";"Representante do Poder Legislativo
+Chefe do Cerimonial do Senado Federal";"Representante do Poder Legislativo";"Senado Federal";"Cerimonial do Senado";"Chefe";"WSSD, Conf";"Brasil";41;"LAI MRE";2877
+"199";"Senhora";"Thelma Krug";"Assessor
+Secretária Adjunta de Políticas e Programas de Ciência e Tecnologia do Ministério de Ciência e Tecnologia";"Assessor";"Ministério de Ciência e Tecnologia";"Secretaria de Políticas e Programas";"Secretária Adjunta";"WSSD, Conf";"Brasil";42;"LAI MRE";2878
+"200";"Senhora";"Sandra Cureao";"Assessor
+Subprocuradora Geral da República, Coordenadora da 4a Câmara de Coordenação e Revisão (Meio Ambiente e Patrimônio Cultural)";"Assessor";"Procuradoria Geral da República";"4ª Câmara de Coordenação e Revisão (Meio Ambiente e Patrimônio Cultural)";"Subprocuradora Geral; Coordenadora";"WSSD, Conf";"Brasil";43;"LAI MRE";2879
+"201";"Secretário";"José Roberto Procopiak";"Assessor
+da Embaixada em Pretória";"Assessor";"Ministério das Relações Exteriores";"Embaixada em Pretória";"Secretário";"WSSD, Conf";"Brasil";44;"LAI MRE";2856
+"202";"Secretário";"Francisco Carlos Soares Luz";"Assessor
+da Embaixada em Pretória";"Assessor";"Ministério das Relações Exteriores";"Embaixada em Pretória";"Secretário";"WSSD, Conf";"Brasil";45;"LAI MRE";2856
+"203";"Secretária";"Maria Luísa Escorel de Moraes";"Assessor
+da Missão junto às Nações Unidas";"Assessor";"Ministério das Relações Exteriores";"Missão Permanente junto às Nações Unidas";"Secretária";"WSSD, Conf";"Brasil";46;"LAI MRE";2863
+"204";"Secretário";"João Genésio de Almeida Filho";"Assessor
+da Embaixada em Pretória";"Assessor";"Ministério das Relações Exteriores";"Embaixada em Pretória";"Secretário";"WSSD, Conf";"Brasil";47;"LAI MRE";2856
+"205";"Secretário";"Bernard Jorg Leopold de Garcia Klingl";"Assessor
+Assessor do Ministro de Estado das Relações Exteriores";"Assessor";"Ministério das Relações Exteriores";NA;"Assessor do ministro";"WSSD, Conf";"Brasil";48;"LAI MRE";2739
+"206";"Secretário";"Elias Antônio de Luna e Almeida Santos";"Assessor
+da Divisão de Política Ambiental e Desenvolvimento Sustentável";"Assessor";"Ministério das Relações Exteriores";"Divisão de Política Ambiental e Desenvolvimento Sustentável";"Secretário";"WSSD, Conf";"Brasil";49;"LAI MRE";2873
+"207";"Senhora";"Eliana Barreto de Lucena";"Assessor
+Assessora de Comunicação Social/Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Assessoria de Comunicação Social";"Assessora";"WSSD, Conf";"Brasil";50;"LAI MRE";1268
+"208";"Senhor";"Raimundo Deusdará Filho";"Assessor
+Diretor do Programa Nacional de Florestas/Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Programa Nacional de Florestas";"Diretor";"WSSD, Conf";"Brasil";51;"LAI MRE";2880
+"209";"Senhor";"Antônio Carlos Rebouças Lins";"Assessor
+Assessor da Presidência do Instituto Brasileiro de Meio Ambiente e Recursos Naturais Renováveis";"Assessor";"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";"Presidência";"Assessor";"WSSD, Conf";"Brasil";52;"LAI MRE";2881
+"210";"Senhor";"Humberto Candeias Cavalcanti";"Assessor
+Diretor de Florestas do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Diretoria de Florestas";"Diretor";"WSSD, Conf";"Brasil";53;"LAI MRE";2882
+"211";"Senhor";"Donizetti Aurélio do Carmo";"Assessor
+Diretor de Licenciamento e Qualidade Ambiental do Instituto Brasileiro de Meio Ambiente e Recursos Naturais Renováveis";"Assessor";"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";"Diretoria de Licenciamento e Qualidade Ambiental";"Diretor";"WSSD, Conf";"Brasil";54;"LAI MRE";2883
+"212";"Senhor";"João Batista Drummond Câmara";"Assessor
+Coordenador-Geral de Licenciamento do Instituto Brasileiro de Meio Ambiente e Recursos Naturais Renováveis";"Assessor";"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";"Coordenadoria de Licenciamento";"Coordenador-geral";"WSSD, Conf";"Brasil";55;"LAI MRE";2884
+"213";"Senhor";"Pedro Sávio Rocha";"Assessor
+Assessor Técnico da Assessoria de Comunicação Social do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Assessoria de Comunicação Social";"Assessor técnico";"WSSD, Conf";"Brasil";56;"LAI MRE";1268
+"214";"Senhor";"Aldenir Chaves Paraguassu";"Assessor
+Diretor de Programa do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";NA;"Diretor de programa";"WSSD, Conf";"Brasil";57;"LAI MRE";252
+"215";"Senhora";"Denise Hamu Marcos de la Penha";"Assessor
+Gerente de Projeto do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";NA;"Gerente de projeto";"WSSD, Conf";"Brasil";58;"LAI MRE";252
+"216";"Senhora";"Cecília Foloni Ferraz";"Assessor
+Coordenadora Adjunta p/ Assuntos de Articulação da Rio+10 do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Assuntos de Articulação da Rio+10";"Coordenadora Adjunta";"WSSD, Conf";"Brasil";59;"LAI MRE";2885
+"217";"Senhor";"Fernando Antonio Lyrio Silva";"Assessor
+Assessor do Grupo de Trabalho Rio+10 do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Grupo de Trabalho Rio+10";"Assessor";"WSSD, Conf";"Brasil";60;"LAI MRE";2886
+"218";"Senhor";"Marcel Burstyn";"Assessor
+Consultor Técnico da Secretaria de Qualidade Ambiental do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Secretaria de Qualidade Ambiental";"Consultor Técnico";"WSSD, Conf";"Brasil";61;"LAI MRE";2887
+"219";"Senhora";"Maria do Carmo Lima Bezerra";"Assessor
+Coordenadora do Projeto Agenda 21 do Departamento de Articulação Institucional e Agenda 21 do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Projeto Agenda 21, Departamento de Articulação Institucional e Agenda 21";"Coordenadora";"WSSD, Conf";"Brasil";62;"LAI MRE";2888
+"220";"Senhora";"Raquel Breda dos Santos";"Assessor
+Assessora Técnica da Assessoria Internacional do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Assesoria Internacional";"Assessora Técnica";"WSSD, Conf";"Brasil";63;"LAI MRE";2889
+"221";"Senhor";"Ricardo Rodrigues de Carvalho";"Assessor
+Presidente da ECOM e consultor da Assessoria de Comunicação Social do Ministério do Meio Ambiente";"Assessor";"Ministério do Meio Ambiente";"Assessoria de Comunicação Social; ECOM";"Consultor; Presidente";"WSSD, Conf";"Brasil";64;"LAI MRE";2890
+"222";"Senhor";"Guilherme Franco";"Assessor
+Coordenador Geral de Vigilância Ambiental da Fundação Nacional de Saúde, Ministério da Saúde";"Assessor";"FUNASA - Fundação Nacional de Saúde";"Coordenação Geral de Vigilância Ambiental";"Coordenador geral";"WSSD, Conf";"Brasil";65;"LAI MRE";2891
+"223";"Senhora";"Ana Maria Tapajós";"Assessor
+Chefe da Divisão de Análise Técnica da Assessoria de Assuntos Internacionais de Saúde, Ministério da Saúde";"Assessor";"Ministério da Saúde";"Assessoria de Assuntos Internacionais de Saúde, Divisão de Análise Técnica";"Chefe da divisão";"WSSD, Conf";"Brasil";66;"LAI MRE";2892
+"224";"Senhora";"Magali Silva Santos Naves";"Assessor
+Gerente de Assuntos Internacionais, Jurídicos e Parlamentares da Secretaria de Estado dos Direitos da Mulher do Ministério da Justiça";"Assessor";"Ministério da Justiça";"Assuntos Internacionais, Jurídicos e Parlamentares da Secretaria dos Direitos da Mulher";"Gerente";"WSSD, Conf";"Brasil";67;"LAI MRE";2893
+"225";"Senhor";"Marcelo Khaled Poppe";"Assessor
+Diretor do Departamento Nacional de Desenvolvimento Energético";"Assessor";"Ministério de Minas e Energia";"Departamento Nacional de Desenvolvimento Energético, Secretaria de Energia";"Diretor";"WSSD, Conf";"Brasil";68;"LAI MRE";2894
+"226";"Senhor";"Célio Francisco França";"Assessor
+CoordenadorGeral de Informações Energéticas do Ministério de Minas e Energia";"Assessor";"Ministério de Minas e Energia";"Coordenadoria-Geral de Informações Estratégicas";"Coordenador geral";"WSSD, Conf";"Brasil";69;"LAI MRE";2895
+"227";"Senhor";"Marcelo Ribeiro Tunes";"Assessor
+do Ministério de Minas e Energia";"Assessor";"Ministério de Minas e Energia";NA;NA;"WSSD, Conf";"Brasil";70;"LAI MRE";2749
+"228";"Senhor";"Raul Antônio Mello de Camargo Branco";"Assessor
+do Ministério de Minas e Energia";"Assessor";"Ministério de Minas e Energia";NA;NA;"WSSD, Conf";"Brasil";71;"LAI MRE";2749
+"229";"Senhor";"Mário do Nascimento Moraes";"Assessor
+Consultor do Projeto de Avaliação dos Programas das Mesorregiões Diferenciadas da Secretaria de Programas Regionais Integrados e Coordenador técnico do Centro Internacional de Desenvolvimento Sustentável da Fundação Getúlio Vargas/RJ";"Assessor";"Ministério da Integração Nacional";"Projeto de Avaliação dos Programas das Mesorregiões Diferenciadas, Secretaria de Programas Regionais Integrados; Centro Internacional de Desenvolvimento Sustentável da Fundação Getúlio Vargas/RJ";"Consultor; Coordenador técnico";"WSSD, Conf";"Brasil";72;"LAI MRE";2896
+"230";"Senhor";"Leopoldo Klosovski";"Assessor
+Engenheiro Florestal, Assessor da 4ª Câmara de Coordenação e Revisão (Meio Ambiente e Patrimônio Cultural) da SubProcuradoria Geral da República";"Assessor";"Procuradoria Geral da República";"4ª Câmara de Coordenação e Revisão (Meio Ambiente e Patrimônio Cultural)";"Assessor";"WSSD, Conf";"Brasil";73;"LAI MRE";2879
+"231";"Senhora";"Isaura Maria de Rezende Lopes Frondizi";"Assessor
+Gerente Executiva de Meio Ambiente do BNDES";"Assessor";"BNDES";"Gerência Executiva de Meio Ambiente";"Gerente Executiva";"WSSD, Conf";"Brasil";74;"LAI MRE";2897
+"232";"Senhor";"Antônio Herman Benjamin";"Assessor
+Conselheiro do Conselho Nacional do Meio Ambiente e especialista em Direito Ambiental.";"Assessor";"Ministério do Meio Ambiente";"CONAMA - Conselho Nacional do Meio Ambiente";"Conselheiro";"WSSD, Conf";"Brasil";75;"LAI MRE";2898
+"233";"Senhor";"Martinho Carmona";"Representante Estadual ou Municipal
+Deputado Estadual, Presidente da Assembléia Legislativa do Pará";"Representante Estadual ou Municipal";"Estado do Pará";"Assembleia Legislativa do Pará";"Deputado estadual; Presidente";"WSSD, Conf";"Brasil";76;"LAI MRE";2899
+"234";"Senhor";"Claúdio Langone";"Representante Estadual ou Municipal
+Secretário de Meio Ambiente do Rio Grande do Sul e Presidente da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Secretaria de Meio Ambiente do Rio Grande do Sul";"Presidente; Secretário";"WSSD, Conf";"Brasil";77;"LAI MRE";2900
+"235";"Senhor";"Antônio Carlos da Silva Farias";"Representante Estadual ou Municipal
+Secretário de Meio Ambiente do Estado do Amapá";"Representante Estadual ou Municipal";"Estado do Amapá";"Secretaria de Meio Ambiente";"Secretário";"WSSD, Conf";"Brasil";78;"LAI MRE";2901
+"236";"Senhor";"Frederico G. de Moura Müller";"Representante Estadual ou Municipal
+Secretário de Meio Ambiente do Estado do Mato Grosso";"Representante Estadual ou Municipal";"Estado do Mato Grosso";"Secretaria de Meio Ambiente";"Secretário";"WSSD, Conf";"Brasil";79;"LAI MRE";2902
+"237";"Senhora";"Alexandrina S. de Moura";"Representante Estadual ou Municipal
+Secretária de Meio Ambiente do Estado de Pernambuco";"Representante Estadual ou Municipal";"Estado de Pernambuco";"Secretaria de Meio Ambiente";"Secretária";"WSSD, Conf";"Brasil";80;"LAI MRE";2903
+"238";"Senhor";"Liszt B.Vieira";"Representante Estadual ou Municipal
+Secretário de Meio Ambiente e Desenvolvimento Sustentável do Estado do Rio de Janeiro";"Representante Estadual ou Municipal";"Estado do Rio de Janeiro";"Secretaria de Meio Ambiente e Desenvolvimento Sustentável";"Secretário";"WSSD, Conf";"Brasil";81;"LAI MRE";2904
+"239";"Senhor";"Lívio W. Reis de Carvalho";"Representante Estadual ou Municipal
+Secretário de Planejamento do Estado de Tocantins";"Representante Estadual ou Municipal";"Estado de Tocantins";"Secretaria de Planejamento";"Secretário";"WSSD, Conf";"Brasil";82;"LAI MRE";2905
+"240";"Senhor";"Othelino Nova Alves Neto";"Representante Estadual ou Municipal
+Gerente de Meio Ambiente do Estado do Maranhão";"Representante Estadual ou Municipal";"Estado do Maranhão";"Gerência de Meio Ambiente";"Gerente";"WSSD, Conf";"Brasil";83;"LAI MRE";2906
+"241";"Senhor";"Alfredo Hélio Sirkis";"Representante Estadual ou Municipal
+Secretário Municipal de Urbanismo da Prefeitura do Rio de Janeiro";"Representante Estadual ou Municipal";"Cidade do Rio de Janeiro";"Secretaria de Urbanismo";"Secretário";"WSSD, Conf";"Brasil";84;"LAI MRE";2907
+"242";"Senhora";"Suani Teixeira Coelho";"Representante Estadual ou Municipal
+Assessora Executiva da Secretaria de Meio Ambiente do Estado de São Paulo";"Representante Estadual ou Municipal";"Estado de São Paulo";"Secretaria de Meio Ambiente";"Assessora Executiva";"WSSD, Conf";"Brasil";85;"LAI MRE";2861
+"243";"Senhor";"Fernando Cardoso Fernandes Reis";"Representante Estadual ou Municipal
+Diretor de Desenvolvimento e Transferência de Tecnologia, da Companhia de Tecnologia de Saneamento Ambiental da Secretaria de Meio Ambiente do Estado de São Paulo";"Representante Estadual ou Municipal";"Estado de São Paulo";"Diretoria de Desenvolvimento e Transferência de Tecnologia, Companhia de Tecnologia de Saneamento Ambiental (CETESB), Secretaria de Meio Ambiente";"Diretor";"WSSD, Conf";"Brasil";86;"LAI MRE";2908
+"244";"Senhor";"Oswaldo dos Santos Lucon";"Representante Estadual ou Municipal
+da Secretaria de Meio Ambiente do Estado de São Paulo";"Representante Estadual ou Municipal";"Estado de São Paulo";"Secretaria de Meio Ambiente";NA;"WSSD, Conf";"Brasil";87;"LAI MRE";2861
+"245";"Senhor";"Aldem Bourscheit Cezarino";"Representante Estadual ou Municipal
+da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";88;"LAI MRE";2398
+"246";"Senhora";"Sandra do Carmo Menezes";"Representante Estadual ou Municipal
+da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";89;"LAI MRE";2398
+"247";"Senhor";"Estevão Vicente C. Monteiro de Paula";"Representante Estadual ou Municipal
+da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";90;"LAI MRE";2398
+"248";"Senhor";"Elino Alves de Moraes";"Representante Estadual ou Municipal
+Secretário Adjunto de Meio Ambiente e Recursos Hídricos do Distrito Federal";"Representante Estadual ou Municipal";"Distrito Federal";"Secretaria de Meio Ambiente e Recursos Hídricos";"Secretário Adjunto";"WSSD, Conf";"Brasil";91;"LAI MRE";2909
+"249";"Senhor";"Pedro Novaes";"Representante Estadual ou Municipal
+Diretor da Secretaria de Meio Ambiente e Recursos Hídricos do Estado de Goiás";"Representante Estadual ou Municipal";"Estado de Goiás";"Secretaria de Meio Ambiente e Recursos Hídricos";"Diretor";"WSSD, Conf";"Brasil";92;"LAI MRE";2910
+"250";"Senhor";"Paulo de Souza Neto";"Representante Estadual ou Municipal
+Presidente da Agência Goiana";"Representante Estadual ou Municipal";"Estado de Goiás";"Agência Ambiental de Goiás";"Presidente";"WSSD, Conf";"Brasil";93;"LAI MRE";2911
+"251";"Senhor";"José Luciano Pereira";"Representante Estadual ou Municipal
+da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";94;"LAI MRE";2398
+"252";"Senhor";"Nilvo L. Alves";"Representante Estadual ou Municipal
+da Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";95;"LAI MRE";2398
+"253";"Senhor";"Paulo de Souza Coutinho";"Representante Estadual ou Municipal
+pela Associação Brasileira de Entidades Estaduais de Meio Ambiente";"Representante Estadual ou Municipal";"Associação Brasileira de Entidades Estaduais de Meio Ambiente";NA;NA;"WSSD, Conf";"Brasil";96;"LAI MRE";2398
+"254";"Senhora";"Stela Goldenstein";"Representante Estadual ou Municipal
+Secretária da Secretaria Municipal do Meio Ambiente de São Paulo";"Representante Estadual ou Municipal";"Cidade de São Paulo";"Secretaria do Meio Ambiente";"Secretária";"WSSD, Conf";"Brasil";97;"LAI MRE";2912
+"255";"Senhor";"Ney de Barros Bello Filho";"Representante Não-Governamental
+ Vice-presidente, Associação dos Juízes Federais do Brasil";"Representante Não-Governamental";"Associação dos Juízes Federais do Brasil";NA;"Vice-presidente";"WSSD, Conf";"Brasil";98;"LAI MRE";2913
+"256";"Senhor";"Eládio Lecey";"Representante Não-Governamental
+ Desembargador, Associação dos Juízes Federais do Brasil";"Representante Não-Governamental";"Associação dos Juízes Federais do Brasil";NA;"Desembargador";"WSSD, Conf";"Brasil";99;"LAI MRE";2913
+"257";"Senhor";"Fernando Almeida";"Representante Não-Governamental
+ Presidente Executivo do Conselho Empresarial Brasileiro para o Desenvolvimento Sustentável";"Representante Não-Governamental";"CEBDS - Conselho Empresarial Brasileiro para o Desenvolvimento Sustentável";NA;"Presidente executivo";"WSSD, Conf";"Brasil";100;"LAI MRE";2914
+"258";"Senhor";"Paulo Henrique Cardoso";"Representante Não-Governamental
+ do Conselho Empresarial Brasileiro para o Desenvolvimento Sustentável";"Representante Não-Governamental";"CEBDS - Conselho Empresarial Brasileiro para o Desenvolvimento Sustentável";NA;NA;"WSSD, Conf";"Brasil";101;"LAI MRE";2914
+"259";"Senhor";"Stefan Bogdan Salej";"Representante Não-Governamental
+ Presidente do Conselho de Meio Ambiente da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";"Conselho de Meio Ambiente";"Presidente";"WSSD, Conf";"Brasil";102;"LAI MRE";2915
+"260";"Senhora";"Suzana Kakuta";"Representante Não-Governamental
+ Secretária Executiva do Conselho de Meio Ambiente da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";"Conselho de Meio Ambiente";"Secretária-Executiva";"WSSD, Conf";"Brasil";103;"LAI MRE";2915
+"261";"Senhora";"Karen Oliveira";"Representante Não-Governamental
+ Analista de Estudos e Desenvolvimento da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";"Estudos e Desenvolvimento";"Analista";"WSSD, Conf";"Brasil";104;"LAI MRE";2916
+"262";"Senhor";"André Vilhena";"Representante Não-Governamental
+ Diretor Executivo do Conselho Empresarial para Reciclagem";"Representante Não-Governamental";"CEMPRE - Compromisso Empresarial para Reciclagem";NA;"Diretor Executivo";"WSSD, Conf";"Brasil";105;"LAI MRE";2917
+"263";"Senhor";"Édio Laudelino da Luz";"Representante Não-Governamental
+ Presidente da Câmara de Qualidade Ambiental da Federação das Indústrias do Estado de Santa Catarina";"Representante Não-Governamental";"Federação das Indústrias do Estado de Santa Catarina";"Câmara de Qualidade Ambiental";"Presidente";"WSSD, Conf";"Brasil";106;"LAI MRE";2918
+"264";"Senhor";"Nilton Fornasari";"Representante Não-Governamental
+ Diretoria de Meio Ambiente da Federação de Indústrias de São Paulo";"Representante Não-Governamental";"Federação de Indústrias de São Paulo";"Diretoria de Meio Ambiente";NA;"WSSD, Conf";"Brasil";107;"LAI MRE";2919
+"265";"Senhor";"Joaquim Machado";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";108;"LAI MRE";2848
+"266";"Senhor";"Paulo Vodianitskaia";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";109;"LAI MRE";2848
+"267";"Senhor";"Gabriel Di Blasi";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";110;"LAI MRE";2848
+"268";"Senhor";"Fernando Vaz";"Representante Não-Governamental
+ Presidente da Federação das Indústrias do Estado do Espírito Santo";"Representante Não-Governamental";"Federação das Indústrias do Estado do Espírito Santo";NA;"Presidente";"WSSD, Conf";"Brasil";111;"LAI MRE";2920
+"269";"Senhor";"Eduardo Szazi";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";112;"LAI MRE";2848
+"270";"Senhora";"Sheila Leitão";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";113;"LAI MRE";2848
+"271";"Senhor";"Vítor Gomes";"Representante Não-Governamental
+ da Confederação Nacional da Indústria";"Representante Não-Governamental";"CNI - Confederação Nacional da Indústria";NA;NA;"WSSD, Conf";"Brasil";114;"LAI MRE";2848
+"272";"Senhor";"José Mendo Mizael de Souza";"Representante Não-Governamental
+ Vicepresidente do Instituto Brasileiro de Mineração";"Representante Não-Governamental";"Instituto Brasileiro de Mineração";NA;"Vice-presidente";"WSSD, Conf";"Brasil";115;"LAI MRE";2921
+"273";"Senhor";"Assuero Doca Veronez";"Representante Não-Governamental
+ Presidente da Comissão Nacional do Meio Ambiente da Confederação da Agricultura e da Pecuária do Brasil";"Representante Não-Governamental";"CNA - Confederação da Agricultura e da Pecuária do Brasil";"Comissão Nacional do Meio Ambiente";"Presidente";"WSSD, Conf";"Brasil";116;"LAI MRE";2922
+"274";"Senhor";"Tibério Leonardo Guitton";"Representante Não-Governamental
+ Assessor Técnico do Departamento Econômico da Confederação a Agricultura e da Pecuária do Brasil";"Representante Não-Governamental";"CNA - Confederação da Agricultura e da Pecuária do Brasil";"Departamento Econômico";"Assessor técnico";"WSSD, Conf";"Brasil";117;"LAI MRE";2923
+"275";"Senhor";"Emerson de Almeida";"Representante Não-Governamental
+ Presidente, Desenvolvimento de Executivos e Empresas";"Representante Não-Governamental";"Fundação Dom Cabral";"Desenvolvimento de Executivos e Empresas";"Presidente";"WSSD, Conf";"Brasil";118;"LAI MRE";2924
+"276";"Senhora";"Aspásia Brasileiro Alcântara Camargo";"Representante Não-Governamental
+ da Fundação Getúlio Vargas, Membro Titular da Comissão de Políticas de Desenvolvimento Sustentável";"Representante Não-Governamental";"Fundação Getúlio Vargas";"Comissão de Políticas de Desenvolvimento Sustentável (CPDS)";"Membro titular";"WSSD, Conf";"Brasil";119;"LAI MRE";2925
+"277";"Senhor";"João Luiz Silva Ferreira";"Representante Não-Governamental
+ do Movimento Onda Azul, Membro Titular da Comissão de Políticas de Desenvolvimento Sustentável";"Representante Não-Governamental";"Movimento Onda Azul";"Comissão de Políticas de Desenvolvimento Sustentável (CPDS)";"Membro titular";"WSSD, Conf";"Brasil";120;"LAI MRE";2926
+"278";"Senhor";"Gustavo Fonseca";"Representante Não-Governamental
+ da Universidade Federal de Minas Gerais, Membro Titular da Comissão de Políticas de Desenvolvimento Sustentável";"Representante Não-Governamental";"UFMG - Universidade Federal de Minas Gerais";"Comissão de Políticas de Desenvolvimento Sustentável (CPDS)";"Membro titular";"WSSD, Conf";"Brasil";121;"LAI MRE";2927
+"279";"Senhor";"Otto Toledo Ribas";"Representante Não-Governamental
+ da Universidade de Brasília, membro da Comissão de Políticas de Desenvolvimento Sustentável";"Representante Não-Governamental";"UnB - Universidade de Brasília";"Comissão de Políticas de Desenvolvimento Sustentável (CPDS)";"Membro";"WSSD, Conf";"Brasil";122;"LAI MRE";2928
+"280";"Senhor";"Marcus Augusto Egito Barbosa";"Representante Não-Governamental
+ membro da Comissão do Meio Ambiente da Ordem dos Advogados do Brasil";"Representante Não-Governamental";"OAB - Ordem dos Advogados do Brasil";"Comissão do Meio Ambiente";NA;"WSSD, Conf";"Brasil";123;"LAI MRE";2929
+"281";"Senhor";"Kjeld Aagaard Jakobsen";"Representante Não-Governamental
+ Secretário de Relações Internacionais da Central Única dos Trabalhadores";"Representante Não-Governamental";"CUT - Central Única dos Trabalhadores";"Secretaria de Relações Internacionais";"Secretário";"WSSD, Conf";"Brasil";124;"LAI MRE";2930
+"282";"Senhor";"Nilton Benedito Branco Freitas";"Representante Não-Governamental
+ da Central Única dos Trabalhadores";"Representante Não-Governamental";"CUT - Central Única dos Trabalhadores";NA;NA;"WSSD, Conf";"Brasil";125;"LAI MRE";2931
+"283";"Senhor";"Eduardo Moacyr Krieger";"Representante Não-Governamental
+ Presidente da Academia Brasileira de Ciência";"Representante Não-Governamental";"Academia Brasileira de Ciências";NA;"Presidente";"WSSD, Conf";"Brasil";126;"LAI MRE";2932
+"284";"Senhor";"Paulo de Góes Filho";"Representante Não-Governamental
+ da Academia Brasileira de Ciência";"Representante Não-Governamental";"Academia Brasileira de Ciências";NA;NA;"WSSD, Conf";"Brasil";127;"LAI MRE";2932
+"285";"Senhor";"Paulo César Gonçalves Egler";"Representante Não-Governamental
+ da Academia Brasileira de Ciência";"Representante Não-Governamental";"Academia Brasileira de Ciências";NA;NA;"WSSD, Conf";"Brasil";128;"LAI MRE";2932
+"286";"Senhor";"Carlos Alfredo Joly";"Representante Não-Governamental
+ do Departamento de Botânica da UNICAMP";"Representante Não-Governamental";"UNICAMP - Universidade Estadual de Campinas";"Departamento de Botânica";NA;"WSSD, Conf";"Brasil";129;"LAI MRE";2933
+"287";"Senhor";"Rubens Harry Born";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";130;"LAI MRE";1709
+"288";"Senhor";"Sérgio Talocchi";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";131;"LAI MRE";1709
+"289";"Senhora";"Simone Jardim";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";132;"LAI MRE";1709
+"290";"Senhora";"Patricia Meirelles Coutinho";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";133;"LAI MRE";1709
+"291";"Senhor";"Fídelis Paixão";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";134;"LAI MRE";1709
+"292";"Senhora";"Lisa Gunn";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";135;"LAI MRE";1709
+"293";"Senhor";"Ninon Machado";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";136;"LAI MRE";1709
+"294";"Senhora";"Lúcia Ortiz";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";137;"LAI MRE";1709
+"295";"Senhor";"Pedro Ivo Batista";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";138;"LAI MRE";1709
+"296";"Senhora";"Maria Adelia Cruz";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";139;"LAI MRE";1709
+"297";"Senhor";"Rodrigo Antonio de Agostinho Mendonça";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";140;"LAI MRE";1709
+"298";"Senhor";"José Adilson Vieira de Jesus";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";141;"LAI MRE";1709
+"299";"Senhor";"Ivaneide Bandeira Cardozo";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";142;"LAI MRE";1709
+"300";"Senhor";"Renato Cunha";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";143;"LAI MRE";1709
+"301";"Senhora";"Karla Mattos";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";144;"LAI MRE";1709
+"302";"Senhora";"Cimara Correa Machado";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";145;"LAI MRE";1709
+"303";"Senhora";"Muriel Saragoussi";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";146;"LAI MRE";1709
+"304";"Senhor";"Jose Augusto Padua";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";147;"LAI MRE";1709
+"305";"Senhor";"Sergio Schelesinger";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";148;"LAI MRE";1709
+"306";"Senhora";"Tania Pacheco";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";149;"LAI MRE";1709
+"307";"Senhora";"Iara Pietricovsky";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";150;"LAI MRE";1709
+"308";"Senhor";"Helcio Marcelo de Souza";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";151;"LAI MRE";1709
+"309";"Senhora";"Analuce Freitas";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";152;"LAI MRE";1709
+"310";"Senhora";"Juliana Santilli";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";153;"LAI MRE";1709
+"311";"Senhor";"Carlos Alberto Ricardo";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";154;"LAI MRE";1709
+"312";"Senhora";"Adriana Ramos";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";155;"LAI MRE";1709
+"313";"Senhor";"Nurit Bensusan";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";156;"LAI MRE";1709
+"314";"Senhor";"Orlando Oliveira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";157;"LAI MRE";1709
+"315";"Senhora";"Simone Athayde";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";158;"LAI MRE";1709
+"316";"Senhor";"Aurélio Rios";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";159;"LAI MRE";1709
+"317";"Senhor";"Egydio Brunetto";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";160;"LAI MRE";1709
+"318";"Senhor";"Moacyr Urbano Villela";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";161;"LAI MRE";1709
+"319";"Senhor";"Paulo Moutinho";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";162;"LAI MRE";1709
+"320";"Senhora";"Ana Cristina Barros";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";163;"LAI MRE";1709
+"321";"Senhor";"Cláudio Ramos";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";164;"LAI MRE";1709
+"322";"Senhora";"Maria de Conceição Oliveira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";165;"LAI MRE";1709
+"323";"Senhora";"Rita de Cássia Lima";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";166;"LAI MRE";1709
+"324";"Senhora";"Alzira Nogueira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";167;"LAI MRE";1709
+"325";"Senhor";"Sebastião Manchinery";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";168;"LAI MRE";1709
+"326";"Senhora";"Maria Cristina Weyland Vieira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";169;"LAI MRE";1709
+"327";"Senhor";"Sergio Santana";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";170;"LAI MRE";1709
+"328";"Senhora";"Yma de Almeida";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";171;"LAI MRE";1709
+"329";"Senhor";"Juca Cunha";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";172;"LAI MRE";1709
+"330";"Senhora";"Maria Alice Cintra";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";173;"LAI MRE";1709
+"331";"Senhora";"Orovida Servya";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";174;"LAI MRE";1709
+"332";"Senhora";"Lara Miranda Guimarães";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";175;"LAI MRE";1709
+"333";"Senhor";"Julio Wainer";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";176;"LAI MRE";1709
+"334";"Senhor";"Garo Batmanian";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";177;"LAI MRE";1709
+"335";"Senhora";"Rosa Lemos de Sá";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";178;"LAI MRE";1709
+"336";"Senhor";"Solon Fagundes";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";179;"LAI MRE";1709
+"337";"Senhora";"Neuza Maria Trauzzola";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";180;"LAI MRE";1709
+"338";"Senhor";"Luiz Alberto Freitas Pereira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";181;"LAI MRE";1709
+"339";"Senhor";"Marcelo Gonçalves Nunes Oliveira Morais";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";182;"LAI MRE";1709
+"340";"Senhor";"Paulo Bubach";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";183;"LAI MRE";1709
+"341";"Senhora";"Bety Rita Rodrigues Ramos";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";184;"LAI MRE";1709
+"342";"Senhor";"José Eduardo Siqueira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";185;"LAI MRE";1709
+"343";"Senhora";"Yara Toledo";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";186;"LAI MRE";1709
+"344";"Senhora";"Laura Jesus de Moura e Costa";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";187;"LAI MRE";1709
+"345";"Senhor";"Alexandre Melo Soares";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";188;"LAI MRE";1709
+"346";"Senhor";"Antonio Soler";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";189;"LAI MRE";1709
+"347";NA;"Makupá Kaiabi";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";190;"LAI MRE";1709
+"348";NA;"Onkrai Xikrin";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";191;"LAI MRE";1709
+"349";"Senhora";"Orovida Serruya";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";192;"LAI MRE";1709
+"350";"Senhora";"Sandra Failace";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";193;"LAI MRE";1709
+"351";"Senhora";"Maria de Lourdes Davies de Freitas";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";194;"LAI MRE";1709
+"352";"Senhora";"Cláudia Azevedo Ramos";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";195;"LAI MRE";1709
+"353";"Senhor";"Ulisses Lacava";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";196;"LAI MRE";1709
+"354";"Senhora";"Thais Corral";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";197;"LAI MRE";1709
+"355";"Senhora";"Maria Aparecida Schumaher";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";198;"LAI MRE";1709
+"356";"Senhora";"Patricia Kranz";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";199;"LAI MRE";1709
+"357";"Senhora";"Rita Andrea";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";200;"LAI MRE";1709
+"358";"Senhora";"Alzira Nogueira";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";201;"LAI MRE";1709
+"359";"Senhora";"Maria da Conceição Maia";"Representante Não-Governamental
+ do Fórum Brasileiro de ONGs e Movimentos Sociais";"Representante Não-Governamental";"FBOMS";NA;NA;"WSSD, Conf";"Brasil";202;"LAI MRE";1709
+"360";"Senhor";"José Patrício Melo";"Representante Não-Governamental
+ Secretário Adjunto da Fundação Araripe";"Representante Não-Governamental";"Fundação Araripe";NA;"Secretário Adjunto";"WSSD, Conf";"Brasil";203;"LAI MRE";2934
+"361";"Senhor";"João Carlos Veríssimo";"Representante Não-Governamental
+ Presidente Executivo da Brasil Connects";"Representante Não-Governamental";"Brasil Connects";NA;"Presidente executivo";"WSSD, Conf";"Brasil";204;"LAI MRE";2935
+"362";"Senhor";"Eduardo Martins";"Representante Não-Governamental
+ da Brasil Connects";"Representante Não-Governamental";"Brasil Connects";NA;NA;"WSSD, Conf";"Brasil";205;"LAI MRE";2935
+"363";"Senhora";"Regiane Queirós";"Representante Não-Governamental
+ da Brasil Connects";"Representante Não-Governamental";"Brasil Connects";NA;NA;"WSSD, Conf";"Brasil";206;"LAI MRE";2935
+"364";"Senhora";"Camila Argolo Godinho";"Representante Não-Governamental
+ Presidente da Ecco Internacional, de Salvador";"Representante Não-Governamental";"Ecco Internacional Salvador";NA;"Presidente";"WSSD, Conf";"Brasil";207;"LAI MRE";2936
+"365";"Senhora";"Larissa Maria Lima da Costa";"Representante Não-Governamental
+ Diretora Jurídica da Ecco Internacional, de Salvador";"Representante Não-Governamental";"Ecco Internacional Salvador";"Jurídico";"Diretora";"WSSD, Conf";"Brasil";208;"LAI MRE";2937
+"366";"Senhor";"Rodrigo Agostinho";"Representante Não-Governamental
+ Conselheiro do Instituto Ambiental Vidágua";"Representante Não-Governamental";"Instituto Ambiental Vidágua";NA;"Conselheiro";"WSSD, Conf";"Brasil";209;"LAI MRE";2938
+"367";"Senhora";"Isis Lima Soares";"Representante Não-Governamental
+ Integrante Fundadora do Projeto Cala-Boca já Morreu";"Representante Não-Governamental";"Projeto Cala-Boca já Morreu";NA;"Integrante fundadora";"WSSD, Conf";"Brasil";210;"LAI MRE";2939
+"368";"Senhora";"Poema Mülemberg Homem da Costa";"Representante Não-Governamental
+ do Instituto de Pesquisa, Ação e Mobilização";"Representante Não-Governamental";"Instituto de Pesquisa, Ação e Mobilização";NA;NA;"WSSD, Conf";"Brasil";211;"LAI MRE";2940
+"369";"Senhor";"Nélio Paes de Barros";"Representante Não-Governamental
+ Conselheiro do Comitê Brasileiro do Programa das Nações Unidas para Meio Ambiente";"Representante Não-Governamental";"Comitê Brasileiro do Programa das Nações Unidas para Meio Ambiente";NA;"Conselheiro";"WSSD, Conf";"Brasil";212;"LAI MRE";2941
+"370";"Senhora";"Clementina Moreira Alves";"Representante Não-Governamental
+ Coord. de Projetos com Ênfase em Economia Sócio-Ambiental, Fundação Getúlio Vargas";"Representante Não-Governamental";"Fundação Getúlio Vargas";"Coordenadoria de Projetos com Ênfase em Economia Sócio-Ambiental";"Coordenadora";"WSSD, Conf";"Brasil";213;"LAI MRE";2942
+"371";"Senhora";"Neuza Maria Trauzzola";"Representante Não-Governamental
+ Conselheira Federal do Conselho Federal de Engenharia, Arquitetura e Agronomia";"Representante Não-Governamental";"Conselho Federal de Engenharia, Arquitetura e Agronomia";NA;"Conselheiro";"WSSD, Conf";"Brasil";214;"LAI MRE";2943
+"372";"Senhor";"Luiz Alberto Freitas Pereira";"Representante Não-Governamental
+ Conselheiro Federal do Conselho Federal de Engenharia, Arquitetura e Agronomia";"Representante Não-Governamental";"Conselho Federal de Engenharia, Arquitetura e Agronomia";NA;"Conselheiro";"WSSD, Conf";"Brasil";215;"LAI MRE";2943
+"373";"Senhor";"Marcelo Gonçalves Nunes Oliveira Morais";"Representante Não-Governamental
+ Presidente do Conselho Regional de Engenharia, Arquitetura e Agronomia do Piauí";"Representante Não-Governamental";"CREA";"Piauí";"Presidente";"WSSD, Conf";"Brasil";216;"LAI MRE";2944
+"374";"Senhor";"Paulo Bubach";"Representante Não-Governamental
+ do Conselho Federal de Engenharia, Arquitetura e Agronomia";"Representante Não-Governamental";"Conselho Federal de Engenharia, Arquitetura e Agronomia";NA;NA;"WSSD, Conf";"Brasil";217;"LAI MRE";2943
+"375";"Senhora";"Bety Rita Rodrigues Ramos";"Representante Não-Governamental
+ do Conselho Federal de Engenharia, Arquitetura e Agronomia";"Representante Não-Governamental";"Conselho Federal de Engenharia, Arquitetura e Agronomia";NA;NA;"WSSD, Conf";"Brasil";218;"LAI MRE";2943
+"376";"Senhor";"Manoel José dos Santos";"Representante Não-Governamental
+ Presidente da Confederação Nacional dos Trabalhadores na Agricultura";"Convidado especial do presidente ou comitiva técnica e de apoio";"CONTAG";NA;"Presidente";"WSSD, Conf";"Brasil";219;"LAI MRE";2046
+"377";"Senhor";"Eugênio Conolly Peixoto";"Representante Não-Governamental
+ Assessor da Confederação Nacional dos Trabalhadores na Agricultura";"Representante Não-Governamental";"CONTAG";NA;"Assessor";"WSSD, Conf";"Brasil";220;"LAI MRE";2046
+"378";"Senhor";"Luiz Vicente Facco";"Representante Não-Governamental
+ Assessor da Confederação Nacional dos Trabalhadores na Agricultura";"Representante Não-Governamental";"CONTAG";NA;"Assessor";"WSSD, Conf";"Brasil";221;"LAI MRE";2046
+"379";"Senhora";"Isis Lima Soares";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;NA;"WSSD, Conf";"Brasil";222;"LAI MRE";24
+"380";"Senhora";"Poema Mühlemberg Homem da Costa";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;NA;"WSSD, Conf";"Brasil";223;"LAI MRE";24
+"381";"Senhor";"Rodrigo Agostinho";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;NA;"WSSD, Conf";"Brasil";224;"LAI MRE";24
+"382";"Embaixador";"Frederico Cezar de Araujo";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Chefe do Cerimonial, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Cerimonial";"Chefe";"WSSD, Conf";"Brasil";225;"LAI MRE";2945
+"383";"Embaixador";"Eduardo dos Santos";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessor Especial, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Assessor Especial";"WSSD, Conf";"Brasil";226;"LAI MRE";2853
+"384";"Embaixador";"Ruy de Lima Casaes e Silva";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Chefe do Cerimonial";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Cerimonial";"Chefe; Embaixador";"WSSD, Conf";"Brasil";227;"LAI MRE";2946
+"385";"Ministro";"Sergio Mauricio da Costa Palazzo";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Subchefe do Cerimonial";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Cerimonial";"Subchefe; Ministro";"WSSD, Conf";"Brasil";228;"LAI MRE";2946
+"386";"Senhora";"Ana Elisa Tavares de Miranda";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessora de Comunicação Social, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Assessoria de Comunicação Social";"Assessora";"WSSD, Conf";"Brasil";229;"LAI MRE";2947
+"387";"Capitão-de-Mar-e-Guerra";"Carlos Autran de Oliveira Amaral";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Gabinete de Segurança Institucional, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"GSI";NA;"Capitão-de-Mar-e-Guerra";"WSSD, Conf";"Brasil";230;"LAI MRE";373
+"388";"Coronel Ex";"Manoel Luiz Narvaz Pafiadache";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"Coronel Ex";"WSSD, Conf";"Brasil";231;"LAI MRE";2948
+"389";"Conselheiro";"Nilo Barroso Neto";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+Presidência da Câmara dos Deputados";"Convidado especial do presidente ou comitiva técnica e de apoio";"Câmara dos Deputados";"Presidência da Câmara";"Conselheiro";"WSSD, Conf";"Brasil";232;"LAI MRE";2949
+"390";"Coronel";"Antonio Gomes Leite Filho";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Coronel";"WSSD, Conf";"Brasil";233;"LAI MRE";2853
+"391";"Tenente-Coronel Ex";"Maurício Cardoso Junior";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"Tenente-Coronel Ex";"WSSD, Conf";"Brasil";234;"LAI MRE";2948
+"392";"Primeira Secretária";"Marisa Baranski";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Departamento de Comunicações e Documentação, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Departamento de Comunicações e Documentação";"Primeira secretária";"WSSD, Conf";"Brasil";235;"LAI MRE";2950
+"393";"Primeiro Secretário";"Alexandre de Azevedo Silveira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Cerimonial, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Cerimonial";"Primeiro secretário";"WSSD, Conf";"Brasil";236;"LAI MRE";2946
+"394";"Primeiro Secretário";"Antonio Alves Junior";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Cerimonial, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Cerimonial";NA;"WSSD, Conf";"Brasil";237;"LAI MRE";2945
+"395";"Tenente-Coronel Aviador";"Manoel Luiz Guedes da Silva";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Tenente-Coronel Aviador";"WSSD, Conf";"Brasil";238;"LAI MRE";2853
+"396";"Capitão-de-Fragata";"Marcos Jorge Matusevicius";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Ajudante-de-Ordens, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Capitão-de-Fragata; Ajudante-de-Ordens";"WSSD, Conf";"Brasil";239;"LAI MRE";2853
+"397";"Senhor";"Guilherme Horta";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da Câmara dos Deputados";"Convidado especial do presidente ou comitiva técnica e de apoio";"Câmara dos Deputados";"Presidência da Câmara";NA;"WSSD, Conf";"Brasil";240;"LAI MRE";2949
+"398";"Major";"Médico Cléber de Araújo Leal Ferreira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Major";"WSSD, Conf";"Brasil";241;"LAI MRE";2853
+"399";"Major";"Médico Ricardo Peixoto Camarinha";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Major";"WSSD, Conf";"Brasil";242;"LAI MRE";2853
+"400";"Major Av";"Aldo Matsuhiro Miyaguti";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Ajudante-de-Ordens, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;"Ajudante-de-Ordens; Major Av";"WSSD, Conf";"Brasil";243;"LAI MRE";2853
+"401";"Secretária";"Cláudia de Borba Maciel";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria Especial, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Assessoria Especial";"Secretária";"WSSD, Conf";"Brasil";244;"LAI MRE";2951
+"402";"Secretário";"João Paulo Soares Alsina Junior";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria de Comunicação Social, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Assessoria de Comunicação Social";"Secretário";"WSSD, Conf";"Brasil";245;"LAI MRE";2866
+"403";"Secretário";"Henrique Archanjo Ferrari";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Cerimonial, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Cerimonial";"Secretário";"WSSD, Conf";"Brasil";246;"LAI MRE";2946
+"404";"Capitão PM";"Sergio Marcelino da Cunha";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"Capitão PM";"WSSD, Conf";"Brasil";247;"LAI MRE";2948
+"405";"Capitão PM";"Rogério Brito de Miranda";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"Capitão PM";"WSSD, Conf";"Brasil";248;"LAI MRE";2948
+"406";"OC";"Ewerton Luiz Silva de Oliveira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria de Comunicação Social, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Assessoria de Comunicação Social";"Oficial de Chancelaria";"WSSD, Conf";"Brasil";249;"LAI MRE";2866
+"407";"OC";"Antônio Alves Bezerra";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Departamento de Comunicações e Documentação, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Departamento de Comunicações e Documentação";"Oficial de Chancelaria";"WSSD, Conf";"Brasil";250;"LAI MRE";2950
+"408";"Senhor";"Dercy Ribeiro do Prado";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Cerimonial";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Cerimonial";NA;"WSSD, Conf";"Brasil";251;"LAI MRE";2946
+"409";"Senhor";"Rodrigo Martins Vieira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria de Comunicação Social, Ministério das Relações Exteriores";"Convidado especial do presidente ou comitiva técnica e de apoio";"Ministério das Relações Exteriores";"Assessoria de Comunicação Social";NA;"WSSD, Conf";"Brasil";252;"LAI MRE";2866
+"410";"Senhora";"Solange Bento Cavalcanti";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;NA;"WSSD, Conf";"Brasil";253;"LAI MRE";2853
+"411";"Senhor";"Marcelo Andrade de Melo Henrique";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;NA;"WSSD, Conf";"Brasil";254;"LAI MRE";2853
+"412";"Subtenente Ex";"Alcir José Tomasi";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"Subtenente Ex";"WSSD, Conf";"Brasil";255;"LAI MRE";2948
+"413";"SO";"Luiz Henrique Ferreira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ tripulação";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;NA;"WSSD, Conf";"Brasil";256;"LAI MRE";24
+"414";"1o Sargento Ex";"Antonio Lucelio Rezende Soares";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"1o Sargento Ex";"WSSD, Conf";"Brasil";257;"LAI MRE";2948
+"415";"1o Sargento";"Claudino Ranchor";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"1o Sargento";"WSSD, Conf";"Brasil";258;"LAI MRE";2948
+"416";"1o Sargento";"Jorge Allan dos Santos";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"1o Sargento";"WSSD, Conf";"Brasil";259;"LAI MRE";2948
+"417";"2o Sargento";"Rômulo Nascimento Senna";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"2o Sargento";"WSSD, Conf";"Brasil";260;"LAI MRE";2948
+"418";"2o Sargento";"João Batista Leal da Costa";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";"2o Sargento";"WSSD, Conf";"Brasil";261;"LAI MRE";2948
+"419";"2o Sargento";"Helfer Seifecles Dutra de Paula";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ tripulação";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;"2o Sargento";"WSSD, Conf";"Brasil";262;"LAI MRE";24
+"420";"3o Sargento";"Donizeth Antonio da Silva";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ tripulação";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;"3o Sargento";"WSSD, Conf";"Brasil";263;"LAI MRE";24
+"421";"3o Sargento";"Antonio Waldemar Brito da Costa";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ tripulação";"Convidado especial do presidente ou comitiva técnica e de apoio";NA;NA;"3o Sargento";"WSSD, Conf";"Brasil";264;"LAI MRE";24
+"422";"Senhor";"Airton Vieira de Souza";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;NA;"WSSD, Conf";"Brasil";265;"LAI MRE";2853
+"423";"Senhor";"Francisco Pereira da Silva";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;NA;"WSSD, Conf";"Brasil";266;"LAI MRE";2853
+"424";"Senhor";"Gilmar Gomes Ferreira";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria de Comunicação Social, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Assessoria de Comunicação Social";NA;"WSSD, Conf";"Brasil";267;"LAI MRE";2947
+"425";"Senhor";"Antonio Edmar Silva de Sousa";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";NA;NA;"WSSD, Conf";"Brasil";268;"LAI MRE";2853
+"426";"Senhor";"Getúlio Gurgel Barbosa";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Assessoria de Comunicação Social, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Assessoria de Comunicação Social";NA;"WSSD, Conf";"Brasil";269;"LAI MRE";2947
+"427";"Senhor";"Carlos da Silva Carvalho";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Diretoria de Telecomunicações, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Diretoria de Telecomunicações";NA;"WSSD, Conf";"Brasil";270;"LAI MRE";2952
+"428";"Senhor";"José Cecílio Neto";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Setor de bagagem, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Setor de bagagem";NA;"WSSD, Conf";"Brasil";271;"LAI MRE";2953
+"429";"Senhor";"Amonilson José Guimarães";"Convidado especial do Senhor Presidente da República ou membro da comitiva técnica e de apoio
+ Segurança, Presidência da República";"Convidado especial do presidente ou comitiva técnica e de apoio";"Presidência da República";"Segurança";NA;"WSSD, Conf";"Brasil";272;"LAI MRE";2948
+"430";"Senhora";"Tânia Jardim";"Nome adicional credenciado na delegação
+ Consultora da Agência Brasileira de
+Cooperação (ABC)";"Nome adicional credenciado";"Ministério das Relações Exteriores";"ABC - Agência Brasileira de Cooperação";"Consultora";"WSSD, Conf";"Brasil";273;"LAI MRE";2954
+"431";"Senhor";"Henrique Carlos Labaig";"Nome adicional credenciado na delegação
+ da Agenda 21 de Goiânia";"Nome adicional credenciado";"Cidade de Goiânia";"Agenda 21 de Goiânia";NA;"WSSD, Conf";"Brasil";274;"LAI MRE";2955
+"432";"Senhor";"Adair Antônio Meira";"Nome adicional credenciado na delegação
+ da Agenda 21 de Goiânia";"Nome adicional credenciado";"Cidade de Goiânia";"Agenda 21 de Goiânia";NA;"WSSD, Conf";"Brasil";275;"LAI MRE";2955
+"433";"Senhor";"Etevaldo Marques Pessanha";"Nome adicional credenciado na delegação
+ Secretário Municipal da Prefeitura de Campos dos Goytacazes";"Nome adicional credenciado";"Cidade de Campos dos Goytacazes";NA;"Secretário";"WSSD, Conf";"Brasil";276;"LAI MRE";2956
+"434";"Senhor";"Sidney Salgado dos Santos";"Nome adicional credenciado na delegação
+ Secretário Municipal da Prefeitura de Campos dos Goytacazes";"Nome adicional credenciado";"Cidade de Campos dos Goytacazes";NA;"Secretário";"WSSD, Conf";"Brasil";277;"LAI MRE";2956
+"435";"Senhora";"Jeane Capelli Pen";"Nome adicional credenciado na delegação
+ da Brasilconnects";"Nome adicional credenciado";"Brasil Connects";NA;NA;"WSSD, Conf";"Brasil";278;"LAI MRE";2935
+"436";"Senhor";"Fernando Martins";"Nome adicional credenciado na delegação
+ da Brasilconnects";"Nome adicional credenciado";"Brasil Connects";NA;NA;"WSSD, Conf";"Brasil";279;"LAI MRE";2935
+"437";"Senhora";"Denise Andrade";"Nome adicional credenciado na delegação
+ da Brasilconnects";"Nome adicional credenciado";"Brasil Connects";NA;NA;"WSSD, Conf";"Brasil";280;"LAI MRE";2935
+"438";"Senhor";"Luis Cesas Stano";"Nome adicional credenciado na delegação
+ Coordenador de Desenvolvimento Sustentável da Petrobrás";"Nome adicional credenciado";"Petrobrás";"Coordenadoria de Desenvolvimento Sustentável";"Coordenador";"WSSD, Conf";"Brasil";281;"LAI MRE";2957
+"439";"Senhor";"Milas Evangelista de Souza";"Nome adicional credenciado na delegação
+ Gerente de Segurança da Petrobrás";"Nome adicional credenciado";"Petrobrás";"Gerência de Segurança";"Gerente";"WSSD, Conf";"Brasil";282;"LAI MRE";2958
+"440";"Senhor";"Ricardo Castello Branco";"Nome adicional credenciado na delegação
+ Gerente de Segurança da Petrobrás";"Nome adicional credenciado";"Petrobrás";"Gerência de Segurança";"Gerente";"WSSD, Conf";"Brasil";283;"LAI MRE";2958
+"441";"Senhor";"João Norberto Noschang Neto";"Nome adicional credenciado na delegação
+ Gerente de Biotecnologia da Petrobrás";"Nome adicional credenciado";"Petrobrás";"Gerência de Biotecnologia";"Gerente";"WSSD, Conf";"Brasil";284;"LAI MRE";2959
+"442";"Senhora";"Helena Lemos dos Reis Magalhães Gomes";"Nome adicional credenciado na delegação
+ estudante do Curso de Gestão Ambiental da USP";"Nome adicional credenciado";"USP";"Curso de Gestão Ambiental";"Estudante";"WSSD, Conf";"Brasil";285;"LAI MRE";2960
+"443";"Senhora";"Lucila Pinsard";"Nome adicional credenciado na delegação
+ Coordenadora de Educação Ambiental do MEC";"Nome adicional credenciado";"Ministério da Educação";"Coordenadoria de Educação Ambiental";"Coordenadora";"WSSD, Conf";"Brasil";286;"LAI MRE";2961
+"444";"Senhor";"Mauro Soares";"Nome adicional credenciado na delegação
+ Secretário de Meio Ambiente de Alto Paraíso (GO)";"Nome adicional credenciado";"Cidade de Alto Paraíso - GO";"Secretaria de Meio Ambiente";"Secretário";"WSSD, Conf";"Brasil";287;"LAI MRE";2962
+"445";"Senhor";"Edis Milaré";"Nome adicional credenciado na delegação
+ Faculdade de Saúde Pública  SP / Revista de Direito Ambiental";"Nome adicional credenciado";"USP";"Faculdade de Saúde Pública; Revista de Direito Ambiental";NA;"WSSD, Conf";"Brasil";288;"LAI MRE";2963
+"446";"Senhor";"Fernando Solano";"Nome adicional credenciado na delegação
+ Rádio Eldorado";"Nome adicional credenciado";"Rádio Eldorado";NA;NA;"WSSD, Conf";"Brasil";289;"LAI MRE";2964
+"447";"Senhora";"Susana Vieira Camargo";"Nome adicional credenciado na delegação
+ do Instituto Pró Sustentabilidade";"Nome adicional credenciado";"Instituto Pró Sustentabilidade";NA;NA;"WSSD, Conf";"Brasil";290;"LAI MRE";2965
+"448";"Senhor";"Paulo Nogueira Neto";"Nome adicional credenciado na delegação
+ Instituto Pró Sustentabilidade";"Nome adicional credenciado";"Instituto Pró Sustentabilidade";NA;NA;"WSSD, Conf";"Brasil";291;"LAI MRE";2965
+"449";"Senhora";"Keylah Tavares";"Nome adicional credenciado na delegação
+ Instituto Ambiental Biosfera";"Nome adicional credenciado";"Instituto Ambiental Biosfera";NA;NA;"WSSD, Conf";"Brasil";292;"LAI MRE";2966
+"450";"Senhor";"Dorival Correia Bruni";"Nome adicional credenciado na delegação
+ Instituto Ambiental Biosfera";"Nome adicional credenciado";"Instituto Ambiental Biosfera";NA;NA;"WSSD, Conf";"Brasil";293;"LAI MRE";2966
+"451";"Senhor";"Ricardo Maia Cappelletti";"Nome adicional credenciado na delegação
+ Instituto Ambiental Biosfera";"Nome adicional credenciado";"Instituto Ambiental Biosfera";NA;NA;"WSSD, Conf";"Brasil";294;"LAI MRE";2966
+"452";"Ms.";"Patricia Soares Leite";"Deputy Head
+Division of Climate Change
+Ministry of Foreign Affairs
+Esplanada dos Ministérios, Bloco H, Anexo II, Sala 204
+(+5561) 2030-9289
+Email: patricia.leite@itamaraty.gov.br";NA;"Ministry of Foreign Affairs";"Division of Climate Change";"Deputy Head";"MP, MOP30";"Brasil";1;"Lista ONU";2558
+"453";"Ms.";"Magna Luduvice";"National Ozone Unit Officer
+Department of Monitoring, Finance and Support, Secretariat of Climate Change and Forestry
+Ministry of the Environment
+SEPN 505 Bloco B sala 302
+(+55 61) 20282248
+Email: magna.luduvice@mma.gov.br";NA;"Ministry of the Environment";"National Ozone Unit Office, Department of Monitoring, Finance and Support, Secretariat of Climate Change and Forestry";"Officer";"MP, MOP30";"Brasil";2;"Lista ONU";2967
+"454";"Ms.";"Gabriela Lira";"Environmental Analyst
+Department of Monitoring, Finance and Support, Secretariat of Climate Change and Forestry
+Ministry of the Environment
+SEPN 505 Bloco B. sala 303
++556120282604
+Email: gabriela.lira@mma.gov.br";NA;"Ministry of the Environment";"Department of Monitoring, Finance and Support, Secretariat of Climate Change and Forestry";"Environmental Analyst";"MP, MOP30";"Brasil";3;"Lista ONU";2968
+"455";"Ms.";"Alessandra Aparecida Gayoso Franco de Toledo";"Environmental Analyst of IBAMA
+Environmental Quality Board
+Ministry of the Environment
+SCEN,Trecho 2 Av. L4 - Edifício Sede, Bloco C, 1º andar
++55(61)33161245
+Email: alessandra.toledo@ibama.gov.br,
+agayosotoledo@hotmail.com";NA;"IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis";"Environmental Quality Board";"Environmental Analyst";"MP, MOP30";"Brasil";4;"Lista ONU";2969
+"456";"Ms.";"Maria Eugenia Zabotto Pulino";"Second Secretary
+Embassy of Brazil in Quito
+Avenida Amazonas y José Arízaga, Edifício Amazonas Plaza, Piso 7
+(593) 2 227-7300
+Email: maria.pulino@itamaraty.gov.br";NA;"Ministry of Foreign Affairs";"Embassy of Brazil in Quito";"Second Secretary";"MP, MOP30";"Brasil";5;"Lista ONU";2970
