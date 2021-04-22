@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
-
+library(lubridate)
+library(ggplot2)
 # Leitura das bases ---------
 deleg <- read_delim("deleg-2021-04-21.csv", 
                     ";", escape_double = FALSE, col_types = cols(X1 = col_skip(), 
@@ -33,7 +34,7 @@ deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim
 
 
 # Limpeza da base dos eventos --------
-library(lubridate)
+
 ### Limpar e renomear colunas
 eventos <- eventos %>% select(-c(`Código ONU`, Comentário, `Formato lista`, 
                                  `Aberto?`, `Questões a atentar`, 
@@ -63,7 +64,7 @@ eventos <- eventos %>% mutate(
 eventos <- eventos %>% mutate(across(where(is.character), str_trim))
 
 # Descrição da base dos eventos -----------
-library(ggplot2)
+
 ###.... Linha: evolução eventos no tempo, dividido total e coletados ----
 freqeventos_ano <- eventos %>% group_by(ano) %>% summarise(total = n())
 freqeventos_ano_coletados <- eventos %>% filter(coleta == "Sim") %>% 
@@ -182,7 +183,7 @@ MRE_conf <- deleg_evento %>% group_by(conf, ano, tipo_org_reduzido) %>%
            tema != "Clima" & tema != "Grandes conferências ONU" & tema != "Florestas" ~ "Outros"
          ))
 
-# Possibilidade: incluir tamanho total da delegação como size do scatterplot
+# Inclui aqui tamanho total da delegação como size do scatterplot
 
 ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema, group = Local)) +
   geom_point(aes(shape = Local, size = `Tamanho da delegação`)) +
@@ -197,3 +198,90 @@ ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema, group = Local)) +
         legend.title = element_text(size =12),
         legend.position="right") 
   
+###....Evolução % MRE, MCT, MMA no tempo ----
+orgs_princ <- deleg_evento %>% 
+  mutate(org = case_when(
+    org_limpo == "Ministério das Relações Exteriores" ~ "Ministério das Relações Exteriores",
+    tipo_org == "Laboratórios, centros e institutos de pesquisa vinculados ao MCT" ~
+      "Ministério da Ciência e Tecnologia",
+    id_org_unica %in% c(23,422) ~ "Ministério da Ciência e Tecnologia",
+    id_org_unica %in% c(442, 324, 333, 555, 326, 576) ~ "Ministério do Meio Ambiente"
+  ))
+# inclusão de IBAMA, ICMBio, AEB, IBDF (326), SFB (576), laboratórios nacionais e afins
+
+freq_minist_tempo <- orgs_princ %>% 
+  group_by(ano, org) %>% 
+  summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+  ungroup() %>% 
+  filter(org %in% c("Ministério das Relações Exteriores",
+                          "Ministério do Meio Ambiente", 
+                          "Ministério da Ciência e Tecnologia"
+  )) %>% 
+  # incluir contagem de observações nulas (freq = 0)
+  complete(ano, org, fill = list(total = 0, percentual = 0)) 
+
+# Gráfico
+freq_minist_tempo %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line() + geom_point() +
+  lemon::facet_rep_wrap(~org, ncol = 1,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Evolução da participação em conferências ambientais", 
+       subtitle = "Percentual de participantes registrados no ano vinculados a MRE, MMA, MCT.
+São incluídos IBAMA, ICMBio, IBDF e SFB em MMA. AEB e laboratórios vinculados são considerados parte do MCT") +
+  scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22))
+
+
+######### MCT e MMA "puros"
+# freq_minist_tempo <- deleg_evento %>% 
+#   group_by(ano, org_limpo) %>% 
+#   summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+#   ungroup() %>% 
+#   filter(org_limpo %in% c("Ministério das Relações Exteriores",
+#                           "Ministério do Meio Ambiente", 
+#                           "Ministério da Ciência e Tecnologia"
+#   )) %>% 
+#   # incluir contagem de observações nulas (freq = 0)
+#   complete(ano, org_limpo, fill = list(total = 0, percentual = 0)) 
+# 
+# freq_minist_tempo %>% 
+#   ggplot(aes(x=ano, y = percentual)) +
+#   geom_line() + geom_point() +
+#   lemon::facet_rep_wrap(~org_limpo, ncol = 1,
+#                         repeat.tick.labels = "bottom") +
+#   labs(title = "Evolução da participação em conferências ambientais", 
+#        subtitle = "Percentual de participantes registrados no ano vinculados a MRE, MMA, MCT.
+# Não são considerados representantes de IBAMA, ICMBio, IBDF, AEB, laboratórios vinculados ao MCT.") +
+#   scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
+#   scale_x_continuous(name = NULL, n.breaks = 12) +
+#   theme(plot.title = element_text(size=22))
+
+#....Evolução dos diferentes tipos de organização ----
+freq_orgs_tempo <- deleg_evento %>% 
+  group_by(ano, tipo_org_reduzido) %>% 
+  summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+  ungroup() %>% # incluir contagem de observações nulas (freq = 0)
+  complete(ano, tipo_org_reduzido, fill = list(total = 0, percentual = 0))
+
+freq_orgs_tempo$tipo_org_reduzido[freq_orgs_tempo$tipo_org_reduzido == "Governos subnacionais (Executivo, Legislativo, Empresas Públicas ou Autarquias)"] <- "Governos subnacionais"
+
+freq_orgs_tempo$tipo_factor <- factor(freq_orgs_tempo$tipo_org_reduzido, 
+                                      levels = c("Governo federal MRE", "Governo federal não-MRE", 
+                                                 "Governos subnacionais", "Legislativo federal",
+                                                 "Sociedade civil, sindicatos, movimentos sociais", "Setor empresarial",
+                                                 "Órgãos de ensino e pesquisa", "Outro",
+                                                 "Não identificado"
+                                                 ))
+
+freq_orgs_tempo %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line() + geom_point() +
+  lemon::facet_rep_wrap(~tipo_factor, ncol = 1,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Composição das delegações brasileiras a conferências ambientais", 
+       subtitle = "por tipo de organização, em percentual dos participantes no ano") +
+  scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22))
