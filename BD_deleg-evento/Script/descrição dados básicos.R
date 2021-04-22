@@ -110,6 +110,30 @@ ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
 
 
+###.... Colunas empilhadas: número de eventos coletados/total, divididos por tipo ----
+freq_tipo <- eventos %>% group_by(tipo_evento, coleta) %>% summarise(total = n()) %>%
+  filter(is.na(coleta)== F) %>% #ignorando os que não tentei coletar ainda 
+  mutate(coleta = if_else(coleta == "Senha",
+                          "Travado por senha",
+                          coleta)) %>% 
+  mutate(tipo_evento = if_else(is.na(tipo_evento), "A ser classificado",
+                                tipo_evento))
+
+ggplot(freq_tipo, aes(x = tipo_evento, y = total, 
+                      fill = coleta, label = total)) +
+  geom_bar(position="stack", stat="identity") +
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("indianred1", "dodgerblue3", "snow4")) +
+  labs(title = "Resultados da coleta de eventos",
+       subtitle = "Dados separados por tipo de evento") +
+  coord_flip() +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom",
+        axis.text.x = element_text(size = 7)) +
+  scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
+
 # Descrição tamanho das delegações ---------
 deleg_evento <- left_join(deleg_completo,
                           select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
@@ -150,6 +174,31 @@ disp_delegsize +
   scale_y_continuous("Número de participantes registrados", n.breaks = 8,
                      limits = c(0,600))
 
+
+# tipo_evento
+deleg_size_bytipo <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>%
+  left_join(select(eventos, c(conf, tipo_evento))) 
+
+ggplot(deleg_size_bytipo, aes(x=ano, y = count, color = tipo_evento)) +
+  geom_point() +
+  geom_label(aes(x = 2012, y = 1500, label = "Rio+20"), nudge_x = 2) +
+  geom_label(aes(x = 2009, y = 572, label = "COP15"), nudge_x = 2) +
+  geom_label(aes(x = 1992, y = 157, label = "ECO-92"), nudge_x = 2) +
+  geom_label(aes(x = 2002, y = 294, label = "Rio+10"), nudge_x = 2) +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) + 
+  labs(title = "Tamanho da delegação por evento")+ 
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12) -> disp_delegsize_tipo
+
+disp_delegsize_tipo +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,600))
 
 ###....Média deleg_size ----
 resumo_deleg_size %>% group_by(ano) %>% 
