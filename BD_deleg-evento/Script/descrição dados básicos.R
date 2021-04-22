@@ -85,7 +85,7 @@ ggplot(freqeventos_ano, aes(x=ano, y = value, group = Legenda)) +
         legend.title = element_blank(),
         legend.position="bottom")
   
-###.... Colunas empilhadas: número de eventos coletados/total, divididos por temas
+###.... Colunas empilhadas: número de eventos coletados/total, divididos por temas ----
 freq_tema <- eventos %>% group_by(tema, coleta) %>% summarise(total = n()) %>%
   filter(is.na(coleta)== F) %>% #ignorando os que não tentei coletar ainda 
   mutate(coleta = if_else(coleta == "Senha",
@@ -109,12 +109,91 @@ ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
 
 
-# Descrição das delegações ---------
+# Descrição tamanho das delegações ---------
 deleg_evento <- left_join(deleg_completo,
                           select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
     #Nota: do jeito que estou organizando os arquivos, as conferências processadas
     #para as quais o BRA não enviou participantes desaparecem! 
 # >>>>>>>>>>>> Valeria pensar como solucionar o problema no futuro <<<<<<<<<<<<<<<<<<
 
-resumo_deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n())
 
+###....Dispersão deleg_size ----
+resumo_deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>% left_join(select(eventos, c(conf, location, tema))) %>% 
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
+         Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Grandes conferências ONU" ~ "Mega conf. ONU",
+           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Não-clima"
+           ))
+
+# com Rio+20
+disp_delegsize <- ggplot(resumo_deleg_size, aes(x = ano, y = count, color = Tema, group = Local)) +
+  geom_point(aes(shape = Local, size = Local)) +
+  geom_label(aes(x = 2012, y = 1500, label = "Rio+20"), nudge_x = 2) +
+  geom_label(aes(x = 2009, y = 572, label = "COP15"), nudge_x = 2) +
+  geom_label(aes(x = 1992, y = 157, label = "ECO-92"), nudge_x = 2) +
+  geom_label(aes(x = 2002, y = 294, label = "Rio+10"), nudge_x = 2) +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  scale_color_manual(values = c("tomato1","olivedrab4", "lightsteelblue4")) + 
+  labs(title = "Tamanho da delegação por evento") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12)
+
+# sem Rio +20
+disp_delegsize +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,600))
+
+
+###....Média deleg_size ----
+resumo_deleg_size %>% group_by(ano) %>% 
+  summarise(mean_deleg_size = mean(count),
+            median_deleg_size = median(count),
+            sd_deleg_size = sd(count),
+            n_events = n()
+  ) -> stats_deleg_size
+
+ggplot(stats_deleg_size, aes(x=ano, y=mean_deleg_size)) +
+  geom_line() + geom_point() +
+   geom_label(aes(x = 2012, y = 340, label = "2012 - Rio+20")) +
+   geom_label(aes(x = 1992, y = 60, label = "1992 - Rio")) +
+  labs(title = "Tamanho médio das delegações brasileiras a conferências ambientais",
+       subtitle = "Dados das listas oficiais de participantes emitidas pelos eventos") +
+  scale_y_continuous(n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12)
+
+# Descrição perfil participantes ----
+
+###....Dispersão % MRE ----
+MRE_conf <- deleg_evento %>% group_by(conf, ano, tipo_org_reduzido) %>% 
+  summarise(count = n()) %>% mutate(percentual = count/sum(count), `Tamanho da delegação` = sum(count)) %>% 
+  filter(tipo_org_reduzido == "Governo federal MRE") %>% 
+  left_join(select(eventos, c(conf, location, tema))) %>% 
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
+         Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Grandes conferências ONU" ~ "Mega conf. ONU",
+           tema == "Florestas" ~ "Florestas",
+           tema != "Clima" & tema != "Grandes conferências ONU" & tema != "Florestas" ~ "Outros"
+         ))
+
+# Possibilidade: incluir tamanho total da delegação como size do scatterplot
+
+ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema, group = Local)) +
+  geom_point(aes(shape = Local, size = `Tamanho da delegação`)) +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent) +
+  scale_shape_manual(values = c(17,16)) +
+  scale_color_manual(values = c("tomato1","olivedrab4", "magenta3","royalblue3")) +
+  labs(title = "Perfil das delegações por evento",
+       subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty") +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right") 
+  
