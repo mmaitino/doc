@@ -192,7 +192,7 @@ ggplot(deleg_size_bytipo, aes(x=ano, y = count, color = tipo_evento)) +
   scale_size_manual(values = c(3,2)) +
   scale_shape_manual(values = c(17,16)) +
   scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
-  # scale_color_manual(values = c("gray38", "tomato1")) + 
+  # scale_color_manual(values = c("gray38", "tomato1")) +
   labs(title = "Tamanho da delegação por evento")+ 
   theme(plot.title = element_text(size=22), 
         legend.text = element_text(size=10),
