@@ -16,7 +16,7 @@ class_orgs <- read_delim(here("Historico","class-2021-04-21.csv"),
 complemento_deleg <- read_delim("complemento_delegs_v2.2.csv", 
                                 ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                                 trim_ws = TRUE)
-complemento_orgs <- read_delim("complemento_orgs_v2.1.csv", locale = locale(encoding = "UTF-8"), 
+complemento_orgs <- read_delim("complemento_orgs_v2.2.csv", locale = locale(encoding = "ISO-8859-1"), 
                                ";", escape_double = FALSE, trim_ws = TRUE)
 complemento_class <- read_delim("complemento_classorgs_v2.csv",
                                 ";", escape_double = FALSE, locale = locale(encoding = "UTF-8"),
@@ -107,6 +107,25 @@ teste_id_unica()
 View(updated_class)
 View(updated_deleg)
 View(updated_orgs)
+
+
+# correção em BNDES e CEAGESP - travessão ou meia-risca lida errada gerou erro.
+updated_orgs <- updated_orgs %>% 
+  mutate(org_limpo = if_else(str_detect(org_limpo, ""),
+                             str_replace(org_limpo, "", "-"),
+                             org_limpo
+  )
+  )
+
+updated_class <- updated_class %>% 
+  mutate(org_limpo = if_else(str_detect(org_limpo, ""),
+                             str_replace(org_limpo, "", "-"),
+                             org_limpo
+  )
+  )
+
+
+
 
 #Salvar versão atual incluindo data de atualização no nome ----------
 save_updated <- function(nome_base){
