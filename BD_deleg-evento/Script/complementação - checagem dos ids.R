@@ -4,13 +4,14 @@ library(here)
 
 # importar o complemento das delegs e a versao atual de lista_orgs
 
-# complementos <- complemento_delegs_v2_1
-# lista_orgs <- lista_orgs_v2_2
+# complementos <- complemento_delegs_v2_2
+# lista_orgs <- orgs_2021_04_21
 
 
 #cria comb 
 lista_orgs <- lista_orgs %>% mutate(comb = paste(org_sujo, 
                                                  org_detalhe_sujo))
+lista_orgs <- lista_orgs %>% distinct()
 
 complementos <- complementos %>% mutate(
   comb = paste(org, org_detalhe)
@@ -27,8 +28,10 @@ return_id_dupla <- function(i, df_complemento = complementos,
 
 
 # Incluir o id_org_dupla --------
-  # Incluir os j? existentes
+  # Incluir os ja existentes
 complementos$id_org_dupla <- unlist(sapply(1:nrow(complementos), return_id_dupla))
+
+
 
   # Criar os novos ids
 ultimo_id <- lista_orgs$id_org_dupla %>% max() #ultimo id usado
@@ -53,15 +56,41 @@ incluir_id <- function(numero_row){
 complementos$id_org_dupla <- unlist(sapply(1:nrow(complementos), incluir_id))
 
 
+
+# Testar se gerou algum id_org_dupla errado -----
+teste_duplicados <- function(delegs = complementos, ls = lista_orgs){
+  int <- intersect(delegs$id_org_dupla, ls$id_org_dupla)
+  db <- bind_rows(
+    delegs %>% mutate(fonte = "comp") %>%  filter(id_org_dupla %in% int) %>% 
+      select(id_org_dupla, comb, fonte),
+    ls %>% mutate(fonte = "orgs") %>% filter(id_org_dupla %in% int) %>% 
+      select(id_org_dupla, comb, fonte)
+  ) %>% distinct
+  
+  teste_identico <- function(nrow, data = db){
+  linha = data[nrow,]
+  data %>% filter(id_org_dupla == linha$id_org_dupla & fonte != linha$fonte) %>% 
+    pull("comb") -> comb_compl
+  linha$comb == comb_compl
+  }
+  
+  for(i in 1:nrow(db)){
+    db$idcorreto[i] <- teste_identico(i)
+  }
+  db
+}
+
+duplicados <- teste_duplicados()
+all(duplicados$idcorreto == T) # Se T, pode salvar
+
 # retirar comb
 complementos$comb <- NULL
-
-# Salvar com o id_org_dupla
+# Salvar com o id_org_dupla ------------
 # new_vers <- "2.2"
-write.csv2(complementos, 
-           str_replace("complemento_delegs_vNUMEROVERSAO.csv",
-                       "NUMEROVERSAO", new_vers)
-)
+# write.csv2(complementos,
+#            str_replace("complemento_delegs_vNUMEROVERSAO.csv",
+#                        "NUMEROVERSAO", new_vers)
+# )
 
 
 
@@ -78,7 +107,7 @@ rename(org_sujo = org, org_detalhe_sujo = org_detalhe) %>%
   distinct() -> complemento_orgs
 
 
-#ARRUMAR ESSA GAMBIARRA NAS PR?X ATUALIZA??ES (FAZER UM JOIN S?)
+#ARRUMAR ESSA GAMBIARRA NAS PROX ATUALIZA??ES (FAZER UM JOIN S?)
 complemento_orgs <- left_join(complemento_orgs, lista_orgs)
 complemento_orgs$comb <- NULL
 
@@ -99,7 +128,7 @@ complemento_orgs[complemento_orgs$id_org_dupla==24,]$id_org_unica <- 565
 
 
 # write.csv2(complemento_orgs, "complemento_orgs_v[NUMEROVERSAO].csv")
-new_vers <- "2"
+new_vers <- "2.2"
 write.csv2(complemento_orgs, 
            str_replace("complemento_orgs_vNUMEROVERSAO.csv",
                        "NUMEROVERSAO", new_vers)
@@ -107,3 +136,22 @@ write.csv2(complemento_orgs,
 
 
 # Incluir id_org_unica
+
+
+
+# Correção jul/21 (ids_dupla gerado errado. corrigir no compl orgs já limpo tb) ----
+# comp_orgs <- complemento_orgs_v2_1
+# comp_orgs$id_org_dupla <- NULL
+# comp_orgs <- comp_orgs %>% distinct %>% 
+#   mutate(comb = paste0(org_sujo, org_detalhe_sujo))
+# 
+# id_correto <- complementos %>% mutate(comb = paste0(org, org_detalhe)) %>% 
+#   select(comb, id_org_dupla) %>% distinct
+# 
+# comp_orgs <- left_join(comp_orgs, id_correto, by = "comb")
+# com_orgs$comb <- NULL
+# 
+# write.csv2(comp_orgs,
+#            str_replace("complemento_orgs_vNUMEROVERSAO.csv",
+#                                              "NUMEROVERSAO", new_vers)
+# )
