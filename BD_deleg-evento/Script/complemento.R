@@ -110,7 +110,7 @@ View(updated_orgs)
 
 
 # correção em BNDES e CEAGESP - travessão ou meia-risca lida errada gerou erro.
-<<<<<<< HEAD
+
 # updated_orgs <- updated_orgs %>% 
 #   mutate(org_limpo = if_else(str_detect(org_limpo, ""),
 #                              str_replace(org_limpo, "", "-"),
@@ -140,9 +140,6 @@ updated_class <- updated_class %>%
                              org_limpo
   )
   )
-
-
->>>>>>> 210f65b84119e1ea310c070df5cf0731a08e4356
 
 
 #Salvar versão atual incluindo data de atualização no nome ----------
