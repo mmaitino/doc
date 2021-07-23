@@ -3,22 +3,22 @@ library(here)
 library(lubridate)
 library(ggplot2)
 # Leitura das bases ---------
-deleg <- read_delim("deleg-2021-04-21.csv", 
+deleg <- read_delim("deleg-2021-07-22.csv", 
                     ";", escape_double = FALSE, col_types = cols(X1 = col_skip(), 
                                                                  X1_1 = col_skip()), locale = locale(encoding = "ISO-8859-1"), 
                     trim_ws = TRUE)
 
-orgs <- read_delim("orgs-2021-04-21.csv", 
+orgs <- read_delim("orgs-2021-07-22.csv", 
                    ";", escape_double = FALSE, col_types = cols(X1 = col_skip()), 
                    locale = locale(encoding = "ISO-8859-1"), 
                    trim_ws = TRUE) %>% distinct()
 
-class <- read_delim("class-2021-04-21.csv", 
+class <- read_delim("class-2021-07-22.csv", 
                     ";", escape_double = FALSE, col_types = cols(X1 = col_skip()), 
                     locale = locale(encoding = "ISO-8859-1"), 
                     trim_ws = TRUE) %>% distinct()
 
-eventos <- read_delim("eventos_v2.csv", 
+eventos <- read_delim("eventos_v3.csv", 
                       ";", escape_double = FALSE, locale = locale(encoding = "UTF-8"), 
                       trim_ws = TRUE)
 
@@ -64,6 +64,8 @@ eventos <- eventos %>% mutate(
 eventos <- eventos %>% mutate(across(where(is.character), str_trim))
 
 # Descrição da base dos eventos -----------
+# retirar ano >2020, < 1970
+eventos <- eventos %>% filter(ano >= 1970 & ano <= 2020)
 
 ###.... Linha: evolução eventos no tempo, dividido total e coletados ----
 freqeventos_ano <- eventos %>% group_by(ano) %>% summarise(total = n())
@@ -78,13 +80,40 @@ ggplot(freqeventos_ano, aes(x=ano, y = value, group = Legenda)) +
   geom_area(position='identity', aes(fill=Legenda), alpha=0.3) +
   geom_line(aes(color=Legenda)) +
   labs(title = "Número de eventos por ano de realização") +
-  ylim(0,18) +
   scale_x_continuous(NULL, n.breaks = 10) +
-  scale_y_continuous(NULL, n.breaks = 6) +
+  scale_y_continuous(NULL, limits = c(0, 22)) +
   theme(plot.title = element_text(size=22), 
         legend.text = element_text(size=10),
         legend.title = element_blank(),
         legend.position="bottom")
+
+ggsave(paste0("Coleta","-",Sys.Date(),".png"),
+       width = 9, height = 4)
+
+# Filtro das principais conferências
+eventos %>% filter(`Principais convenções + gdes conf` == "Sim") -> freq_principais
+freq_princ_ano <- freq_principais %>% group_by(ano) %>% summarise(total = n()) 
+freq_princ_col <- freq_principais %>% filter(coleta == "Sim") %>% 
+  group_by(ano) %>% summarise(coletados = n())
+freq_princ_ano <- left_join(freq_princ_ano, freq_princ_col) %>% 
+  pivot_longer(cols = c(total, coletados), names_to = "Legenda")
+
+ggplot(freq_princ_ano, aes(x=ano, y = value, group = Legenda)) +
+  scale_color_manual(values = c("palegreen4", "palegreen3")) +
+  scale_fill_manual(values = c("palegreen4", "palegreen3")) +
+  geom_area(position='identity', aes(fill=Legenda), alpha=0.3) +
+  geom_line(aes(color=Legenda)) +
+  labs(title = "Número de eventos por ano de realização",
+       subtitle = "Principais convenções multilaterais e grandes conferências ONU") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  scale_y_continuous(NULL, limits = c(0, 22)) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
+ggsave(paste0("Coleta principais","-",Sys.Date(),".png"),
+       width = 9, height = 4)
   
 ###.... Colunas empilhadas: número de eventos coletados/total, divididos por temas ----
 freq_tema <- eventos %>% group_by(tema, coleta) %>% summarise(total = n()) %>%
@@ -109,6 +138,8 @@ ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
         axis.text.x = element_text(size = 7)) +
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
 
+ggsave(paste0("Coleta tema","-",Sys.Date(),".png"),
+       width = 15, height = 7)
 
 ###.... Colunas empilhadas: número de eventos coletados/total, divididos por tipo ----
 freq_tipo <- eventos %>% group_by(tipo_evento, coleta) %>% summarise(total = n()) %>%
@@ -134,6 +165,9 @@ ggplot(freq_tipo, aes(x = tipo_evento, y = total,
         axis.text.x = element_text(size = 7)) +
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
 
+ggsave(paste0("Coleta tipo","-",Sys.Date(),".png"),
+       width = 12, height = 4.5)
+
 # Descrição tamanho das delegações ---------
 deleg_evento <- left_join(deleg_completo,
                           select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
@@ -144,23 +178,29 @@ deleg_evento <- left_join(deleg_completo,
 
 ###....Dispersão deleg_size ----
 resumo_deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>% left_join(select(eventos, c(conf, location, tema))) %>% 
-  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", 
+                         "Fora do Brasil/Sem info"),
          Tema = case_when (
            tema == "Clima" ~ "Clima",
+           #str_detect(tema, "Biodiversidade") ~ "Biodiversidade",
            tema == "Grandes conferências ONU" ~ "Mega conf. ONU",
-           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Não-clima"
-           ))
+           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Outros",
+           )) %>% mutate(Local = if_else(is.na(Local), "Fora do Brasil/Sem info",
+                                         Local)
+                         )
 
 # com Rio+20
 disp_delegsize <- ggplot(resumo_deleg_size, aes(x = ano, y = count, color = Tema, group = Local)) +
-  geom_point(aes(shape = Local, size = Local)) +
+  geom_point(aes(shape = Local)) +
   geom_label(aes(x = 2012, y = 1500, label = "Rio+20"), nudge_x = 2) +
   geom_label(aes(x = 2009, y = 572, label = "COP15"), nudge_x = 2) +
   geom_label(aes(x = 1992, y = 157, label = "ECO-92"), nudge_x = 2) +
   geom_label(aes(x = 2002, y = 294, label = "Rio+10"), nudge_x = 2) +
   scale_size_manual(values = c(3,2)) +
   scale_shape_manual(values = c(17,16)) +
-  scale_color_manual(values = c("tomato1","olivedrab4", "lightsteelblue4")) + 
+  scale_color_manual(values = c(#"dodgerblue",
+                                "tomato1",
+                                "olivedrab4", "lightsteelblue4")) + 
   labs(title = "Tamanho da delegação por evento") +
   theme(plot.title = element_text(size=22), 
         legend.text = element_text(size=10),
@@ -169,6 +209,12 @@ disp_delegsize <- ggplot(resumo_deleg_size, aes(x = ano, y = count, color = Tema
   scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
   scale_x_continuous(name = NULL, n.breaks = 12)
 
+
+ggsave(paste0("Disp size"," Rio+20","-",Sys.Date(),".png"),
+       disp_delegsize,
+       width = 11, height = 5)
+
+
 # sem Rio +20
 disp_delegsize +
   scale_y_continuous("Número de participantes registrados", n.breaks = 8,
@@ -176,12 +222,14 @@ disp_delegsize +
                      # limits = c(0,70) #zoom confs menores
                      )
 
+ggsave(paste0("Disp size"," sem Rio+20","-",Sys.Date(),".png"),
+       width = 11, height = 5)
 
 # tipo_evento
 deleg_size_bytipo <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>%
   left_join(select(eventos, c(conf, tipo_evento))) #%>% 
   # mutate(tipo_evento = if_else(tipo_evento == "Main regular party meetings (COP, MOP, etc)",
-  #                              "COP/MOP", "Negociação ou plenipotenciária"))
+  #                              "COP/MOP", "Pré-tratado ou plenipotenciária"))
 
 ggplot(deleg_size_bytipo, aes(x=ano, y = count, color = tipo_evento)) +
   geom_point() +
@@ -201,11 +249,19 @@ ggplot(deleg_size_bytipo, aes(x=ano, y = count, color = tipo_evento)) +
   scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
   scale_x_continuous(name = NULL, n.breaks = 12) -> disp_delegsize_tipo
 
+ggsave(paste0("Disp size","tipo Rio+20","-",Sys.Date(),".png"),
+       disp_delegsize_tipo,
+       width = 11, height = 5)
+
+
 disp_delegsize_tipo +
   scale_y_continuous("Número de participantes registrados", n.breaks = 8,
                      limits = c(0,600) #cop15
                      # limits = c(0,70) #zoom geral
                      )
+
+ggsave(paste0("Disp size","tipo sem Rio+20","-",Sys.Date(),".png"),
+       width = 11, height = 5)
 
 ###....Média deleg_size ----
 resumo_deleg_size %>% group_by(ano) %>% 
@@ -217,26 +273,32 @@ resumo_deleg_size %>% group_by(ano) %>%
 
 ggplot(stats_deleg_size, aes(x=ano, y=mean_deleg_size)) +
   geom_line() + geom_point() +
-   geom_label(aes(x = 2012, y = 340, label = "2012 - Rio+20")) +
-   geom_label(aes(x = 1992, y = 60, label = "1992 - Rio")) +
+   geom_label(aes(x = 2012, y = 195, label = "2012 - Rio+20")) +
+   geom_label(aes(x = 1992, y = 55, label = "1992 - Rio")) +
   labs(title = "Tamanho médio das delegações brasileiras a conferências ambientais",
        subtitle = "Dados das listas oficiais de participantes emitidas pelos eventos") +
   scale_y_continuous(n.breaks = 8) +
   scale_x_continuous(name = NULL, n.breaks = 12)
 
+
+ggsave(paste0("Evolução média deleg_size","-",Sys.Date(),".png"),
+       width = 11, height = 5)
 # Descrição perfil participantes ----
 
 ###....Dispersão % MRE ----
 MRE_conf <- deleg_evento %>% group_by(conf, ano, tipo_org_reduzido) %>% 
   summarise(count = n()) %>% mutate(percentual = count/sum(count), `Tamanho da delegação` = sum(count)) %>% 
+  filter(ano >= 1970 & ano <= 2020) %>% # retirando delegs fora do escopo temporal
   filter(tipo_org_reduzido == "Governo federal MRE") %>% 
   left_join(select(eventos, c(conf, location, tema, tipo_evento))) %>% 
   mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
          Tema = case_when (
            tema == "Clima" ~ "Clima",
            tema == "Grandes conferências ONU" ~ "Mega conf. ONU",
-           tema == "Florestas" ~ "Florestas",
-           tema != "Clima" & tema != "Grandes conferências ONU" & tema != "Florestas" ~ "Outros"
+           #tema == "Florestas" ~ "Florestas",
+           str_detect(tema, "Biodiversidade") ~ "Biodiversidade",
+           tema != "Clima" & tema != "Grandes conferências ONU" & #tema != "Florestas" ~ "Outros"
+             tema != "Biodiversidade" ~ "Outros"
          )) #%>% 
   #mutate(Tema = if_else(Tema == "Florestas", "Outros", Tema))
 
@@ -246,7 +308,7 @@ ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema, group = Local)) +
                  size = `Tamanho da delegação`)) +
   scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent) +
   scale_shape_manual(values = c(17,16)) +
-  scale_color_manual(values = c("tomato1","olivedrab4", "magenta3","royalblue3")) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
   # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
   labs(title = "Perfil das delegações por evento",
        subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty") +
@@ -257,6 +319,9 @@ ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema, group = Local)) +
         legend.title = element_text(size =12),
         legend.position="right") 
   
+
+ggsave(paste0("Dispersão Perc MRE deleg_size","-",Sys.Date(),".png"),
+       width = 11, height = 5)
 
 ###....Dispersão % MRE por tipo evento ----
 MRE_conf %>% mutate(Tema = if_else(Tema == "Clima", "Clima", "Outros"),
@@ -278,7 +343,9 @@ ggplot(aes(x=ano, y=percentual, color = tipo_evento)) +
                legend.position="right") +
            scale_size(range = c(1, 5), name="Tamanho da delegação")
 
-       
+
+ggsave(paste0("Dispersão Perc MRE deleg_size tipo","-",Sys.Date(),".png"),
+       width = 11, height = 5)       
 
 
 ###....Evolução % MRE, MCT, MMA no tempo ----
@@ -289,6 +356,7 @@ orgs_princ <- deleg_evento %>%
       "Ministério da Ciência e Tecnologia",
     id_org_unica %in% c(23,422) ~ "Ministério da Ciência e Tecnologia",
     id_org_unica %in% c(442, 324, 333, 555) ~ "Ministério do Meio Ambiente",
+    # id_org_unica %in% c(326, 576, 441) ~ "Ministério do Meio Ambiente",
     id_org_unica %in% c(214, 421) ~ "Ministério da Agricultura, Pecuária e Abastecimento",
   ))
 # inclusão de IBAMA, ICMBio, AEB, IBDF (326), SFB (576), M Interior (441)
@@ -321,6 +389,9 @@ MMA inclui IBAMA e ICMBio. MCT inclui AEB e laboratórios vinculados. MAPA inclu
   theme(plot.title = element_text(size=22))
 
 
+ggsave(paste0("Parts por org-ano", "-",Sys.Date(),".png"),
+       width = 7.5, height = 5.3)
+
 ######### MCT e MMA "puros"
 # freq_minist_tempo <- deleg_evento %>% 
 #   group_by(ano, org_limpo) %>% 
@@ -349,7 +420,7 @@ MMA inclui IBAMA e ICMBio. MCT inclui AEB e laboratórios vinculados. MAPA inclu
 freq_orgs_tempo <- deleg_evento %>% 
   # mutate(tipo_org_reduzido = if_else(
   #   tipo_org_reduzido %in% c("Sociedade civil, sindicatos, movimentos sociais", "Setor empresarial"),
-  #   "Sociedade civil e empresas", tipo_org_reduzido)) %>% 
+  #   "Sociedade civil e empresas", tipo_org_reduzido)) %>%
   group_by(ano, tipo_org_reduzido) %>% 
   summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
   ungroup() %>% # incluir contagem de observações nulas (freq = 0)
@@ -358,11 +429,12 @@ freq_orgs_tempo <- deleg_evento %>%
 freq_orgs_tempo$tipo_org_reduzido[freq_orgs_tempo$tipo_org_reduzido == "Governos subnacionais (Executivo, Legislativo, Empresas Públicas ou Autarquias)"] <- "Governos subnacionais"
 
 
+
 freq_orgs_tempo$tipo_factor <- factor(freq_orgs_tempo$tipo_org_reduzido, 
                                       levels = c("Governo federal MRE", "Governo federal não-MRE", 
                                                  "Governos subnacionais", "Legislativo federal",
                                                  "Sociedade civil, sindicatos, movimentos sociais", "Setor empresarial",
-                                                 #"Sociedade civil e empresas"
+                                                 # "Sociedade civil e empresas"
                                                  "Órgãos de ensino e pesquisa", "Outro",
                                                  "Não identificado"
                                                  ))
@@ -377,3 +449,6 @@ freq_orgs_tempo %>%
   scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
   scale_x_continuous(name = NULL, n.breaks = 12) +
   theme(plot.title = element_text(size=18))
+
+ggsave(paste0("Delegações por tipo org", "-",Sys.Date(),".png"),
+       width = 6.7, height = 10.2)
