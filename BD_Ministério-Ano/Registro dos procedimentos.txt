@@ -1,0 +1,14 @@
+1) Extração dos dados dos sites oficiais:
+PEP (consulta 17/02/2021); 
+BEP (download 18/02/2021);
+SIOP (consulta 18/02/2021; órgão, grupo de despesa, PL/DotInicial/DotAtual/Empenho/Liquidado/Pago, 2000-2020)
+
+2) Unificação dos dados PEP e organização dados BEP
+Checar scripts registrados.
+
+3) Organização SIOP
+Transposição da planilha para formato tidy, redução das colunas (total e investimento p/ dot_atual e valor_pago). Ver script Organização SIOP.
+
+4) Dicionário id_org_unica ~ PEP/BEP/SIOP
+Criação das chaves para relação entre as planilhas. Abandono dos dados dos Institutos Federais no PEP, do MPU no SIOP, e dos territórios/Guanabara do BEP. 
+
