@@ -12,3 +12,17 @@ Transposição da planilha para formato tidy, redução das colunas (total e inv
 4) Dicionário id_org_unica ~ PEP/BEP/SIOP
 Criação das chaves para relação entre as planilhas. Abandono dos dados dos Institutos Federais no PEP, do MPU no SIOP, e dos territórios/Guanabara do BEP. 
 
+5) União e limpeza das planilhas das capacidades
+União no dia 13/08/2021 a partir dos dicionários. Limpeza dos duplicados.
+
+--------------------------------
+Na primeira semana de setembro de 2021 (03-06/09), foram identificados e corrigidos alguns erros na base integrada SIOP-BEP-PEP. 
+Isso foi feito após consulta direta aos sistemas, conferindo os dados para cada observação 
+(Total dotação inicial, total pago - conferência um a um; 
+os valores referentes a investimentos foram conferidos por amostragem, não foram identificados problemas)
+
+No mesmo período, foi criada a planilha DURAÇÃO, referente à existência do ministério no ano da observação.
+Em 09/09/2021 foram re-organizados os dicionários e as planilhas dos dados. Devido ao grande número de arquivos, optou-se por excluir parte dos dados intermediários (etapas do tratamento e limpeza das bases). Como os dados foram conferidos diretamente com as fontes (SIOP e PEP), não deve haver problema. 
+
+A planilha referente à ESTRUTURA INTERNACIONAL dos ministérios foi também organizada em 09/09/2021, a partir dos dados coletados em pesquisa de normas realizada no início do mesmo ano. A planilha com todos os dados foi mantida em formato excel, com informações dos decretos, nomes das estruturas e comentários julgados relevantes durante o processo de classificação. A planilha utilizada na base consiste em uma simplificação desses dados (órgãos sem estrutura internacional = 0, órgãos com estrutura/em si dedicados ao tema = 1). Os anos para os quais não há decreto foram criados com repetição do valor referente ao decreto identificado anterior.
+
