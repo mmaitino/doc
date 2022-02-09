@@ -1,0 +1,229 @@
+---
+title: "Exploração efeitos delegação"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introdução
+A proposta aqui é fazer uma primeira exploração dos efeitos dos padrões de participação na delegação - mais especificamente, do tamanho da delegação e de sua composição - sobre a atuação do Brasil em Conferências multilaterais ambientais.
+Para isso, vou utilizar o banco de dados de Castro (2017), que codificou manualmente ações dos países durante as negociações da UNFCCC - declarações, manifestações de apoio ou discordância, etc. Os dados de Castro, construídos a partir dos relatórios do ENB, cobrem todos os dias de negociação em eventos como as COP e reuniões dos órgãos subsidiários (SB), mas estão restritos à UNFCCC.
+Será necessário adaptar os dados em questão para cruzá-los com minha base de dados, já que, no meu caso, os vários dias são agrupados em um único evento. A princípio, os dados referentes aos SB e outros eventos serão descartados, sendo mantidos apenas aqueles referentes às COP. Caso haja interesse, é possível coletar listas de participantes nas reuniões intersessionais dos SB no futuro. Da mesma forma, caso a análise pareça promissora, podemos tentar construir uma base similar à de Castro cobrindo eventos de outros temas.
+Note-se que, dado que a exploração inicial corresponde apenas às COPs do clima até 2013, o número de observações será baixo. Isso inviabiliza o uso de métodos de estatística inferencial, dado que o baixo número de observações (n<30) impede a aproximação à curva normal pelo teorema do limite central.
+
+## Importando a base de Castro
+As bases estão disponíveis no Harvard Dataverse em formato .dta (Stata). Duas bases são as mais relevantes: Statements Count (que conta as declarações por país nas negociações) e ENB relationships (que permite fazer ARS dos apoios dados entre países). No primeiro momento, vamos trabalhar apenas com Statements Count.
+```{r}
+library(tidyverse)
+library(haven)
+statements_count <- read_dta("C:/Users/marti/Documents/Doutorado/Dados/Base Castro - relational UNFCCC/statements_count.dta")
+relational <- read_dta("C:/Users/marti/Documents/Doutorado/Dados/Base Castro - relational UNFCCC/ENB_relationships.dta")
+# Demais arquivos:
+#unfccc_ratification.dta
+#country_groups.dta
+```
+
+Só nos interessam os dados do Brasil, mas nos interessa saber a atividade relativa (o percentual que manifestações do Brasil representa sobre todas as manifestações no dia ou no evento como um todo).
+Precisamos, ainda, descobrir quais dias correspondem a quais eventos. Não há uma coluna com esses dados em statements_count, mas há em relational (conference). Precisaremos cruzar as bases a partir das datas ou ENB_Nr.
+```{r}
+dic_eventos <- select(relational, c(conference, ENB_Nr)) %>% distinct()
+rm(relational)
+statements_count <- statements_count %>% left_join(dic_eventos)
+
+```
+Vamos, então, criar os dados de total de manifestações por dia e por evento.
+```{r}
+daily <- statements_count %>% group_by(e_date) %>% summarise(total_int_daily = sum(interventions))
+conference <- statements_count %>% group_by(conference) %>% summarise(total_int_conf = sum(interventions))
+statements_count <- statements_count %>% filter(country == "Brazil") %>% left_join(daily) %>% left_join(conference)
+rm(daily, conference)
+```
+
+## Importando a base de participantes e eventos da PEB ambiental
+É preciso, agora, importar as minhas bases de participantes e eventos. Vou pegar a versão atual, que ainda não inclui eventos para os quais o Brasil não enviou participantes. Para esta análise, isso não será um problema, dado que o Brasil enviou delegações às COP da UNFCCC em todos os eventos.
+
+```{r}
+deleg_eventos <- read.csv2("~/Doutorado/controle_doc/BD_deleg-evento/deleg_eventos-2021-11-09.csv")
+```
+
+## Juntando as bases
+Os dados ainda vão se encontrar com um label distinto do meu id de evento. Em Castro, conference corresponde a "Cidade Ano", não ao nome da reunião. Será necessário, portanto, criar uma variável desse tipo em minha base para cruzar os eventos. Note-se que pode haver mais de um New York 199x, por exemplo, caso haja COP e reuniões intersessionais na mesma cidade e no mesmo ano. As datas devem servir como auxiliares, portanto.
+
+A solução, no momento, é problemática, porque há várias reuniões pré-conf
+incluídas nos ENB, mas não nos meus dados de participação. Isso significa que os dados aqui dizem respeito a intervenções incluindo eventos pré-COP, mas aparecem como partes da COP. Como a análise é exploratória, me parece ok, mas pode ser um problema a depender da abordagem da análise. Isso deve ser mantido em mente ao analisar os dados. Seria possível resolver usando, por exemplo, apenas as datas referentes à COP em si. Note-se, ainda, que as datas em Castro referem-se à data de publicação do ENB, não das negociações (em geral, o ENB é publicado no dia seguinte. a ver se há variações nesse ponto)
+
+```{r}
+deleg_eventos <- deleg_eventos %>% filter(str_detect(conf, "UNFCCC")) %>% 
+  mutate(
+  id_castro = paste(str_extract(location, "[A-Z].+(?=,)"), ano)
+) %>% #criação de um id comparável 
+  mutate(id_castro = if_else(id_castro == "Marrakesh 2001", "Marrakech 2001",
+                             id_castro) # mudança na grafia para coincidir id
+         )
+
+```
+Agora vamos testar pra ver se as conferências batem usando esse id.
+```{r}
+BR_statements <- statements_count %>% rename(id_castro = conference) %>% 
+  right_join(deleg_eventos) %>% select(-c(date, date2))
+```
+Como queremos os dados agregados por evento, é útil já calcular o total de intervenções brasileiras no evento, mesmo que depois queiramos fazer análises com os dados de intervenções por dia.
+```{r}
+BR_event <- BR_statements %>% group_by(conf) %>% 
+  summarise(BR_int_conf = sum(interventions))
+
+BR_statements <- BR_statements %>% left_join(BR_event)
+rm(BR_event)
+BR_statements <- filter(BR_statements, ano <= 2013) #remove eventos sem dados interv
+```
+
+## Descrição das intervenções do Brasil
+Antes de explorar as relações, vale a pena visualizar a evolução das intervenções do Brasil no tempo. Os dados são apresentados agregados por conferência. Há uma pequena incorreção nos gráficos devido à existência de dois eventos em 2001 (a segunda parte da COP6, em Genebra, e a COP7, em Marrakesh). Nota-se, também, que em 1999, na COP05, não há intervenções do Brasil registradas na base de Castro - valeria investigar posteriormente se isso se deve a questões ignoradas aqui, como o uso de coalizões (como o GRULAC) como porta-vozes. Caso não se trate de um problema de mensuração, a conferência pode representar um caso desviante interessante para análise.
+
+Intervenções brasileiras no tempo
+```{r}
+library(ggplot2)
+ggplot(BR_statements, aes(x = ano,
+                          y = BR_int_conf)) +
+  geom_bar(stat="identity")
+```
+
+Total de intervenções no tempo
+```{r}
+library(ggplot2)
+ggplot(BR_statements, aes(x = ano,
+                          y = total_int_conf)) +
+  geom_bar(stat="identity")
+```
+
+O padrão de intensidade das intervenções brasileiras parece seguir a linha geral de intervenções. Em COPs com mais discussão, o Brasil participa mais, em COPs com menos, o Brasil participa menos.
+Vejamos, então, a evolução do percentual de intervenções.
+
+```{r}
+library(ggplot2)
+ggplot(BR_statements, aes(x = ano,
+                          y = BR_int_conf/total_int_conf)) +
+  geom_bar(stat="identity")
+```
+
+O Brasil é particularmente atuante em 1995 (Berlin), 1997 (Kyoto) e em 2009 (Copenhagen). Nota-se que em um número significativo das conferências, as manifestações do Brasil correspondem a mais de 20% das manifestações no evento.
+
+## Explorar as relações entre as variáveis
+Para a análise exploratória, a princípio, nos interessam mais os dados a nível de evento, pois trata-se do nosso nível de análise em deleg_eventos.
+
+Mais especificamente, nos interessa saber:
+a) O tamanho da delegação está relacionado ao número de intervenções que o Brasil faz no evento? E ao número relativo de intervenções brasileiras (isto é, a proporção sobre o total de intervenções no evento)?
+b) E a composição da delegação? O número e percentual de MRE, governo federal excluindo MRE, e demais atores estão relacionados às intervenções?
+
+### a) Tamanho da delegação e atividade
+
+Podemos calcular as correlações entre as variáveis. Nota-se que trata-se de uma relação positiva e de intensidade relevante. A relação parece se manter nos dados de intervenções a nível diário e agregados por evento.
+```{r}
+cat("\n",
+  "Correlação entre tamanho da delegação brasileira e n de intervenções no evento",
+  "\n", cor(BR_statements$deleg_size, BR_statements$BR_int_conf),
+    "\n",
+    "Correlação entre tamanho da delegação brasileira e % de intervenções no evento", "\n",
+    cor(BR_statements$deleg_size, 
+        BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+  "Correlação entre tamanho da delegação brasileira e nº de intervenções diárias",
+  "\n",
+   cor(BR_statements$deleg_size, BR_statements$interventions), "\n",
+  "Correlação entre tamanho da delegação brasileira e % de intervenções diárias",
+  "\n",
+  cor(BR_statements$deleg_size,
+      BR_statements$interventions/BR_statements$total_int_daily)
+)
+```
+
+Podemos visualizar a relação com um gráfico de dispersão, adicionando também a linha da relação estimada por LOESS.
+```{r}
+library(ggplot2)
+
+ggplot(BR_statements, mapping = aes(x = deleg_size, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
+
+O gráfico aponta para a possibilidade de termos outliers influenciando fortemente as estimativas da relação entre as variáveis. Temos poucos dados com delegações acima de 200 membros e, para o intervalo entre 0 e 200 participantes, a relação não parece tão clara (ver gráfico abaixo). Esse tipo de limitação é, porém, esperado, dado que temos um número muito reduzido de observações.
+
+Os outliers com delegações gigantes correspondem às COP 15 e 16. Na Conferência de Copenhagen, em 2009 (COP15), o Brasil apresentou-se com uma delegação de 572 membros, o que coincidiu com uma atividade bastante alta. Comportamento similar ocorre no ano seguinte, na COP16, quando o Brasil envia 435 delegados a Cancún.
+
+```{r}
+ggplot(filter(BR_statements, deleg_size < 250),
+       mapping = aes(x = deleg_size, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
+
+### b) Composição da delegação e atividade
+
+```{r}
+BR_statements <- rowwise(BR_statements) %>% mutate(
+  NaoTrad = sum(Subnac, Leg, Academia, SocCivil, Empresa, Outro))
+
+cat("Correlação entre nº MRE e % de intervenções no evento", "\n",
+cor(BR_statements$MRE,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+  "Correlação entre % MRE e % de intervenções no evento", "\n",
+cor(BR_statements$MRE/BR_statements$deleg_size,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+  "Correlação entre nº Governo Federal e % de intervenções no evento", "\n",
+cor(BR_statements$GovFed,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+ "Correlação entre % Governo Federal e % de intervenções no evento", "\n",
+cor(BR_statements$GovFed/BR_statements$deleg_size,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+ "Correl entre nº atores não-tradicionais (demais grupos) e % de intervenções no evento", "\n",
+cor(BR_statements$NaoTrad,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf), "\n",
+"Correl entre % não-tradicionais e % de intervenções no evento", "\n",
+cor(BR_statements$NaoTrad/BR_statements$deleg_size,
+     BR_statements$BR_int_conf/BR_statements$total_int_conf)
+
+  )
+```
+Nota-se que, quando incluímos a composição em termos de percentual, a correlação torna-se automaticamente negativa. Muito provavelmente, isso decorre da combinação entre a correlação positiva entre deleg_size e intervenções e a correlação negativa entre deleg_size e os percentuais.
+A correlação entre nº de atores em determinado grupo também não parece diferir muito entre os grupos (por volta de 0,5, um valor próximo também da correlação entre tamanho da delegação e % de intervenções). Considerando o baixo número de observações, é improvável que haja diferença estatisticamente signicativa na correlação entre categorias.
+
+Não obstante, vejamos também as relações entre as variáveis em gráficos de dispersão.
+Contagem MRE x % Intervenções
+
+```{r}
+ggplot(BR_statements, mapping = aes(x = MRE, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
+Na contagem, vemos um padrão bastante similar ao observado com deleg_size.
+Sendo assim, vamos observar somente as relações entre os percentuais.
+
+% MRE x % intervenções
+```{r}
+ggplot(BR_statements, mapping = aes(x = MRE/deleg_size, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
+
+% Governo Federal (sem MRE) x % intervenções
+```{r}
+ggplot(BR_statements, mapping = aes(x = GovFed/deleg_size, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
+
+% Atores não tradicionais (não pertencentes ao ExecFed) x % intervenções
+```{r}
+ggplot(BR_statements, mapping = aes(x = NaoTrad/deleg_size, 
+                                    y = BR_int_conf/total_int_conf)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = F)
+```
