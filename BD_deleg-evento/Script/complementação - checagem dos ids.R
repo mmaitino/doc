@@ -1,11 +1,11 @@
 library(tidyverse)
 library(here)
 # setwd(here("Doutorado","Dados", "Listas participantes"))
-
-# importar o complemento das delegs e a versao atual de lista_orgs
-
-# complementos <- complemento_delegs_v2_2
-# lista_orgs <- orgs_2021_04_21
+# 
+# # importar o complemento das delegs e a versao atual de lista_orgs
+# 
+# complementos <- complemento_delegs_v3
+# lista_orgs <- orgs_2021_08_26
 
 
 #cria comb 
@@ -86,7 +86,7 @@ all(duplicados$idcorreto == T) # Se T, pode salvar
 # retirar comb
 complementos$comb <- NULL
 # Salvar com o id_org_dupla ------------
-# new_vers <- "2.2"
+# new_vers <- "3.1"
 # write.csv2(complementos,
 #            str_replace("complemento_delegs_vNUMEROVERSAO.csv",
 #                        "NUMEROVERSAO", new_vers)
@@ -107,35 +107,47 @@ rename(org_sujo = org, org_detalhe_sujo = org_detalhe) %>%
   distinct() -> complemento_orgs
 
 
-#ARRUMAR ESSA GAMBIARRA NAS PROX ATUALIZA??ES (FAZER UM JOIN S?)
+# Adicionar os dados de org limpo para os id_org_dupla já presentes na base
 complemento_orgs <- left_join(complemento_orgs, lista_orgs)
 complemento_orgs$comb <- NULL
 
-# como fiz em dois momentos, um com tudo, tive que fazer umas altera??es nesse segundo join usando s? os sujos
-# complemento_orgs <- complemento_orgs %>% mutate(org_sujo = stringr::str_trim(org_sujo))
 
-df <- lista_orgs %>% select(c(org_sujo, org_limpo, id_org_unica)) %>% distinct
-df <- df %>% filter(is.na(org_sujo) == F)#retirar valores org_sujo = NA p/ evitar erros
-# df <- df %>% mutate(org_sujo = stringr::str_trim(org_sujo))
+# Adicionar os dados de org limpo para os casos de ORG já presentes na base
+# [não há a dupla, mas há a ORG]
 
+# trim org_sujo p/ evitar erros por whitespace e afins
+complemento_orgs <- complemento_orgs %>% mutate(org_sujo = stringr::str_trim(org_sujo))
+
+# adição dos dados ORG UNICA
+df <- lista_orgs %>% select(c(org_sujo, org_limpo, id_org_unica)) %>%
+  distinct
+
+# retirar valores org_sujo = NA p/ evitar erros
+df <- df %>% filter(is.na(org_sujo) == F)
+df <- df %>% mutate(org_sujo = stringr::str_trim(org_sujo))
+
+# antes do join, ignorar casos qdo org_sujo dá origem a mais de um org_limpo
+# (isso pode ocorrer qdo há variação devido a org_detalhe)
+lista_orgsujo_duplicado <- df[duplicated(df$org_sujo),] %>% pull(org_sujo)
+df <- df %>% filter(org_sujo %in% lista_orgsujo_duplicado == F)
+
+# Incluir os id_org_unica dos demais casos
 complemento_orgs <- complemento_orgs %>% select(-c(org_limpo, id_org_unica)) %>% 
   left_join(df, by = "org_sujo")
 
 # inclusao do id_org_dupla = 24 (sem informa??o), que foi eliminado ao tirar os sujos = NA
-complemento_orgs[complemento_orgs$id_org_dupla==24,]$org_limpo <- "Sem informaÃ§Ã£o"
+complemento_orgs[complemento_orgs$id_org_dupla==24,]$org_limpo <- "Sem informação"
 complemento_orgs[complemento_orgs$id_org_dupla==24,]$id_org_unica <- 565
 
 
 
 # write.csv2(complemento_orgs, "complemento_orgs_v[NUMEROVERSAO].csv")
-new_vers <- "2.2"
+new_vers <- "3"
 write.csv2(complemento_orgs, 
            str_replace("complemento_orgs_vNUMEROVERSAO.csv",
                        "NUMEROVERSAO", new_vers)
 )
 
-
-# Incluir id_org_unica
 
 
 
