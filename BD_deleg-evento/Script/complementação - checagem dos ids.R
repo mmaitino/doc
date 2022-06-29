@@ -1,11 +1,11 @@
 library(tidyverse)
 library(here)
-# setwd(here("Doutorado","Dados", "Listas participantes"))
+setwd(here("Doutorado","Dados", "Listas participantes"))
 # 
 # # importar o complemento das delegs e a versao atual de lista_orgs
 # 
-# complementos <- complemento_delegs_v3
-# lista_orgs <- orgs_2021_08_26
+complementos <- complemento_delegs_v3_extra
+lista_orgs <- orgs_2022_06_29
 
 
 #cria comb 
@@ -86,7 +86,7 @@ all(duplicados$idcorreto == T) # Se T, pode salvar
 # retirar comb
 complementos$comb <- NULL
 # Salvar com o id_org_dupla ------------
-# new_vers <- "3.1"
+# new_vers <- "3.1_extra"
 # write.csv2(complementos,
 #            str_replace("complemento_delegs_vNUMEROVERSAO.csv",
 #                        "NUMEROVERSAO", new_vers)
@@ -142,7 +142,7 @@ complemento_orgs[complemento_orgs$id_org_dupla==24,]$id_org_unica <- 565
 
 
 # write.csv2(complemento_orgs, "complemento_orgs_v[NUMEROVERSAO].csv")
-new_vers <- "3"
+new_vers <- "3_extra"
 write.csv2(complemento_orgs, 
            str_replace("complemento_orgs_vNUMEROVERSAO.csv",
                        "NUMEROVERSAO", new_vers)

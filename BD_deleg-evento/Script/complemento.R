@@ -2,21 +2,21 @@ library(tidyverse)
 library(here)
 
 # Puxar o historico
-delegs <- read_delim(here("Historico","deleg-2021-07-22.csv"),
+delegs <- read_delim(here("Historico","deleg-2022-06-29-incom.csv"),
                      ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                      trim_ws = TRUE)
-lista_orgs <- read_delim(here("Historico","orgs-2021-08-26.csv"), 
+lista_orgs <- read_delim(here("Historico","orgs-2022-06-29-incom.csv"), 
                          ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                          trim_ws = TRUE)
-class_orgs <- read_delim(here("Historico","class-2021-08-26.csv"),
+class_orgs <- read_delim(here("Historico","class-2022-06-29.csv"),
                          ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                          trim_ws = TRUE)
 
 # Puxar os complementos
-complemento_deleg <- read_delim("complemento_delegs_v3.1.csv", 
+complemento_deleg <- read_delim("complemento_delegs_v3.1_extra.csv", 
                                 ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                                 trim_ws = TRUE)
-complemento_orgs <- read_delim("complemento_orgs_v3.1.csv", locale = locale(encoding = "ISO-8859-1"), 
+complemento_orgs <- read_delim("complemento_orgs_v3.1_extra.csv", locale = locale(encoding = "ISO-8859-1"), 
                                ";", escape_double = FALSE, trim_ws = TRUE)
 complemento_class <- read_delim("complemento_classorgs_v3.csv",
                                 ";", escape_double = FALSE, locale = locale(encoding = "UTF-8"),
@@ -109,7 +109,7 @@ View(updated_deleg)
 View(updated_orgs)
 
 
-# travessão ou meia-risca lida errada gerou erro.
+# travessão ou meia-risca lida errada gera erro.
   # correção em BNDES e CEAGESP
 # updated_orgs <- updated_orgs %>% 
 #   mutate(org_limpo = if_else(str_detect(org_limpo, ""),
