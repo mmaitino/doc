@@ -1,0 +1,57 @@
+;org_sujo;org_detalhe_sujo;id_org_dupla;org_limpo;org_detalhe_limpo;id_org_unica
+1;AEB;NA;3244;AEB - Agência Espacial Brasileira;NA;23
+2;ANVISA;NA;3245;ANVISA - Agência Nacional de Vigilância Sanitária;NA;48
+3;Câmara dos Deputados;NA;2799;Câmara dos Deputados;NA;101
+4;CEBDS;NA;2203;CEBDS - Conselho Empresarial Brasileiro para o Desenvolvimento Sustentável;NA;118
+5;CGEE - Centro de Gestão e Estudos Estratégicos;NA;3246;CGEE - Centro de Gestão e Estudos Estratégicos;NA;128
+6;CODEVASF - Companhia de Desenvolvimento dos Vales do São Francisco e do Parnaíba;NA;3247;CODEVASF - Companhia de Desenvolvimento dos Vales do São Francisco e do Parnaíba;NA;145
+7;Companhia de Navegação Lloyd Brasileiro;NA;3248;Companhia de Navegação Lloyd Brasileiro;NA;755
+8;CONTAG;Assessoria de Assuntos Internacionais;3249;CONTAG - Confederação Nacional dos Trabalhadores Rurais Agricultores e Agricultoras Familiares;NA;175
+9;Docenave - Vale do Rio Doce Navegação S.A.;NA;3250;DOCENAVE - Vale do Rio Doce Navegação S.A.;NA;756
+10;EMBRAPA;NA;1392;EMBRAPA - Empresa Brasileira de Pesquisa Agropecuária;NA;214
+11;EMBRAPA;Embrapa Solos;3251;EMBRAPA - Empresa Brasileira de Pesquisa Agropecuária;NA;214
+12;Estado de Pernambuco;Secretaria da Ciência, Tecnologia e Meio Ambiente;3252;Estado de Pernambuco;NA;228
+13;Estado de Pernambuco;NA;2768;Estado de Pernambuco;NA;228
+14;Estado do Maranhão;NA;2766;Estado do Maranhão;NA;240
+15;IBAMA;Diretoria de Florestas;3253;IBAMA - Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis;NA;324
+16;MAPA;Apoio Rural e Cooperativas;3254;Ministério da Agricultura, Pecuária e Abastecimento;NA;421
+17;Marinha do Brasil;Diretoria de Portos e Costas;3235;Marinha do Brasil;NA;416
+19;Marinha Mercante;NA;3255;SUNAMAM - Superintendência Nacional da Marinha Mercante;NA;757
+20;MCT;Instituto Nacional do Semiárido;3256;Ministério da Ciência e Tecnologia;NA;422
+21;MCT;NA;1726;Ministério da Ciência e Tecnologia;NA;422
+22;MCT;Assuntos de Mudança Climática;3257;Ministério da Ciência e Tecnologia;NA;422
+23;Ministério da Integração Nacional;Secretaria de Infraestrutura Hídrica;3258;Ministério da Integração Nacional;NA;428
+24;Ministério do Exército;NA;2742;Ministério do Exército;NA;702
+25;Ministério do Interior;Secretaria de Meio Ambiente;3259;Ministério do Interior;SEMA - Secretaria Especial do Meio Ambiente;441
+26;MMA;NA;3260;Ministério do Meio Ambiente;NA;442
+27;MMA;Assessoria para Assuntos Internacionais;3261;Ministério do Meio Ambiente;NA;442
+28;MMA;Secretaria de Biodiversidade e Florestas, Programa de Conservação da Biodiversidade;3262;Ministério do Meio Ambiente;NA;442
+29;MMA;Secretaria de Biodiversidade e Florestas;3263;Ministério do Meio Ambiente;NA;442
+30;MMA;Planos de Recursos Hídricos;3264;Ministério do Meio Ambiente;NA;442
+31;MMA;Secretaria de Recursos Hídricos;3265;Ministério do Meio Ambiente;NA;442
+32;MMA;Assessoria internacional;3266;Ministério do Meio Ambiente;NA;442
+33;MMA;Secretaria de Extrativismo e Desenvolvimento Rural Sustentável;3267;Ministério do Meio Ambiente;NA;442
+34;MMA;Correspondente de CST;3268;Ministério do Meio Ambiente;NA;442
+35;MMA;Assessoria de Assuntos Internacionais;3269;Ministério do Meio Ambiente;NA;442
+36;MMA;Departamento de Gestão Ambiental;3270;Ministério do Meio Ambiente;NA;442
+37;MRE;NA;3271;Ministério das Relações Exteriores;NA;435
+38;MRE;Embaixada do Brasil em Haia;3272;Ministério das Relações Exteriores;NA;435
+39;MRE;DEMA;3273;Ministério das Relações Exteriores;NA;435
+40;MRE;Departamento de Temas Especiais;3274;Ministério das Relações Exteriores;NA;435
+41;MRE;Embaixada do Brasil na Alemanha;3275;Ministério das Relações Exteriores;NA;435
+42;MRE;Embaixada do Brasil em Cuba;3276;Ministério das Relações Exteriores;NA;435
+43;MRE;"Embaixada de Brasil em Cuba; Setor Político, Consular e Cultural";3277;Ministério das Relações Exteriores;NA;435
+44;MRE;Missão Permanente do Brasil junto ao PNUMA, Quênia;3278;Ministério das Relações Exteriores;NA;435
+45;MRE;Embaixada do Brasil em Buenos Aires;3279;Ministério das Relações Exteriores;NA;435
+46;MRE;Embaixada do Brasil em Londres;3280;Ministério das Relações Exteriores;NA;435
+47;MRE;Missão Permanente em Genebra;3281;Ministério das Relações Exteriores;NA;435
+48;MRE;Missão Permanente em Nova Iorque;3282;Ministério das Relações Exteriores;NA;435
+49;MS;NA;3283;Ministério da Saúde;NA;432
+50;Petrobrás;NA;3021;Petrobrás;NA;517
+51;Rio Doce Engenharia e Planejamento;NA;3284;RDEP - Rio Doce Engenharia e Planejamento;NA;758
+52;SEMA;NA;3285;Ministério do Interior;SEMA - Secretaria Especial do Meio Ambiente;441
+53;Sindicato Nacional das Empresas de Navegação Marítima;NA;3286;Syndarma - Sindicato Nacional das Empresas de Navegação Marítima;NA;759
+54;SUDENE;Divisão de Meio Ambiente da Coordenação de Planejamento;3287;SUDENE - Superintendência de Desenvolvimento do Nordeste;NA;588
+55;SUNAMAM - Superintendência Nacional da Marinha Mercante;NA;3288;SUNAMAM - Superintendência Nacional da Marinha Mercante;NA;757
+56;Universidade Federal de Campina Grande;Departamento de Engenharia Agrícola;3289;Universidade Federal de Campina Grande;NA;760
+57;NA;NA;24;Sem informação;NA;565

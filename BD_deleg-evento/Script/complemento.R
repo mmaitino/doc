@@ -2,23 +2,23 @@ library(tidyverse)
 library(here)
 
 # Puxar o historico
-delegs <- read_delim(here("Historico","deleg-2021-04-21-corr.csv"),
+delegs <- read_delim(here("Historico","deleg-2021-07-22.csv"),
                      ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                      trim_ws = TRUE)
-lista_orgs <- read_delim(here("Historico","orgs-2021-04-21.csv"), 
+lista_orgs <- read_delim(here("Historico","orgs-2021-08-26.csv"), 
                          ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                          trim_ws = TRUE)
-class_orgs <- read_delim(here("Historico","class-2021-04-21.csv"),
+class_orgs <- read_delim(here("Historico","class-2021-08-26.csv"),
                          ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                          trim_ws = TRUE)
 
 # Puxar os complementos
-complemento_deleg <- read_delim("complemento_delegs_v2.2.csv", 
+complemento_deleg <- read_delim("complemento_delegs_v3.1.csv", 
                                 ";", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
                                 trim_ws = TRUE)
-complemento_orgs <- read_delim("complemento_orgs_v2.2.csv", locale = locale(encoding = "ISO-8859-1"), 
+complemento_orgs <- read_delim("complemento_orgs_v3.1.csv", locale = locale(encoding = "ISO-8859-1"), 
                                ";", escape_double = FALSE, trim_ws = TRUE)
-complemento_class <- read_delim("complemento_classorgs_v2.csv",
+complemento_class <- read_delim("complemento_classorgs_v3.csv",
                                 ";", escape_double = FALSE, locale = locale(encoding = "UTF-8"),
                                 trim_ws = TRUE)
 
@@ -109,8 +109,8 @@ View(updated_deleg)
 View(updated_orgs)
 
 
-# correção em BNDES e CEAGESP - travessão ou meia-risca lida errada gerou erro.
-
+# travessão ou meia-risca lida errada gerou erro.
+  # correção em BNDES e CEAGESP
 # updated_orgs <- updated_orgs %>% 
 #   mutate(org_limpo = if_else(str_detect(org_limpo, ""),
 #                              str_replace(org_limpo, "", "-"),
@@ -126,7 +126,7 @@ View(updated_orgs)
 #   )
 # 
 # 
-=======
+
 updated_orgs <- updated_orgs %>% 
   mutate(org_limpo = if_else(str_detect(org_limpo, ""),
                              str_replace(org_limpo, "", "-"),
@@ -140,6 +140,19 @@ updated_class <- updated_class %>%
                              org_limpo
   )
   )
+
+
+# Cortar colunas extras se tiverem sido mantidas
+# (e.g. as de índice como X1, criadas ao salvar complementos via R)
+updated_deleg <- updated_deleg %>% select(c(
+  titulo, nome, desc, cargo_deleg, org, org_detalhe, cargo_org,
+  conf, pais, nline, fonte, id_org_dupla
+))
+
+updated_orgs <- updated_orgs %>% select(c(
+  org_sujo, org_detalhe_sujo, id_org_dupla, 
+  org_limpo, org_detalhe_limpo, id_org_unica
+))
 
 
 #Salvar versão atual incluindo data de atualização no nome ----------
