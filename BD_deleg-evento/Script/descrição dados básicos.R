@@ -74,6 +74,11 @@ freqeventos_ano_coletados <- eventos %>% filter(coleta == "Sim") %>%
 freqeventos_ano <- left_join(freqeventos_ano, freqeventos_ano_coletados) %>% 
   pivot_longer(cols = c(total, coletados), names_to = "Legenda")
 
+## antes de montar os gráficos, é preciso incluir os anos faltantes na série como 0
+freqeventos_ano <- complete(freqeventos_ano, ano = 1970:2018, nesting(Legenda),
+                            fill = list(value = 0))
+
+#gráficos
 ggplot(freqeventos_ano, aes(x=ano, y = value, group = Legenda)) +
   scale_color_manual(values = c("palegreen4", "palegreen3")) +
   scale_fill_manual(values = c("palegreen4", "palegreen3")) +
@@ -90,13 +95,30 @@ ggplot(freqeventos_ano, aes(x=ano, y = value, group = Legenda)) +
 ggsave(paste0("Coleta","-",Sys.Date(),".png"),
        width = 9, height = 4)
 
+#diferença
+diffeventos_anos <- pivot_wider(freqeventos_ano, names_from = "Legenda")
+
+ggplot(diffeventos_anos, aes(x = ano, y = (total-coletados)/total)) +
+  geom_line() +
+  labs(title = "Percentual não coletado por ano de eventos") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
 # Filtro das principais conferências
-eventos %>% filter(`Principais convenções + gdes conf` == "Sim") -> freq_principais
+eventos %>% filter(mainconf == "Sim") -> freq_principais
 freq_princ_ano <- freq_principais %>% group_by(ano) %>% summarise(total = n()) 
 freq_princ_col <- freq_principais %>% filter(coleta == "Sim") %>% 
   group_by(ano) %>% summarise(coletados = n())
 freq_princ_ano <- left_join(freq_princ_ano, freq_princ_col) %>% 
   pivot_longer(cols = c(total, coletados), names_to = "Legenda")
+
+## antes de montar os gráficos, é preciso incluir os anos faltantes na série como 0
+freq_princ_ano <- complete(freq_princ_ano, ano = 1970:2018, nesting(Legenda),
+                           fill = list(value = 0))
+
 
 ggplot(freq_princ_ano, aes(x=ano, y = value, group = Legenda)) +
   scale_color_manual(values = c("palegreen4", "palegreen3")) +
@@ -114,6 +136,19 @@ ggplot(freq_princ_ano, aes(x=ano, y = value, group = Legenda)) +
 
 ggsave(paste0("Coleta principais","-",Sys.Date(),".png"),
        width = 9, height = 4)
+
+#diferença
+diffprinc_anos <- pivot_wider(freq_princ_ano, names_from = "Legenda")
+
+ggplot(diffeventos_anos, aes(x = ano, y = (total-coletados)/total)) +
+  geom_line() +
+  labs(title = "Percentual não coletado por ano de eventos",
+       subtitle = "Principais convenções multilaterais e grandes conferências ONU") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
   
 ###.... Colunas empilhadas: número de eventos coletados/total, divididos por temas ----
 freq_tema <- eventos %>% group_by(tema, coleta) %>% summarise(total = n()) %>%

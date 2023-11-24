@@ -1,0 +1,376 @@
+---
+title: "Relatório de Coleta"
+output:
+  html_document:
+    df_print: paged
+date: "`r Sys.Date()`"
+---
+
+Esse relatório apresenta o progresso da coleta de dados do projeto "Pluralização da política externa ambiental brasileira". Apresentamos aqui dados básicos sobre a versão mais atualizada do Banco de Dados de Atores e Eventos da Política Externa Ambiental Brasileira (1970-2018). 
+O relatório traz, para fácil acesso, os números atualizados de eventos e participantes incluídos na base. O principal ponto do arquivo, porém, é apresentar os dados de sucesso/fracasso na coleta dos dados, que permitem avaliar eventuais vieses de seleção no banco.
+
+```{r setup, results= 'hide'}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+
+```
+
+
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  date
+}
+```
+
+**Versão da planilha deleg**: `r get_latest("deleg")`
+
+**Versão da planilha orgs**: `r get_latest("orgs")`
+
+**Versão da planilha class**: `r get_latest("class")`
+
+**Versão da planilha eventos**: `r get_latest("eventos")`
+
+
+
+## Preparo do banco
+Antes de apresentar os dados, é preciso construir o banco principal integrando os dados dos bancos parciais (eventos, delegações, indivíduos) no R. O script para isso será incluído aqui, mas rodado de forma silenciosa.
+
+- Carregando as bases separadas
+
+```{r importando bases, results='hide'}
+## Importando os dados ------------
+getlatest_file <- function(basefilename){
+  list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+}
+
+deleg <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+orgs <- read_delim(getlatest_file("orgs"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   #locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+class <- read_delim(getlatest_file("class"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+```
+
+- Integrando as bases em uma
+```{r integrando bases, results ='hide'}
+# Criando deleg_completo (deleg+orgs+class) --------
+orgs_classificado <- left_join(orgs, class) %>% select(-c(org_sujo, org_detalhe_sujo))
+# N de rows aumenta, porque tem orgs que ficaram apenas na class e saíram da lista orgs (foram erros na padronização e corrigidos posteriormente)
+# Teste (resultado deve ser tibble vazio): left_join(orgs, class, by = "id_org_unica") %>% filter(org_limpo.x != org_limpo.y)
+
+deleg_completo <- deleg %>% select(-c(org, org_detalhe)) %>% left_join(orgs_classificado, by = "id_org_dupla")
+
+# Limpando deleg_completo
+deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim))
+
+rm(deleg, orgs, class)
+```
+
+- Organizando a base de eventos
+```{r limpando base eventos, results = 'hide'}
+# Limpando a base dos eventos --------
+
+### Limpar e renomear colunas
+eventos <- eventos %>% select(-c(`Código ONU`, Comentário, 
+                                 `Formato lista`, 
+                                 `Aberto?`, `Questões a atentar`, 
+                                 Corrigendum, Local)) %>% #retira colunas irrelevantes
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`,
+    mainconf = `Principais convenções + gdes conf`
+  )
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>% 
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = lubridate::ymd(data), 
+               ano = lubridate::year(lubridate::ymd(data))) 
+
+eventos <- eventos %>% mutate(across(where(is.character), str_trim))
+```
+
+
+## Descrição geral do banco
+### Processo de coleta e limitações do banco a serem levados em consideração
+
+- *Descrever o processo de escolha das conferências a serem incluídas*
+
+- A partir de 2015, os dados referentes às COPs da UNFCCC sofrem uma mudança importante: o Brasil passa a registrar os membros da delegação oriundos da sociedade civil como 'party overflow'. Participantes nessa categoria não têm seu nome incluído nas listas oficiais de participantes, o que representa importante quebra nos nossos dados.
+
+### Base total
+A base inclui alguns eventos pré 1970 e pós 2018, mas a coleta não foi sistemática nesses períodos. Seguem abaixo os dados para as delegações e eventos **como um todo, isto é, sem filtros referentes a datas**:
+
+
+**Número total de eventos identificados**: `r length(eventos$conf)`
+
+**Número total de eventos coletados**:`r length(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf)`
+
+**Número total de organizações presentes nas delegações**: `r length(unique(deleg_completo$id_org_unica))`
+
+**Número total de participações/nomes nas delegações** *(inclui repetições dos mesmos indivíduos)*: `r nrow(deleg_completo)`
+
+**Número total de indivíduos presentes nas delegações** *(após limpeza dos dados via Google Refine)*: [Ainda não incluí planilha individuos aqui. Ver com dados de redes]
+
+
+**Número de eventos com delegações brasileiras vazias** *(ie, para os quais foi obtida a lista de participantes, mas o Brasil não enviou delegação)*:`r length(setdiff(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf, unique(deleg_completo$conf)))`
+
+### Base filtrada
+A base inclui alguns eventos pré 1970 e pós 2018, mas a coleta não foi sistemática nesses períodos. Seguem abaixo os dados para as delegações e eventos considerando **apenas o período 1970-2018**:
+
+```{r filtrando base eventos, results='hide'}
+## filtrar a base
+eventos <- eventos %>% filter(ano >= 1970 & ano <= 2018)
+```
+
+**Número total de eventos identificados**: `r length(eventos$conf)`
+
+**Número total de eventos coletados**:`r length(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf)`
+
+**Número total de organizações presentes nas delegações**: `r filter(deleg_completo, conf %in% unique(eventos$conf)) %>% pull(id_org_unica) %>% unique() %>% length`
+
+**Número total de participações/nomes nas delegações** *(inclui repetições dos mesmos indivíduos)*: `r filter(deleg_completo, conf %in% unique(eventos$conf)) %>% nrow()`
+
+**Número total de indivíduos presentes nas delegações** *(após limpeza dos dados via Google Refine)*: [Ainda não incluí planilha individuos aqui. Ver com dados de redes]
+
+
+**Número de eventos com delegações brasileiras vazias** *(ie, para os quais foi obtida a lista de participantes, mas o Brasil não enviou delegação)*:`r length(setdiff(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf, unique(deleg_completo$conf)))`
+
+
+## Grau de sucesso da coleta: percentual de eventos incluídos na base
+Os dados abaixo são apresentados levando em conta a base filtrada, isto é, **apenas os eventos no período 1970-2018**.
+
+
+Eventos coletados/identificados ao longo do tempo
+```{r cálculo frequencia, results='hide'}
+###.... Linha: evolução eventos no tempo, dividido total e coletados ----
+freqeventos_ano <- eventos %>% group_by(ano) %>% summarise(total = n())
+freqeventos_ano_coletados <- eventos %>% filter(coleta == "Sim") %>% 
+  group_by(ano) %>% summarise(coletados = n())
+freqeventos_ano <- left_join(freqeventos_ano, freqeventos_ano_coletados) %>% 
+  pivot_longer(cols = c(total, coletados), names_to = "Legenda")
+
+## antes de montar os gráficos, é preciso incluir os anos faltantes na série como 0
+freqeventos_ano <- complete(freqeventos_ano, ano = 1970:2018, nesting(Legenda),
+                            fill = list(value = 0))
+```
+
+```{r plotando eventos coletados no tempo, echo=FALSE}
+#gráficos
+ggplot(freqeventos_ano, aes(x=ano, y = value, group = Legenda)) +
+  scale_color_manual(values = c("palegreen4", "palegreen3")) +
+  scale_fill_manual(values = c("palegreen4", "palegreen3")) +
+  geom_area(position='identity', aes(fill=Legenda), alpha=0.3) +
+  geom_line(aes(color=Legenda)) +
+  labs(title = "Número de eventos por ano de realização") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  scale_y_continuous(NULL, limits = c(0, 22)) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+```{r plotando percentual faltante no tempo, echo=FALSE}
+#diferença
+diffeventos_anos <- pivot_wider(freqeventos_ano, names_from = "Legenda")
+
+ggplot(diffeventos_anos, aes(x = ano, y = (total-coletados)/total)) +
+  geom_line() +
+  labs(title = "Percentual não coletado por ano de eventos") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+```{r plotando sucesso da coleta para principais conferencias, echo = FALSE}
+# Filtro das principais conferências
+eventos %>% filter(mainconf == "Sim") -> freq_principais
+freq_princ_ano <- freq_principais %>% group_by(ano) %>% summarise(total = n()) 
+freq_princ_col <- freq_principais %>% filter(coleta == "Sim") %>% 
+  group_by(ano) %>% summarise(coletados = n())
+freq_princ_ano <- left_join(freq_princ_ano, freq_princ_col) %>% 
+  pivot_longer(cols = c(total, coletados), names_to = "Legenda")
+
+## antes de montar os gráficos, é preciso incluir os anos faltantes na série como 0
+freq_princ_ano <- complete(freq_princ_ano, ano = 1970:2018, nesting(Legenda),
+                           fill = list(value = 0))
+
+ggplot(freq_princ_ano, aes(x=ano, y = value, group = Legenda)) +
+  scale_color_manual(values = c("palegreen4", "palegreen3")) +
+  scale_fill_manual(values = c("palegreen4", "palegreen3")) +
+  geom_area(position='identity', aes(fill=Legenda), alpha=0.3) +
+  geom_line(aes(color=Legenda)) +
+  labs(title = "Número de eventos por ano de realização",
+       subtitle = "Principais convenções multilaterais e grandes conferências ONU") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  scale_y_continuous(NULL, limits = c(0, 22)) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+```{r plotando percentual faltante para principais conferencias, echo = FALSE}
+#diferença
+diffprinc_anos <- pivot_wider(freq_princ_ano, names_from = "Legenda")
+
+ggplot(diffprinc_anos, aes(x = ano, y = (total-coletados)/total)) +
+  geom_line() +
+  labs(title = "Percentual não coletado por ano de eventos",
+       subtitle = "Principais convenções multilaterais e grandes conferências ONU") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+
+### Variação do sucesso da coleta por tema e tipo de evento
+```{r plotando variacao do sucesso por tema, echo=FALSE}
+###.... Colunas empilhadas: número de eventos coletados/total, divididos por temas ----
+freq_tema <- eventos %>% group_by(tema, coleta) %>% summarise(total = n()) %>%
+  filter(is.na(coleta)== F) %>% #ignorando os que não tentei coletar ainda 
+  mutate(coleta = if_else(coleta == "Senha",
+                          "Travado por senha",
+                          coleta))
+
+    # p/ mudar ordem da legenda e do gráfico, acho que tem que mudar ordem dos factors antes
+
+ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
+  geom_bar(position="stack", stat="identity") +
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("indianred1", "dodgerblue3", "snow4")) +
+  labs(title = "Resultados da coleta de eventos",
+       subtitle = "Dados separados por tema do evento") +
+  coord_flip() +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom",
+        axis.text.x = element_text(size = 7)) +
+  scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
+```
+
+
+Notar que há muitos eventos incluídos na base referentes a florestas e biodiversidade. O maior número em Florestas é o ITTC (uns 59), o que também explica a coleta ruim (só consegui listas para 2010-2021 no ITTC). Os eventos provavelmente são pequenos e nao devem distorcer muito a base ou a centralidade do MMA, mas talvez sejam distorções relevantes para dados de 'experiência' dos atores. Biodiversidade é mais disperso nesse sentido - temos mau desempenho no ITPGRFA (pouco menos da metade coletado) e em Ramsar (nenhum). 
+Valeria explorar um pouco mais, no futuro, os problemas em Oceano (acredito que seja uma situação parecida com Florestas) e em Lixo Tóxico e Químicos. Governança ambiental o fracasso é bastante uniforme, similar a Ramsar em biodiversidade.
+
+Chequemos também a variação do sucesso da coleta por tema ao longo do tempo. Talvez não haja distorção muito grande no geral, mas pode haver viés relevante em alguns períodos.
+
+```{r preparando frequencia tema-ano, results='hide'}
+freqeventos_anotema <- eventos %>% group_by(ano, tema) %>% summarise(total = n())
+freqeventos_anotema_coletados <- eventos %>% filter(coleta == "Sim") %>% 
+  group_by(ano, tema) %>% summarise(coletados = n())
+freqeventos_anotema <- left_join(freqeventos_anotema, freqeventos_anotema_coletados) %>% 
+  pivot_longer(cols = c(total, coletados), names_to = "Legenda")
+
+#completando os valores para todos os anos, temas, coletados ou não
+freqeventos_anotema <- freqeventos_anotema %>% ungroup() %>% 
+  complete(ano = 1970:2018, nesting(tema, Legenda),
+                           fill = list(value = 0))
+```
+
+```{r plotando coletados tema-ano, echo=FALSE}
+# gráfico geral
+ggplot(freqeventos_anotema, aes(x=ano, y = value, group = Legenda)) +
+  scale_color_manual(values = c("palegreen4", "palegreen3")) +
+  scale_fill_manual(values = c("palegreen4", "palegreen3")) +
+  geom_area(position='identity', aes(fill=Legenda), alpha=0.3) +
+  geom_line(aes(color=Legenda)) +
+  labs(title = "Número de eventos por ano de realização") +
+  scale_x_continuous(NULL, n.breaks = 10) +
+  scale_y_continuous(NULL, limits = c(0, 6)) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom") +
+  facet_wrap(~ tema, ncol = 2)
+
+```
+
+(talvez valesse a pena eu trocar as cores dos gráficos, pra deixar mais clara a diferença quando tem e quando não tem dados. notei que às vezes é difícil perceber que a coleta foi 100%, e usar cores com mais contraste facilitaria essa distinção.)
+
+Pra ver a importância, basta olhar pra Ozônio: apesar de ter listas pra quase todo o período (41/59), a figura faz parecer que o período 1990-2020 está com falta de dados. O ggplot apaga a linha escura do coletado quando o valor de coletado = total (minha hipótese, não testei - mas pode ser isso, pela ordem em que desenha o gráfico).
+
+
+```{r plotando variacao do sucesso por tipo evento, echo=FALSE}
+###.... Colunas empilhadas: número de eventos coletados/total, divididos por tipo ----
+freq_tipo <- eventos %>% group_by(tipo_evento, coleta) %>% summarise(total = n()) %>%
+  filter(is.na(coleta)== F) %>% #ignorando os que não tentei coletar ainda 
+  mutate(coleta = if_else(coleta == "Senha",
+                          "Travado por senha",
+                          coleta)) %>% 
+  mutate(tipo_evento = if_else(is.na(tipo_evento), "A ser classificado",
+                                tipo_evento))
+
+ggplot(freq_tipo, aes(x = tipo_evento, y = total, 
+                      fill = coleta, label = total)) +
+  geom_bar(position="stack", stat="identity") +
+  geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("indianred1", "dodgerblue3", "snow4")) +
+  labs(title = "Resultados da coleta de eventos",
+       subtitle = "Dados separados por tipo de evento") +
+  coord_flip() +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom",
+        axis.text.x = element_text(size = 7)) +
+  scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
+```
+
+
+
+## Lista de conferências incluídas na base
+[talvez valesse incluir, além de uma lista como a colocada de apêndice no Git, uma tabela dinâmica nos moldes da usada na minha planilha eventos do excel]
+
+
+
+
