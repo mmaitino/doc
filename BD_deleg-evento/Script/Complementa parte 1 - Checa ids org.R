@@ -4,8 +4,8 @@ setwd(here("Doutorado","Dados", "Listas participantes"))
 # 
 # # importar o complemento das delegs e a versao atual de lista_orgs
 # 
-complementos <- complemento_delegs_v4
-lista_orgs <- orgs_2022_06_29
+complementos <- complemento_delegs_v5
+lista_orgs <- orgs_2023_07_25
 
 
 #cria comb 
@@ -58,6 +58,8 @@ complementos$id_org_dupla <- unlist(sapply(1:nrow(complementos), incluir_id))
 
 
 # Testar se gerou algum id_org_dupla errado -----
+# checo id_org_dupla presente em complementos e na listaorgs. 
+# Se p/ mesmo id o texto for diferente entre as bases, temos problemas.
 teste_duplicados <- function(delegs = complementos, ls = lista_orgs){
   int <- intersect(delegs$id_org_dupla, ls$id_org_dupla)
   db <- bind_rows(
@@ -86,7 +88,7 @@ all(duplicados$idcorreto == T) # Se T, pode salvar
 # retirar comb
 complementos$comb <- NULL
 # Salvar com o id_org_dupla ------------
-# new_vers <- "4.1"
+# new_vers <- "5.1"
 # write.csv2(complementos,
 #            str_replace("complemento_delegs_vNUMEROVERSAO.csv",
 #                        "NUMEROVERSAO", new_vers),
@@ -108,7 +110,7 @@ rename(org_sujo = org, org_detalhe_sujo = org_detalhe) %>%
   distinct() -> complemento_orgs
 
 
-# Adicionar os dados de org limpo para os id_org_dupla j? presentes na base
+# Adicionar os dados de org limpo para os id_org_dupla ja presentes na base
 complemento_orgs <- left_join(complemento_orgs, lista_orgs)
 complemento_orgs$comb <- NULL
 
@@ -142,8 +144,9 @@ complemento_orgs[complemento_orgs$id_org_dupla==24,]$id_org_unica <- 565
 
 
 
-# write.csv2(complemento_orgs, "complemento_orgs_v[NUMEROVERSAO].csv")
-# new_vers <- "4"
+# Salvar complemento_orgs
+# 
+# new_vers <- "5"
 # write.csv2(complemento_orgs,
 #            str_replace("complemento_orgs_vNUMEROVERSAO.csv",
 #                        "NUMEROVERSAO", new_vers),
