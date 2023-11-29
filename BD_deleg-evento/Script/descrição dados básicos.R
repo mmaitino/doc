@@ -140,7 +140,7 @@ ggsave(paste0("Coleta principais","-",Sys.Date(),".png"),
 #diferença
 diffprinc_anos <- pivot_wider(freq_princ_ano, names_from = "Legenda")
 
-ggplot(diffeventos_anos, aes(x = ano, y = (total-coletados)/total)) +
+ggplot(diffprinc_anos, aes(x = ano, y = (total-coletados)/total)) +
   geom_line() +
   labs(title = "Percentual não coletado por ano de eventos",
        subtitle = "Principais convenções multilaterais e grandes conferências ONU") +

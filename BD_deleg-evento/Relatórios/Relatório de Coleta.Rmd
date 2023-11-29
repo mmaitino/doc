@@ -6,7 +6,7 @@ output:
 date: "`r Sys.Date()`"
 ---
 
-Esse relatório apresenta o progresso da coleta de dados do projeto "Pluralização da política externa ambiental brasileira". Apresentamos aqui dados básicos sobre a versão mais atualizada do Banco de Dados de Atores e Eventos da Política Externa Ambiental Brasileira (1970-2018). 
+Este relatório apresenta o progresso da coleta de dados do projeto "Pluralização da política externa ambiental brasileira". Apresentamos aqui dados básicos sobre a versão mais atualizada do Banco de Dados de Atores e Eventos da Política Externa Ambiental Brasileira (1970-2018). 
 O relatório traz, para fácil acesso, os números atualizados de eventos e participantes incluídos na base. O principal ponto do arquivo, porém, é apresentar os dados de sucesso/fracasso na coleta dos dados, que permitem avaliar eventuais vieses de seleção no banco.
 
 ```{r setup, results= 'hide'}

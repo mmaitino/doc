@@ -1,0 +1,1109 @@
+---
+title: "Relatório delegaçoes"
+output:
+  html_document:
+    df_print: paged
+date: "`r Sys.Date()`"
+---
+
+Este relatório traz os dados gerais sobre a evolução das delegações brasileiras a conferências multilaterais de meio ambiente. Em linhas gerais, trazemos os dados sobre o tamanho das delegações e sobre o perfil das delegações.
+
+```{r setup, include = FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+
+```
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  date
+}
+```
+
+**Versão da planilha deleg**: `r get_latest("deleg")`
+
+**Versão da planilha orgs**: `r get_latest("orgs")`
+
+**Versão da planilha class**: `r get_latest("class")`
+
+**Versão da planilha eventos**: `r get_latest("eventos")`
+
+## Correções para versões futuras
+
+**Arrumar o tamanho do texto e a largura das figuras, que estão muito estreitas. Com essa largura, é inviável o facet de duas colunas (números de ano muito espremidos)**
+
+
+## Notas para interpretação
+
+### Processo de coleta e limitações do banco a serem levados em consideração
+
+- A partir de 2015, os dados referentes às COPs da UNFCCC sofrem uma mudança importante: o Brasil passa a registrar os membros da delegação oriundos da sociedade civil como 'party overflow'. Participantes nessa categoria não têm seu nome incluído nas listas oficiais de participantes, o que representa importante quebra nos nossos dados. 
+Consequentemente, a diferença pré e pós 2015 nos dados de tamanho e, principalmente, perfil da delegação deve ser analisada com cautela.
+
+- Ao analisar alguns dados, é importante ter em mente os critérios para atribuição da organização ao participante. Quando há mais de uma organização, por exemplo, optei por classificar com a organização de menor nível (ex.: CNI e Suzano SA, vai como Suzano). Isso pode aumentar a variedade de atores, dado que empresas e ONGs muitas vezes se organizam como redes e federações. *Valeria revisitar os critérios na construção do banco para ver se há outras questões relevantes, seja nessa etapa, seja na classificação de tipo_org (ex.: o que é um órgão de pesquisa? quando organização governamental é uma diferente e quando é reduzida ao órgão superior?)*
+
+## Preparo do banco
+Antes de apresentar os dados, é preciso construir o banco principal integrando os dados dos bancos parciais (eventos, delegações, indivíduos) no R. O script para isso será incluído aqui, mas rodado de forma silenciosa.
+
+- Carregando as bases separadas
+
+```{r importando bases, warning=FALSE, results='hide',message=FALSE}
+## Importando os dados ------------
+getlatest_file <- function(basefilename){
+  list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+}
+
+deleg <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+orgs <- read_delim(getlatest_file("orgs"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   #locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+class <- read_delim(getlatest_file("class"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+```
+
+- Integrando as bases em uma
+```{r integrando bases, warning=FALSE, results='hide',message=FALSE}
+# Criando deleg_completo (deleg+orgs+class) --------
+orgs_classificado <- left_join(orgs, class) %>% select(-c(org_sujo, org_detalhe_sujo))
+# N de rows aumenta, porque tem orgs que ficaram apenas na class e saíram da lista orgs (foram erros na padronização e corrigidos posteriormente)
+# Teste (resultado deve ser tibble vazio): left_join(orgs, class, by = "id_org_unica") %>% filter(org_limpo.x != org_limpo.y)
+
+deleg_completo <- deleg %>% select(-c(org, org_detalhe)) %>% left_join(orgs_classificado, by = "id_org_dupla")
+
+# Limpando deleg_completo
+deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim))
+
+rm(deleg, orgs, class)
+```
+
+- Organizando a base de eventos
+```{r limpando base eventos, warning=FALSE, results='hide',message=FALSE}
+# Limpando a base dos eventos --------
+
+### Limpar e renomear colunas
+eventos <- eventos %>% select(-c(`Código ONU`, Comentário, 
+                                 `Formato lista`, 
+                                 `Aberto?`, `Questões a atentar`, 
+                                 Corrigendum, Local)) %>% #retira colunas irrelevantes
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`,
+    mainconf = `Principais convenções + gdes conf`
+  )
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>% 
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = lubridate::ymd(data), 
+               ano = lubridate::year(lubridate::ymd(data))) 
+
+eventos <- eventos %>% mutate(across(where(is.character), str_trim))
+```
+
+
+## Dados básicos sobre a participação ao longo do tempo
+
+Os dados apresentados aqui correspondem à base completa, isto é, não apenas ao período entre 1970 e 2018, para o qual houve coleta sistemática. Sendo assim, é preciso tomar cuidado extra ao interpretar dados pré 1970 e pós 2018.
+
+
+
+[FILTRAR A BASE DEPOIS!!! (não eventos, mas delegs)]
+[é importante retirar pós 2018, porque os pontos de 2019 e 2020 sugerem uma tendência que não existe, o que afeta a interpretação do gráfico - algo que poderia ser estabilidade será lido como queda, por exemplo]
+
+## Tamanho das delegações ao longo do tempo
+
+```{r preparando base deleg_evento, warning=FALSE, results='hide',message=FALSE}
+#preparar a base do tamanho deleg
+deleg_evento <- left_join(deleg_completo,
+                          select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
+
+# identificando os eventos p/ os quais o BR nao enviou delegação:
+eventos_semdeleg <- tibble(conf = setdiff(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf, unique(deleg_completo$conf))) %>% 
+  left_join(eventos) %>% 
+  mutate(count = 0)
+
+# contagem de tamanho da delegação, incluindo eventos acima como deleg_size = 0
+deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>% 
+  bind_rows(select(eventos_semdeleg, c(conf, ano, count)))
+
+# filtrando apenas delegações entre 1970 e 2018
+eventos_filtrados <- eventos %>% filter(ano >= 1970 & ano <=2018) %>% pull(conf)
+deleg_evento <- filter(deleg_evento, conf %in% eventos_filtrados)
+deleg_size <- filter(deleg_size, conf %in% eventos_filtrados)
+deleg_completo <- filter(deleg_completo, conf %in% eventos_filtrados)
+
+
+stats_deleg <- deleg_size %>% group_by(ano) %>% 
+  summarise(deleg_media = mean(count),
+            deleg_mediana = mean(count),
+            sd_deleg_size = sd(count),
+            n_events = n()
+            )
+
+```
+
+
+### Medidas resumo do crescimento da delegação brasileira ao longo do tempo
+
+[Talvez valesse calcular algumas medidas básicas também: crescimento médio/ano etc]
+
+A medida mais simples para compreender o crescimento das delegações ao longo do tempo é o tamanho médio das delegações por ano.
+
+```{r plotando deleg-size medio, echo=FALSE, fig.width = 8, fig.height = 4}
+ggplot(stats_deleg, aes(x=ano, y=deleg_media)) +
+  geom_line() + geom_point() +
+  annotate("text", x = 2012, y = 180, label = "Rio+20") +
+   annotate("text", x = 1992, y = 40, label = "Rio 92") +
+  labs(title = "Tamanho médio das delegações brasileiras a conferências ambientais",
+       subtitle = "Dados das listas oficiais de participantes emitidas pelos eventos") +
+  scale_y_continuous(n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12)
+
+```
+
+Como usamos a média, é importante observar também a variabilidade dos dados.
+
+```{r plotando desvio padrão de deleg-size, echo = F, message = F, warning=FALSE, fig.width = 8, fig.height = 4}
+ggplot(stats_deleg, aes(x=ano, y=sd_deleg_size)) +
+  geom_line() + geom_point() +
+  annotate("text", x = 2012, y = 500, label = "Rio+20") +
+   annotate("text", x = 1992, y = 90, label = "Rio 92") +
+  labs(title = "Desvio padrão do tamanho das delegações brasileiras a conferências ambientais",
+       subtitle = "Dados das listas oficiais de participantes emitidas pelos eventos") +
+  scale_y_continuous(n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12)
+```
+
+O desvio padrão é baixo até a década de 1990, porque raramente há duas ou mais conferências no mesmo ano. O número de eventos cresce em seguida, mas é nos 2000 que o desvio aumenta - provavelmente puxado por conferências grandes como as de clima. A trajetória é similar à vista no tamanho médio de delegação.
+Não há diferença entre média e mediana, de modo que não plotei a mediana.
+
+As medidas-resumo permitem ver a tendência, mas ainda escondem a variação e a quantidade de dados por trás da medida. Para visualizar esses pontos, recorremos aos gráficos de dispersão.
+
+```{r media com dispersao, echo = FALSE, message = FALSE}
+ggplot(stats_deleg, aes(x=ano, y=deleg_media)) +
+  geom_line(color = 'red', linewidth = 0.7) + 
+  geom_point(data = deleg_size, aes(x = ano, y = count)) +
+  labs(title = "Tamanho das delegações brasileiras a conferências ambientais",
+       subtitle = "Dados das listas oficiais de participantes emitidas pelos eventos") +
+  scale_y_continuous(n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12)
+
+```
+
+Como se vê, a variação a partir dos anos 2000 é muito maior. A média (linha vermelha) não parece uma descrição muito boa dos dados.
+
+### Desagregando as delegações: gráficos de dispersão
+
+No gráfico de dispersão abaixo, cada círculo corresponde a um evento. Cores variam conforme o tema do evento, e eventos ocorridos no Brasil foram marcados com um triângulo.
+
+```{r preparando dispersao, warning=FALSE, results='hide',message=FALSE, warning=FALSE}
+deleg_size <- deleg_size %>% left_join(select(eventos, 
+                                              c(conf, location, tema))) %>% 
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", 
+                         "Fora do Brasil/Sem info"),
+         Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           #str_detect(tema, "Biodiversidade") ~ "Biodiversidade",
+           tema == "Grandes conferências ONU" ~ "Des. Sustentável",
+           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Outros",
+           )) %>% mutate(Local = if_else(is.na(Local), "Fora do Brasil/Sem info",
+                                         Local)
+                         )
+```
+
+
+```{r plotando deleg size de todos os eventos, echo = F, warning=FALSE}
+# com Rio+20
+ggplot(deleg_size, aes(x = ano, y = count, color = Tema)) +
+  geom_point() +
+  annotate("text", x = 2012, y = 1550, label = "Rio+20") +
+  annotate("text", x = 2009, y = 610, label = "COP15") +
+  annotate("text", x = 1992, y = 220, label = "Rio-92") +
+  annotate("text", x = 2002, y = 330, label = "Rio+10") +
+  scale_size_manual(values = c(3,2)) +
+  scale_color_manual(values = c(#"dodgerblue",
+                                "tomato1",
+                                "olivedrab4", "lightsteelblue4")) + 
+  labs(title = "Tamanho da delegação por evento") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+  
+
+```
+
+```{r plotando deleg size sem rio+20, echo = F, warning=FALSE}
+ggplot(deleg_size, aes(x = ano, y = count, color = Tema)) +
+  geom_point() +
+  annotate("text", x = 2009, y = 605, label = "COP15") +
+  annotate("text", x = 1992, y = 220, label = "Rio-92") +
+  annotate("text", x = 2002, y = 330, label = "Rio+10") +
+  scale_size_manual(values = c(3,2)) +
+  scale_color_manual(values = c(#"dodgerblue",
+                                "tomato1",
+                                "olivedrab4", "lightsteelblue4")) + 
+  labs(title = "Tamanho da delegação por evento") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,610)) + #limita o gráfico até altura da cop15
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+
+```
+
+A figura mostra claramente que as conferências de clima apresentam uma tendência de ascensão nos anos 90 e 2000, seguida de uma queda acentuada pós 2009 (COP15). Após 2015, parece haver estabilidade em um novo patamar, acima do observado em décadas anteriores.
+A participação nas conferências de desenvolvimento sustentável da ONU (Estocolmo 72, Rio 92, Joanesburgo 2002, Rio 2012) costuma ser muito mais alta do que a nas demais conferências do período. Embora Estocolmo tenha uma delegação grande se comparada com as enviadas para os demais eventos do período (`r deleg_size[deleg_size$conf == "UNCHE, Conf",]$count` pessoas), trata-se de uma delegação pequena para o padrão das conferências de desenvolvimento sustentável pós 92.
+Note-se que há alguns eventos em verde, portanto de desenvolvimento sustentável, com delegações pequenas já depois de 90 - trata-se, aqui, das PrepComs para as grandes conferências. É esperado que a delegação nesse tipo de evento seja menor, como exploraremos mais adiante.
+
+*Nota: no site da ONU são elencadas algumas outras conferências multilaterais sobre desenvolvimento sustentável, que não foram incluídas na base. Ex.: UNGASS-19 (uma sessão especial da AG-ONU em 97, chamada de Rio+5); Cúpula de Desenvolvimento SUstentável da ONU em 2015; Como resultado das conferências, foram também criados alguns fóruns sobre o tema - alguns incluídos no tema 'Governança ambiental', outros não. É possível que a ausência desses eventos na base infle o tema desenvolvimento sustentável - efetivamente, originalmente a categoria que destacamos no gráfico era chamada de "Grandes conferências ONU" na base.*
+
+[se julgar interessante, dar precisão a esses dados e à diferença - Estocolomo é x vezes maior que a média da década de 70 (sem unche), etc]
+
+### Observando mais a fundo os temas de menor destaque
+
+Vejamos se, ao retirar os eventos de clima e as grandes conferências de desenvolvimento sustentável, podemos discernir algum padrão nas delegações dos temas de menor visibilidade.
+
+O primeiro gráfico mostra apenas as conferências de biodiversidade, que apresentam um patamar de participação superior aos demais temas. 
+Para todo o período, **a delegação média nas conferências de biodiversidade é de `r mean(deleg_size[deleg_size$tema == "Biodiversidade",]$count)`**. 
+Se observarmos apenas os eventos da **CDB, `r mean(deleg_size[str_detect(deleg_size$conf, "CBD"),]$count)`**  
+
+```{r plotando delegsize biodiversidade, echo = F, warning=FALSE, fig.width= 11}
+ggplot(deleg_size %>% left_join(select(eventos, c(conf, conference))) %>% 
+         filter(tema == "Biodiversidade"), 
+       aes(x = ano, y = count, group = Local, color = conference)) +
+  geom_point(aes(shape = Local)) +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  labs(title = "Tamanho das delegações de biodiversidade por evento") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+```
+
+Vemos que a CBD claramente tem um patamar de participação mais elevado que os demais eventos de biodiversidade, cujas delegações seguem o padrão das conferências mais "técnicas" - raramente passando dos 10 delegados. 
+Houve um grande crescimento das delegações à CBD ao compararmos a década de 90 e 2000 (nos 90, a delegação média é de `r deleg_size %>% filter(str_detect(conf, "CBD") & ano >= 1990 & ano < 2000) %>% pull(count) %>% mean()`; nos 2000 `r deleg_size %>% filter(str_detect(conf, "CBD") & ano >= 2000 & ano < 2010) %>% pull(count) %>% mean()`; na década de 2010, `r deleg_size %>% filter(str_detect(conf, "CBD") & ano >= 2010 & ano < 2020) %>% pull(count) %>% mean()`). 
+Essa evolução é semelhante à observada na arena de clima, mas aparece de forma menos clara (e menos intensa) em biodiversidade. A variação entre eventos é maior na CBD, o que provavelmente reflete seu caráter bianual (ao invés de anual, como na UNFCCC) e a maior dificuldade de manter a visibilidade do tema.
+
+Observemos, agora, as delegações aos eventos com outros temas:
+
+```{r plotando deleg size sem clima e onu, echo = F, message = F, warning = F, fig.width= 11}
+ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
+                                          "Clima", "Biodiversidade")), 
+       aes(x = ano, y = count, color = tema, group = Local)) +
+  geom_point(aes(color = tema, shape = Local)) +
+  geom_smooth(method = "loess", color = "black") +
+  annotate("text", x= 1999, y = 52, label = "ICCD COP3") +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  labs(title = "Tamanho da delegação por evento") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+
+ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
+                                          "Clima", "Biodiversidade")), 
+       aes(x = ano, y = count, color = tema, group = Local)) +
+  geom_point(aes(color = tema, shape = Local)) +
+  geom_smooth(method = "loess") +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  labs(subtitle = "retirando a ICCD COP3 para melhor visualização") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,25)) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+
+```
+
+Vemos que, à exceção de Clima, Biodiversidade, e das grandes Conferências de Desenvolvimento Sustentável, os temas seguem praticamente a mesma tendência. Há relativa estabilidade, com um número baixo de participantes por delegação. A única exceção foi a 3ª COP da Convenção de Desertificação, realizada em Recife em 1999, para a qual o Brasil enviou `r deleg_size[deleg_size$conf == "ICCD, COP03",]$count` representantes. Se observamos a linha de tendência (uma loess), vemos que houve um leve aumento no tamanho da delegação a partir da segunda metade dos 90 e, especialmente, dos anos 2000.
+
+```{r facet delegsize por tema, echo=FALSE, message = F, warning = F, fig.width= 11, fig.height=7}
+
+ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
+                                          "Clima", "Biodiversidade")), 
+       aes(x = ano, y = count, color = tema)) +
+  geom_point(aes(color = tema)) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ tema, ncol = 2) +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  labs(title = "Tamanho da delegação por tema de evento",
+       subtitle = "retirando a ICCD COP3 para melhor visualização") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,25)) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        # legend.text = element_text(size=10),
+        # legend.title = element_text(size =12),
+        legend.position="none")
+
+```
+
+Apesar do número reduzido de observações em alguns temas, vemos uma leve tendência de crescimento na participação nas áreas de Ozônio e de Lixo Tóxico e Químicos. Nos demais casos, a julgar por nossos dados, a variação não parece ser significativa o suficiente para ser caracterizada como uma tendência.
+
+
+### Dividindo os tipos de conferência
+
+```{r delegsize facet por tipo de evento, echo=FALSE, warning=FALSE, message = FALSE}
+ggplot(deleg_size %>% 
+         left_join(select(eventos, c(conf, tipo_evento))) %>% mutate(tipo_evento = case_when(
+  tipo_evento == "Main regular party meetings (COP, MOP, etc)" ~ "COP/MOP",
+  tipo_evento == "Conference of plenipotentiaries" ~ "Conferência plenipotenciária",
+  tipo_evento == "Prep/Negotiation committees (pre-treaty)" ~ "Reuniões preparatórias/negociação")
+  ), 
+       aes(x = ano, y = count, color = Tema, group = tipo_evento)) +
+  geom_point() +
+  facet_wrap(~ tipo_evento, ncol = 1) +
+  scale_size_manual(values = c(3,2)) +
+  labs(title = "Tamanho da delegação por evento") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) + 
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+```
+
+```{r delegsize apenas prepcom, echo = FALSE, message = FALSE, warning=FALSE}
+ggplot(deleg_size %>% 
+         left_join(select(eventos, c(conf, tipo_evento))) %>% 
+         filter(tipo_evento == "Prep/Negotiation committees (pre-treaty)") %>% 
+         mutate(tipo_evento = "Reuniões preparatórias/negociações"), 
+       aes(x = ano, y = count, color = Tema)) +
+  geom_point() +
+  facet_wrap(~ tipo_evento, ncol = 1) +
+  scale_size_manual(values = c(3,2)) +
+  labs(title = "Tamanho da delegação a reuniões preparatórias e comitês negociadores") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) + 
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+```
+
+```{r delegsize apenas cop, echo = FALSE, message = FALSE, warning=FALSE}
+ggplot(deleg_size %>% 
+         left_join(select(eventos, c(conf, tipo_evento))) %>% 
+         filter(tipo_evento == "Main regular party meetings (COP, MOP, etc)") %>% 
+         mutate(tipo_evento = "COP/MOP"), 
+       aes(x = ano, y = count, color = Tema)) +
+  geom_point() +
+  facet_wrap(~ tipo_evento, ncol = 1) +
+  scale_size_manual(values = c(3,2)) +
+  labs(title = "Tamanho da delegação a COPs/MOPs") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) + 
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+```
+
+```{r delegsize apenas conf, echo = FALSE, warning=FALSE, message=F}
+ggplot(deleg_size %>% 
+         left_join(select(eventos, c(conf, tipo_evento))) %>% 
+         filter(tipo_evento == "Conference of plenipotentiaries") %>% 
+         mutate(tipo_evento = "Conferência plenipotenciária"), 
+       aes(x = ano, y = count, color = Tema)) +
+  geom_point() +
+  facet_wrap(~ tipo_evento, ncol = 1) +
+  scale_size_manual(values = c(3,2)) +
+  labs(title = "Tamanho da delegação a conferências plenipotenciárias") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8) + 
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+```
+
+
+## Perfil das delegações ao longo do tempo
+
+### Número e diversidade de organizações
+
+Os dados sobre o número e tipo das organizações participantes (sem olhar para a quantidade de indivíduos pertencentes à organização) nos dão uma primeira noção sobre a *diversidade* das delegações brasileiras. Quanto mais organizações presentes -- e quanto mais diversas entre si as organizações, ie, orgs de diferentes "tipos" -- podemos dizer que mais diversa é a delegação brasileira no sentido de incluir atores distintos. Evidentemente, é preciso levar em conta também a diferença no espaço dado a essas organizações, o que será avaliado mais adiante (e qualitativamente na pesquisa)
+
+```{r plotando o n de orgs distintas ao longo do tempo, echo = FALSE, message=FALSE, , fig.width=11, fig.height=5}
+
+orgs_ano <- deleg_completo %>% select(conf, id_org_unica, tipo_org, tipo_org_reduzido) %>% distinct() %>% left_join(select(eventos, c(conf, ano, tema)))
+
+freq_orgs <- orgs_ano %>% select(-c(conf, tema)) %>% distinct %>% 
+  group_by(ano) %>% summarise(total_orgs = n())
+
+#grafico de linha
+ggplot(freq_orgs, aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  annotate("text", x = 1992, y = 102, label = "Rio 92", size = 3) +
+  annotate("text", x = 2012, y = 410, label = "Rio+20", size = 3) +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
+
+```
+
+Como esperado, vemos um crescimento na década de 1990, sobretudo a partir da Rio 92 e acelerando na segunda metade da década. Na década de 2000, o crescimento é acelerado, tendo um pico em 2009 (COP Clima de Copenhagen). O ponto máximo do gráfico é, de longe, 2012, quando ocorre a Rio+20. 
+Interessante ver que a década de 2010 é um período de queda, mesmo desconsiderando o outlier 2012 e já antes da mudança na regra das delegações de clima (sociedade civil como party overflow, saindo das listas). 
+
+```{r plotando n org com facet por tema, echo = FALSE, message = FALSE, warning = F, fig.width=7, fig.height=13}
+freq_orgs_tema <- orgs_ano %>% select(-c(conf)) %>% distinct %>% 
+  group_by(ano, tema) %>% summarise(total_orgs = n()) %>% ungroup() %>% 
+  complete(ano, tema, fill = list(total_orgs = 0))
+
+#grafico de linha
+ggplot(freq_orgs_tema, aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tema, ncol = 1) +
+  # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+Olhando os gráficos acima, notamos que o crescimento no número de organizações é praticamente todo derivado das conferências de clima. As grandes conferências de desenvolvimento sustentável da ONU também têm impacto relevante, mas ocorrem de maneira mais espaçada, gerando picos importantes - em particular, o da Rio+20. 
+
+O número de organizações presentes na Rio+20 é claramente um outlier que dificulta a visualização das tendências nos demais temas. Enquanto em clima, o tema com maior número de organizações, vemos um pico da ordem de 100 atores, a Rio+20 registra em torno de 400. Para melhor observar a variação nos demais temas, geramos um gráfico sem as conferências de desenvolvimento sustentável.
+
+```{r plotando n org clima e bio, echo = F, fig.width=7, fig.height=5.5}
+ggplot(filter(freq_orgs_tema, tema == "Clima" | tema == "Biodiversidade"
+              ), 
+       aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tema, ncol = 1) +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+A dinâmica no número de organizações distintas na delegação é similar, mas levemente distinta da observada no tamanho das delegações.
+Em clima, vemos dinâmica similar de crescimento seguido de queda no início da década de 2010, com um repique posterior. Há, porém, algumas diferenças. O pico no número de organizações é 2010, não 2009, como em deleg_size. Em seguida, temos uma queda, e a diversidade volta a crescer em 2013, atingindo o pico em 2014 (pré-Paris). De Paris em diante, temos uma grande queda - **essa queda é, no entanto, artificial**: de Paris em diante, a sociedade civil passa a ser classificada como party overflow, saindo das listas de participantes.
+Em biodiversidade, **o número de organizações cresce significativamente na segunda metade dos 2000**. Essa é a mesma dinâmica observada no tamanho da delegação à CBD. O gráfico tem leitura prejudicada pela grande variação entre os anos -- isso decorre do fato de as COPs da CDB serem (modo geral) bianuais. Em anos ímpares, os pontos refletem as convenções da International Plant Convention, uma convenção de muito menor visibilidade e reuniões menores.
+
+
+```{r plotando n org demais, echo = F, fig.width=7, fig.height=7}
+ggplot(filter(freq_orgs_tema, tema != "Grandes conferências ONU" 
+              & tema != "Clima" & tema != "Biodiversidade"
+              ), 
+       aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tema, ncol = 1) +
+  # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+```
+
+Vemos que, para praticamente todos os temas da agenda internacional ambiental, o número de organizações presentes nas delegações é muito baixo (menos de 10 organizações - lembrando que órgãos distintos do governo contam como organizações distintas) e praticamente constante (as variações que vemos são, em larga medida, as variações na frequência de eventos). 
+
+Na área de biodiversidade, vemos o mesmo padrão de participação relativamente constante, mas o número de organizações é significativamente maior, chegando a cerca de 50. 
+
+[ver o máximo e calcular a média!]
+
+O impulso no número de organizações é, portanto, uma tendência restrita à área de clima, o que sugere uma atenção especial ao tema na pesquisa.
+
+#### Evolução do número de organizações por tipo
+
+Vale a pena observar se há diferença na tendência de evolução a depender do tipo de organização. Na figura abaixo, eliminamos o MRE e o Legislativo, por terem um número quase constante (MRE é sempre 1, Legislativo, no máximo 2). Também foram excluídas as organizaçoes da categoria residual "Outros", de número reduzido, e "Sem informação" (uma única "organização", também constante).
+
+*[talvez valesse a pena refazer os cálculos de modo a manter os anos nos quais não ocorrem reuniões do tema como NA - estão como delegação vazia aqui, e isso pode induzir a interpretações equivocadas (a linha, por exemplo, fica mais errática quando nao precisaria ser assim)]*
+
+
+```{r plotando n org com facet por tipo-org, echo = FALSE, message=FALSE, fig.width=7, fig.height=11}
+
+freq_orgs_tipo <- orgs_ano %>% select(-c(conf)) %>% distinct %>% 
+  group_by(ano, tipo_org_reduzido) %>% summarise(total_orgs = n()) %>% ungroup() %>% 
+  complete(ano, tipo_org_reduzido, fill = list(total_orgs = 0))
+
+#grafico de linha
+ggplot(freq_orgs_tipo %>% 
+         filter(!(tipo_org_reduzido %in% c("Governo federal MRE", "Outro", 
+                                           "Não identificado", "Legislativo federal"))
+                                   ),
+       aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tipo_org_reduzido, ncol = 1) +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano",
+       subtitle = "exceto MRE, Legislativo e não classificados") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  scale_y_continuous(NULL, n.breaks = 6) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
+```
+
+Observando os dados, vemos que o crescimento inicia na década de 90. Atinge novo patamar na segunda metade dos 2000, mas é algo episódico nesse momento - picos de 2012 e 2009, com grande variação. O crescimento é maior entre sociedade civil etc (ONGs) e empresas. Todos os não-governamentais são afetados pós 2015, mas subnacional se mantém na lista (ie, não vira party overflow). Sabemos que, até 2018, segue havendo a participação social, ao menos da parte das ONGs, mas provavelmente também das empresas.
+
+
+
+### Número e diversidade de indivíduos
+
+[Pra fazer esse, é preciso importar a planilha de individuos]
+
+
+### Participação do MRE nas delegações
+
+[nesse trecho, valeria refinar essa questão do tamanho da delegação. não dá pra ver tão bem no gráfico as diferenças, só as gigantes]
+
+#### Parcela do MRE no total das delegações
+
+```{r preparo mre, warning=FALSE, results='hide',message=FALSE}
+MRE_conf <- deleg_evento %>% group_by(conf, ano, tipo_org_reduzido) %>% 
+  summarise(count = n()) %>% mutate(percentual = count/sum(count), deleg_size = sum(count)) %>% 
+  filter(tipo_org_reduzido == "Governo federal MRE") %>% 
+  left_join(select(eventos, c(conf, location, tema, tipo_evento))) %>% 
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
+         Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Grandes conferências ONU" ~ "Des. Sustentável",
+           str_detect(tema, "Biodiversidade") ~ "Biodiversidade",
+           tema != "Clima" & tema != "Grandes conferências ONU" & #tema != "Florestas" ~ "Outros"
+             tema != "Biodiversidade" ~ "Outros"
+         )
+         )
+
+```
+
+Abaixo vemos como o % do MRE na delegação muda ao longo do tempo. A figura abaixo mostra como, a partir dos anos 90, as delegações passam a ter menor concentração do MRE - os pontos passam a se concentrar mais na parte inferior do gráfico.
+
+```{r plotando pct mre, echo = FALSE, warning=FALSE, message=FALSE}
+# sem loess
+ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema)) +
+  geom_point(aes(size = deleg_size)) +
+scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent) +
+scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+# scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+labs(title = "Perfil das delegações por evento",
+     subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty") +
+scale_x_continuous(name = NULL, n.breaks = 12) +
+scale_size(range = c(1, 5), name="Tamanho da delegação") +
+theme(plot.title = element_text(size=22),
+      legend.text = element_text(size=10),
+      legend.title = element_text(size =12),
+      legend.position="right")
+
+```
+
+Para facilitar a visualização dessas tendências e das diferenças entre temas, acrescentamos ao gráfico linhas de regressão loess para cada tema.
+
+```{r plotando pct mre com loess tema, echo = FALSE, warning=FALSE, message=FALSE}
+# com loess
+ggplot(MRE_conf, aes(x=ano, y=percentual, color = Tema)) +
+  geom_point(aes(size = deleg_size)) +
+  geom_smooth(method = "loess") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "Perfil das delegações por evento",
+       subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty") +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+```
+
+Nota-se que, para os três temas destacados, a participação relativa do MRE caiu vertiginosamente.
+
+#### Relação entre tamanho da delegação e percentual da delegação vinculada a MRE
+
+É preciso levar em conta, porém, que as conferências com maiores delegações, naturalmente, trazem um percentual menor de representantes do MRE. À medida que crescem os participantes nos eventos, o MRE não cresce de forma proporcional - pelo contrário, como mostra a figura abaixo, o declínio é exponencial.
+
+```{r delegsize pct MRE, echo = FALSE, warning=FALSE, message=FALSE}
+ggplot(MRE_conf) +
+  geom_point(aes(x = deleg_size, y = percentual,
+                     color = Tema)) +
+  geom_smooth(aes(x = deleg_size, y = percentual),
+              method = "loess", color = "black") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  labs(title = "Tamanho da delegação x percentual MRE") +
+  scale_x_continuous(name = NULL, n.breaks = 8) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+
+ggplot(MRE_conf) +
+  geom_point(aes(x = deleg_size, y = percentual,
+                     color = Tema)) +
+  # geom_smooth(aes(x = deleg_size, y = percentual),
+  #             method = "loess", color = "black") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  labs(title = "Tamanho da delegação x percentual MRE",
+       subtitle = "Delegações menores que 80 participantes") +
+  scale_x_continuous(name = NULL, n.breaks = 8,
+                     limits = c(0, 80)) +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+```
+
+Vale observar se há algum padrão diferente nos dados quando analisamos delegações maiores ou menores.
+
+
+```{r histograma delegsize}
+ggplot(MRE_conf, aes(x=deleg_size)) + geom_histogram() +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  labs(title = "Distribuição dos eventos por tamanho da delegação")
+```
+
+Como se vê, as delegações são, em sua maioria, muito pequenas. Para a esmagadora maioria dos eventos, o Brasil envia menos de 10 participantes.
+
+**Quartis do tamanho das delegações**:
+`r quantile(MRE_conf$deleg_size)`
+
+Vejamos a evolução do % MRE ao longo do tempo, dividindo os dados pelo tamanho da delegação.
+
+[CHECAR - OS QUARTIS PARARAM DE FUNCIONAR]
+
+```{r preparo quartis, warning=FALSE, results='hide',message=FALSE}
+#criando variavel quartil
+MRE_conf$sizequart <- ntile(MRE_conf$deleg_size, 4)
+MRE_conf <- MRE_conf %>% mutate(
+  sizequart = case_when(
+    sizequart == 1 ~ "Q1 - Até 4 participantes",
+    sizequart == 1 ~ "Q2 - 5 a 7 participantes",
+    sizequart == 1 ~ "Q3 - 8 a 10 participantes",
+    sizequart == 1 ~ "Q4 - 11 a 1490 participantes",
+  )
+)
+MRE_conf$sizefacet <- cut(MRE_conf$deleg_size, 
+                          breaks = c(0, 20, 50, 100, 
+                                     max(MRE_conf$deleg_size))
+                          )
+```
+
+
+```{r facet quart, echo = F}
+#plotando gráficos separados cf o quartil
+ggplot(MRE_conf) +
+  facet_wrap(~sizequart, ncol = 2) +
+  geom_point(aes(x=ano, y=percentual, color = Tema)) +
+  geom_smooth(aes(x=ano, y=percentual),
+              method = "loess") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "% do MRE ao longo do tempo, conforme tamanho da delegação (quartil)",
+       subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty, separado pelo tamanho da delegação") +
+  scale_x_continuous(name = NULL, n.breaks = 8) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+```
+
+```{r facetsize, echo = FALSE}
+#plotando gráficos separados cf o quartil
+ggplot(MRE_conf) +
+  facet_wrap(~sizefacet, ncol = 2) +
+  geom_point(aes(x=ano, y=percentual, color = Tema)) +
+  geom_smooth(aes(x=ano, y=percentual),
+              method = "loess") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "% MRE, conforme tamanho da delegação",
+       subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty, separado pelo tamanho da delegação") +
+  scale_x_continuous(name = NULL, n.breaks = 8) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+```
+
+Ao analisar os dados separando-os por tamanho total da delegação, vemos que, para as delegações pequenas (até 20 participantes), não podemos afirmar que o percentual de delegados vinculados ao MRE vem diminuindo ao longo do tempo. A tendência observada anteriormente é sobretudo vinculada às conferências com maiores delegações, que se tornaram mais comuns a partir da década de 2000 - em particular, na área de clima. O declínio também é visível nas delegações entre 20 e 50 participantes, mas o baixo número de observações nesse intervalo enfraquece eventuais inferências.
+
+#### Parcela do MRE considerando apenas delegados vinculados ao governo
+
+Pela política do governo brasileiro de credenciar representantes não-governamentais, esse tipo de participante representa um percentual muito alto das delegações brasileiras. Isso pode distorcer o % do MRE como dado para compreender sua importância no interior das delegações, dificultando a visualização da tendência. Vejamos, então, se os dados mudam de forma significativa quando olhamos apenas para os delegados vinculados ao governo federal.
+
+```{r preparo mre gov, warning=FALSE, results='hide',message=FALSE}
+
+MRE_confgov <- deleg_evento %>% group_by(conf, ano, tipo_org_reduzido) %>% 
+  summarise(count = n()) %>% 
+  filter(tipo_org_reduzido %in% c("Governo federal MRE",
+                                  "Governo federal não-MRE")) %>% 
+  mutate(percentual = count/sum(count), deleg_size = sum(count)) %>% 
+  left_join(select(eventos, c(conf, location, tema, tipo_evento))) %>%
+  mutate(Local = if_else(str_detect(location, "Brazil"), "Brasil", "Fora do Brasil"),
+         Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Grandes conferências ONU" ~ "Des. Sustentável",
+           str_detect(tema, "Biodiversidade") ~ "Biodiversidade",
+           tema != "Clima" & tema != "Grandes conferências ONU" & #tema != "Florestas" ~ "Outros"
+             tema != "Biodiversidade" ~ "Outros"
+         )
+         )
+
+
+```
+
+
+
+Note-se que limitar a análise da delegação apenas ao governo não anula a relação verificada anteriormente, de declínio no percentual relativo do MRE à medida que aumenta o tamanho das delegações:
+
+**Correlação para delegação completa**: `r cor(MRE_conf$percentual, MRE_conf$deleg_size) `
+**Correlação para delegação considerando apenas governo federal**: `r cor(MRE_confgov %>% filter(tipo_org_reduzido == "Governo federal MRE") %>% pull(percentual), MRE_confgov %>% filter(tipo_org_reduzido == "Governo federal MRE") %>% pull(deleg_size)) `
+
+```{r plot pct mre gov, echo = FALSE, warning=FALSE, message=FALSE}
+# sem loess
+ggplot(MRE_confgov %>% filter(tipo_org_reduzido == "Governo federal MRE"), 
+       aes(x=ano, y=percentual, color = Tema)) +
+  geom_point(aes(size = deleg_size)) +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "Perfil das delegações por evento",
+       subtitle = "Percentual de delegados do governo federal composto por pessoas vinculadas ao Itamaraty") +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+
+```
+
+```{r plot pct mre gov loess, echo = FALSE, warning=FALSE, message=FALSE}
+# com loess
+ggplot(MRE_confgov %>% filter(tipo_org_reduzido == "Governo federal MRE"), 
+       aes(x=ano, y=percentual, color = Tema)) +
+  geom_point(aes(size = deleg_size)) +
+  geom_smooth() +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "Perfil das delegações por evento",
+       subtitle = "Percentual de delegados do governo federal composto por pessoas vinculadas ao Itamaraty") +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="right")
+
+```
+
+Vemos que há, na segunda metade dos anos 90, para todos os temas de eventos, um declínio do percentual do MRE relativo aos representantes governamentais nas delegações. Na década de 2000 há relativa estabilidade. Na década de 2010, porém, o MRE amplia seu espaço na área de clima e, em ainda maior grau, nos temas de menor destaque ("Outros").
+
+
+### Transformações do perfil das organizações ao longo do tempo
+
+Vimos acima o número de organizações distintas nas delegações e o percentual relativo do MRE na composição da delegação brasileira (completa ou só governo). 
+Abaixo, aprofundamos a análise sobre a diversificação da delegação a partir das organizações participantes nos eventos. Agora, porém, não olhamos para o número de organizações distintas presentes, mas sim para parcela dessas organizações na delegação. Se antes o número de indivíduos vinculados às organizações era irrelevante, agora passa a ser um fator importante.
+
+```{r preparo parts de orgs, warning=FALSE, results='hide',message=FALSE}
+freq_orgs_tempo <- deleg_evento %>% 
+  group_by(ano, tipo_org_reduzido) %>% 
+  summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+  ungroup() %>% # incluir contagem de observações nulas (freq = 0)
+  complete(ano, tipo_org_reduzido, fill = list(total = 0, percentual = 0))
+
+
+freq_orgs_tempo$tipo_org_reduzido[freq_orgs_tempo$tipo_org_reduzido == "Governos subnacionais (Executivo, Legislativo, Empresas Públicas ou Autarquias)"] <- "Governos subnacionais"
+
+
+
+freq_orgs_tempo$tipo_factor <- factor(freq_orgs_tempo$tipo_org_reduzido, 
+                                      levels = c("Governo federal MRE", 
+                                                 "Governo federal não-MRE", 
+                                                 "Governos subnacionais",
+                                                 "Legislativo federal",
+                                                 "Sociedade civil, sindicatos, movimentos sociais", "Setor empresarial",
+                                                 # "Sociedade civil e empresas"
+                                                 "Órgãos de ensino e pesquisa",
+                                                 "Outro",
+                                                 "Não identificado"
+                                                 ))
+```
+
+
+```{r facet parts tipo_org, echo = FALSE, fig.width = 12, fig.height = 12}
+
+freq_orgs_tempo %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line() + geom_point() +
+  lemon::facet_rep_wrap(~tipo_factor, ncol = 1,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Composição das delegações brasileiras a conferências ambientais", 
+       subtitle = "por tipo de organização, em percentual dos participantes no ano") +
+  scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=18))
+
+```
+
+
+
+### Evolução da participação de organizações específicas
+
+```{r preparo parts mre mma mct, warning=FALSE, results='hide',message=FALSE}
+orgs_princ <- deleg_evento %>% 
+  mutate(org = case_when(
+    org_limpo == "Ministério das Relações Exteriores" ~ "Ministério das Relações Exteriores",
+    tipo_org == "Laboratórios, centros e institutos de pesquisa vinculados ao MCT" ~
+      "Ministério da Ciência e Tecnologia",
+    id_org_unica %in% c(23, 422, 553, 131) ~ "Ministério da Ciência e Tecnologia",
+    id_org_unica %in% c(442, 324, 333, 555) ~ "Ministério do Meio Ambiente",
+    # id_org_unica %in% c(326, 576, 441) ~ "Ministério do Meio Ambiente",
+    id_org_unica %in% c(214, 421) ~ "Ministério da Agricultura, Pecuária e Abastecimento",
+    id_org_unica %in% c(436, 137, 40, 124, 218) ~ "Ministério de Minas e Energia",
+     id_org_unica %in% c(427, 699, 425, 97, 444, 556) ~ "Ministérios econômicos",
+  )) %>% 
+  mutate(org = if_else(is.na(org), "Outro", org))
+# No MMA: Foram incluídos SEMAM-PR (555), IBAMA (324), ICMBio (333). Não inclusão de IBDF (326), SFB (576), M Interior (441)
+# No MCT: AEB (23), CIMGC (131), laboratórios nacionais e afins (por meio do tipo) - inclusive o INPE (352) e o INPA (351), SCT-PR (553)
+# No MME: Comissão Nacional de Energia Nuclear (137), CNPE -  Conselho Nacional de Política Energética (140), ANEEL (40), CEPEL - Centro de Pesquisas de Energia Elétrica (124), Empresa de Pesquisa Energética (218). Não inclusão de Petrobrás (517), Eletrobrás (212), Furnas (303), Itaipu (400), Vale (155)
+# Ministérios econômicos: MFaz (427), MEFP [collor] (699), M Econ [bols] (425), CADE (97), MPOG (444), SEPLAN-PR(556). Não inclusão: Casa da Moeda do Brasil (107), Banco Central (69), CVM (189), BNDES (86), Caixa (98), BB (71), BNB (72), etc
+```
+
+```{r plot facet orgs principais, echo=FALSE, message=FALSE,fig.width = 12, fig.height = 8}
+freq_minist_tempo <- orgs_princ %>% 
+  group_by(ano, org) %>% 
+  summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+  ungroup() %>% 
+  filter(org %in% c("Ministério das Relações Exteriores",
+                    "Ministério do Meio Ambiente", 
+                    "Ministério da Ciência e Tecnologia",
+                    "Ministério da Agricultura, Pecuária e Abastecimento",
+                    "Ministério de Minas e Energia",
+                    "Ministérios econômicos"
+                    
+  )) %>% 
+  # incluir contagem de observações nulas (freq = 0)
+  complete(ano, org, fill = list(total = 0, percentual = 0)) 
+
+# Gráfico
+freq_minist_tempo %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line() + geom_point() +
+  lemon::facet_rep_wrap(~org, ncol = 2,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Evolução da participação em conferências ambientais", 
+       subtitle = "Percentual de participantes registrados no ano vinculados a MRE, MMA, MCT, MME, MAPA e ministérios econômicos.
+MMA inclui IBAMA e ICMBio. MCT inclui AEB e laboratórios vinculados, como INPE e IMPA. MAPA inclui EMBRAPA. MME inclui EPE, conselhos de políticas e ANEEL. Ministérios econômicos inclui MFaz e MPOG") +
+  scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22))
+```
+
+**Órgãos incluídos:**
+*No MMA: Foram incluídos SEMAM-PR (555), IBAMA (324), ICMBio (333). Não inclusão de IBDF (326), SFB (576), M Interior (441)*
+*No MCT: AEB (23), CIMGC (131), laboratórios nacionais e afins (por meio do tipo) - inclusive o INPE (352) e o INPA (351), SCT-PR (553)*
+*No MME: Comissão Nacional de Energia Nuclear (137), CNPE -  Conselho Nacional de Política Energética (140), ANEEL (40), CEPEL - Centro de Pesquisas de Energia Elétrica (124), Empresa de Pesquisa Energética (218). Não inclusão de Petrobrás (517), Eletrobrás (212), Furnas (303), Itaipu (400), Vale (155)*
+*Ministérios econômicos: MFaz (427), MEFP [collor] (699), M Econ [bols] (425), CADE (97), MPOG (444), SEPLAN-PR(556). Não inclusão: Casa da Moeda do Brasil (107), Banco Central (69), CVM (189), BNDES (86), Caixa (98), BB (71), BNB (72), etc*
+
+Vê-se que a participação para além do MMA, MRE e MCT é praticamente nula. No final da década de 2010, nota-se aumento da participação do MAPA.
+Vale a pena analisar se esse comportamento muda quando separamos as delegações por temas específicos. Abaixo, seguem os gráficos separados para Clima, Biodiversidade, Desenvolvimento Sustentável e Outros temas.
+
+```{r preparo orgs principais por tema, warning=FALSE, results='hide',message=FALSE}
+
+freq_minist_tema <- orgs_princ %>% 
+  mutate(
+    Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Biodiversidade" ~ "Biodiversidade",
+           tema == "Grandes conferências ONU" ~ "Des. Sustentável",
+           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Outros",
+           )
+    ) %>% 
+  group_by(ano, Tema, org) %>% 
+  summarise(total = n()) %>% mutate(percentual = total / sum(total)) %>% 
+  ungroup() %>% 
+  filter(org %in% c("Ministério das Relações Exteriores",
+                    "Ministério do Meio Ambiente", 
+                    "Ministério da Ciência e Tecnologia",
+                    "Ministério da Agricultura, Pecuária e Abastecimento",
+                    "Ministério de Minas e Energia",
+                    "Ministérios econômicos"
+                    
+  )) %>% 
+  # incluir contagem de observações nulas (freq = 0)
+  complete(ano, Tema, org, 
+           fill = list(total = 0, percentual = 0),
+           explicit = FALSE)
+
+temasano <- orgs_princ %>% 
+  mutate(
+    Tema = case_when (
+           tema == "Clima" ~ "Clima",
+           tema == "Biodiversidade" ~ "Biodiversidade",
+           tema == "Grandes conferências ONU" ~ "Des. Sustentável",
+           tema != "Clima" & tema != "Grandes conferências ONU" ~ "Outros",
+           )
+    ) %>% select(ano, Tema) %>% distinct() %>% 
+  mutate(anotema = paste0(ano, Tema))
+
+freq_minist_tema <- freq_minist_tema %>% 
+  mutate(
+  total = if_else(paste0(ano, Tema) %in% pull(temasano, anotema), total, NA ),
+  percentual = if_else(paste0(ano, Tema) %in% pull(temasano, anotema), percentual, NA )
+                            )
+
+
+```
+
+
+```{r plot orgs clima, echo = FALSE, warning = FALSE, message=FALSE, fig.width = 12, fig.height = 7}
+# Gráfico de clima
+freq_minist_tema %>% filter(Tema == "Clima") %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line(color = "tomato1") + geom_point(color = "tomato1") +
+  lemon::facet_rep_wrap(~ org, ncol = 2,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Participação em conferências climáticas") +
+  scale_y_continuous(name = "% dos participantes no ano",
+                     sec.axis = dup_axis(),
+                     limits = c(0,1),
+                     labels = scales::percent,
+                     n.breaks = 6) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22),
+        axis.ticks.length=unit(-0.1, "cm"),
+        legend.position = 'none')
+
+```
+
+
+[mudar gráfico de biodiversidade: ao invés de tema, fazer só CBD. Essa mistura com os outros tratados, que têm outro perfil de participação, impede visualização de qualquer tendência.]
+
+```{r plot orgs bio, echo = FALSE, warning = FALSE, fig.width = 12, fig.height = 7}
+# Gráfico de biodiversidade
+freq_minist_tema %>% filter(Tema == "Biodiversidade") %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line(color = "olivedrab4") + geom_point(color = "olivedrab4") +
+  lemon::facet_rep_wrap(~ org, ncol = 2,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Participação em conferências de biodiversidade") +
+  scale_y_continuous(name = "% dos participantes no ano",
+                     sec.axis = dup_axis(),
+                     limits = c(0,1),
+                     labels = scales::percent,
+                     n.breaks = 6) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22),
+        axis.ticks.length=unit(-0.1, "cm"),
+        legend.position = 'none')
+
+```
+
+```{r plot orgs dessust, echo = FALSE, warning = FALSE, fig.width = 12, fig.height = 7}
+# Gráfico de des sustentavel
+freq_minist_tema %>% filter(Tema == "Des. Sustentável") %>% 
+  ggplot(aes(x=ano, y = percentual)) +
+  geom_line(color = "magenta3") + geom_point(color = "magenta3") +
+  lemon::facet_rep_wrap(~ org, ncol = 2,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Participação em conferências de desenvolvimento sustentável") +
+ scale_y_continuous(name = "% dos participantes no ano",
+                     sec.axis = dup_axis(),
+                     limits = c(0,1),
+                     labels = scales::percent,
+                     n.breaks = 6) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22),
+        axis.ticks.length=unit(-0.1, "cm"),
+        legend.position = 'none')
+```
+
+```{r plot orgs outro, echo = FALSE, warning = FALSE, fig.width = 12, fig.height = 7}
+# Gráfico dos demais temas
+freq_minist_tema %>% filter(Tema == "Outros") %>% 
+  ggplot(aes(x=ano, y = percentual, color = Tema)) +
+  geom_line(color = "royalblue3") + geom_point(color = "royalblue3") +
+  lemon::facet_rep_wrap(~ org, ncol = 2,
+                        repeat.tick.labels = "bottom") +
+  labs(title = "Participação em conferências de outros temas") +
+  scale_y_continuous(name = "% dos participantes no ano",
+                     sec.axis = dup_axis(),
+                     limits = c(0,1),
+                     labels = scales::percent,
+                     n.breaks = 6) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22),
+        axis.ticks.length=unit(-0.1, "cm"),
+        legend.position = 'none')
+
+```
+
