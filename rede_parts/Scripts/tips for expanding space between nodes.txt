@@ -1,0 +1,22 @@
+https://stackoverflow.com/questions/38999656/increasing-spaces-between-vertices-for-r-igraph
+
+https://stackoverflow.com/questions/28715736/how-to-spread-out-community-graph-made-by-using-igraph-package-in-r/28722680#28722680
+
+To the best of my knowledge, you can't layout vertices of the same community close to each other, using igraph only. I have implemented this function in my package NetPathMiner. It seems it is a bit hard to install the package just for the visualization function. I will write the a simple version of it here and explain what it does.
+
+layout.by.attr <- function(graph, wc, cluster.strength=1,layout=layout.auto) {  
+        g <- graph.edgelist(get.edgelist(graph)) # create a lightweight copy of graph w/o the attributes.
+        E(g)$weight <- 1
+
+        attr <- cbind(id=1:vcount(g), val=wc)
+        g <- g + vertices(unique(attr[,2])) + igraph::edges(unlist(t(attr)), weight=cluster.strength)
+
+        l <- layout(g, weights=E(g)$weight)[1:vcount(graph),]
+        return(l)
+}
+
+Basically, the function adds an extra vertex that is connected to all vertices belonging to the same community. The layout is calculated based on the new graph. Since each community is now connected by a common vertex, they tend to cluster together.
+
+As Gabor said in the comment, increasing edge weights will also have similar effect. The function leverages this information, by increasing a cluster.strength, edges between created vertices and their communities are given higher weights.
+
+If this is still not enough, you extend this principle (calculating the layout on a more connected graph) by adding edges between all vertices of the same communities (forming a clique). From my experience, this is a bit of an overkill.

@@ -7,7 +7,7 @@ library(lubridate)
 gerar_bipartida <- function(){
   # Importação das bases deleg ----
   
-  delegs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/deleg-2021-07-22.csv", 
+  delegs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/deleg-2022-06-29.csv", 
                        ";", escape_double = FALSE, 
                        col_types = cols(X1 = col_skip(), cargo_deleg = col_skip(), 
                                         cargo_org = col_skip(), 
@@ -15,11 +15,11 @@ gerar_bipartida <- function(){
                                         nline = col_skip(), org = col_skip(),
                                         org_detalhe = col_skip(), pais = col_skip(),
                                         titulo = col_skip()), 
-                       locale = locale(encoding = "ISO-8859-1"), 
+                       #locale = locale(encoding = "ISO-8859-1"), 
                        trim_ws = TRUE)
   
   
-  orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/orgs-2021-08-26.csv",
+  orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/orgs-2022-06-29.csv",
                      ";", escape_double = FALSE, 
                      col_types = cols(org_detalhe_limpo = col_skip(),
                                       org_detalhe_sujo = col_skip(), 
@@ -27,12 +27,11 @@ gerar_bipartida <- function(){
                      locale = locale(encoding = "ISO-8859-1"),
                      trim_ws = TRUE)
   
-  class <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/class-2021-08-26.csv", 
+  class <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/class-2022-06-29.csv", 
                       ";", escape_double = FALSE, 
                       col_types = cols(org_limpo = col_skip()),
                       locale = locale(encoding = "ISO-8859-1"),
                       trim_ws = TRUE)
-  
   
   # Inclusão da organização na base delegs
   # delegs <- left_join(delegs, orgs, by = "id_org_dupla") %>% 
@@ -41,15 +40,14 @@ gerar_bipartida <- function(){
   #
   
   # Importar base de indivíduos
-  individuos <- read_csv("individuos-2021-09-06.csv", 
-                         col_types = cols(nome_padrao_v1 = col_skip(),
-                                          nome_padrao_v2 = col_skip(), 
-                                          rownum = col_skip()))
+  individuos <- read_csv("individuos-2022-07-01.csv", 
+                         col_types = cols(padrao_antigo = col_skip(),
+                                          nrow = col_skip()))
   
   # Padronização dos nomes pela base individuos
   matriz_part_evento <- left_join(delegs, individuos)
   matriz_part_evento <- matriz_part_evento %>% select(-nome) %>% 
-    filter(is.na(nome_padrao) == F)
+    filter(is.na(nome_padrao) == F) # aqui não deveria existir NA!
   
   
   # Remover arquivos não usados para liberar memória -----
@@ -60,7 +58,7 @@ gerar_bipartida <- function(){
 
 nomear_orgs <- function(matriz_part_evento){
   
-  orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/orgs-2021-08-26.csv",
+  orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/orgs-2022-06-29.csv",
                      ";", escape_double = FALSE, 
                      col_types = cols(org_detalhe_limpo = col_skip(),
                                       org_detalhe_sujo = col_skip(), 
@@ -191,7 +189,7 @@ gerar_listas_projecao <- function(matriz_part_evento, node, periodo){
 ### |||||||||||||| EXECUÇÃO DO CÓDIGO ||||||||||||||--------------------
 
 #...Organizar primeiro a base eventos ----
-eventos <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/Historico/eventos_v3.csv",
+eventos <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/Historico/eventos_v4.csv",
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
 eventos <- eventos %>%
   rename(#renomeia colunas
@@ -219,7 +217,31 @@ eventos <- eventos %>% mutate(
   ) %>% mutate(data = ymd(data), ano = year(ymd(data)))
 
 
-#...Gerando as redes -----
+# #...Salvar rede bipartida ----
+# edgelist <- gerar_bipartida()
+# 
+# # tentativa de incluir os atributos já de início, mas falhei:
+# 
+# # edgelist <- left_join(edgelist, select(eventos, -data))
+# # parts <- edgelist %>% select(nome_padrao, id_org_dupla, ano) %>% 
+# #   rename(name = nome_padrao)
+# # parts$type <- "participant"
+# # events <- edgelist %>% select(-c(nome_padrao, id_org_dupla)) %>% 
+# #   rename(name = conf)
+# # events$type <- "event"
+# # vert_list <- bind_rows(parts, events)
+# 
+# edgelist$id_org_dupla <- NULL
+# 
+# 
+# bi_net <- graph.data.frame(edgelist, directed = F)
+# V(bi_net)$type <- bipartite.mapping(bi_net)$type
+# 
+# 
+# projections <- bipartite.projection(bi_net, multiplicity = TRUE)
+# event_project <- projections$proj1
+
+#...Gerando as redes para exportação -----
 
 gerar_bipartida() %>% 
   filtrar_periodo(1970,1989) %>% 
@@ -283,6 +305,12 @@ gerar_bipartida() %>% filtrar_periodo(2010, 2018) %>% nomear_orgs() %>%
 
 
 
+gerar_bipartida() %>% filtrar_periodo(1970, 1979) %>% nomear_orgs() %>% 
+  gerar_listas_projecao(node = "org", "70-79")
+gerar_bipartida() %>% filtrar_periodo(1980, 1989) %>% nomear_orgs() %>% 
+  gerar_listas_projecao(node = "org", "80-89")
+gerar_bipartida() %>% filtrar_periodo(1970, 2018) %>% nomear_orgs() %>% 
+  gerar_listas_projecao(node = "org", "70-18")
 # método dicas rogério
 
 ##########################################################################

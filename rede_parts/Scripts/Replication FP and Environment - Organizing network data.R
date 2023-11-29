@@ -53,7 +53,7 @@ eventos$id_evento <- 1:nrow(eventos)
 #Import and organize data on participant lists and individuals ----
 
 # Participant lists
-delegs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/deleg-2022-06-29.csv", 
+delegs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/Historico/deleg-2022-06-29.csv", 
                      ";", escape_double = FALSE, 
                      col_types = cols(#X1 = col_skip(), 
                                       cargo_deleg = col_skip(), 
@@ -917,7 +917,7 @@ node_list$nparticipations <- personyr_n_of_events[
 
 #.... Including info on organizations -----
 # to do this, we must first import organization data
-orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/orgs-2022-06-29.csv", 
+orgs <- read_delim("~/Doutorado/controle_doc/BD_deleg-evento/Historico/orgs-2022-06-29.csv", 
                    delim = ";", escape_double = FALSE, col_types = cols(org_sujo = col_skip(), 
                                                                         org_detalhe_sujo = col_skip(), org_detalhe_limpo = col_skip()), 
                    locale = locale(encoding = "ISO-8859-1"), 
@@ -1648,3 +1648,23 @@ rm(orgdecadenet)
 write.csv2(full_stats, "centrality_measures.csv")
 
 
+
+# Extra - 2010s organization network (still missing in paper) ------------
+# orgdecadenet <- yearfilter_net(personyrNet, 2010, 2018) %>% 
+#   collapse_ind2org() %>% preparing_nodeappearance(30)
+# 
+# #statistics
+# vcount(orgdecadenet) # n of orgs
+# full_stats <- full_stats %>%  # centrality
+#   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "10s")) %>% 
+#   bind_rows( central_stats(orgdecadenet, "betweenness", T, "10s")  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "betweenness", F, "10s", invertweight = T)  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "betweenness", T, "10s", invertweight = T)  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "closeness", F, "10s")  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "closeness", T, "10s")  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "closeness", F, "10s", invertweight = T)  ) %>%
+#   bind_rows( central_stats(orgdecadenet, "closeness", T, "10s", invertweight = T)  ) %>%
+#   bind_rows( central_stats(orgdecadenet, "eigenvector", decade = "10s")  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "eigenvector", decade = "10s", invertweight = T)  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "pagerank", decade = "10s")  ) %>% 
+#   bind_rows( central_stats(orgdecadenet, "pagerank", decade = "10s", invertweight = T)  )
