@@ -1,0 +1,20 @@
+Raspei os dados do Tableau desse site: https://www.bu.edu/gdp/climate-negotiations-database/
+
+A raspagem foi feita em 30/11/2023
+Consta no site:
+Data updated: Nov 1, 2023
+When citing this page: Bhandary, R.R., Pitts, J. 2023. "Climate Negotiations Database" Global Policy Development Center, Boston University
+
+O link direto pra worksheet do tableau:
+https://public.tableau.com/views/ClimateNegotiationsDatabase/WhatsontheAgenda?:embed=y&amp;:showVizHome=no&amp;:host_url=https%3A%2F%2Fpublic.tableau.com%2F&amp;:embed_code_version=3&amp;:tabs=no&amp;:toolbar=yes&amp;:animate_transition=yes&amp;:display_static_image=no&amp;:display_spinner=no&amp;:display_overlay=yes&amp;:display_count=yes&amp;:language=en-US&amp;publish=yes&amp;:loadOrderID=0
+
+--------------------------------------------------------
+Baixei todas as planilhas que o código puxou do Tableau. Algumas delas claramente são pras funcionalidades das animações, um texto que aparece um número, etc. Essas foram colocadas na pasta "Pouco úteis". 
+A 'Total topics table over time' também foi pra lá: traz os dados da última tabela, mas só para o tema de transparência. Coloquei na pasta pra não me confundir no trabalho.
+Se quiser fazer a separação por temas da agenda, acho que precisaria raspar de novo, dando um jeito de puxar as outras tabelas (Mitigation, Loss and Damage, Finance, Adaptation). 
+Mais fácil, talvez, solicitar os dados pra Jen Iris Allan.
+
+As tabelas principais:
+- All conversations = Soma das agendas por tema
+- Share of conversation = % de cada tema na agenda por ano
+- All topics Across Bodies across time squares = N de itens por órgão por ano [Volume of work]

@@ -1,0 +1,61 @@
+,Pivot Field Names-alias,SUM(Pivot Field Values)-value,SUM(Pivot Field Values)-alias,YEAR(Year_raw)-alias,YEAR(Year_raw)-value,YEAR(Year_raw)-[federated.1y0rlvk1x81hvh1b8h66e10jbv8y].[yr:Year:ok]-alias
+0,Procedural,72,72,2022,2022,2022
+1,Procedural,75,75,2021,2021,2021
+2,Procedural,95,95,2019,2019,2019
+3,Procedural,107,107,2018,2018,2018
+4,Procedural,106,106,2017,2017,2017
+5,Finance,10,10,2022,2022,2022
+6,Finance,12,12,2021,2021,2021
+7,Finance,14,14,2019,2019,2019
+8,Finance,7,7,2018,2018,2018
+9,Finance,12,12,2017,2017,2017
+10,Transparency,33,33,2022,2022,2022
+11,Transparency,29,29,2021,2021,2021
+12,Transparency,45,45,2019,2019,2019
+13,Transparency,33,33,2018,2018,2018
+14,Transparency,38,38,2017,2017,2017
+15,Technology,9,9,2022,2022,2022
+16,Technology,12,12,2021,2021,2021
+17,Technology,9,9,2019,2019,2019
+18,Technology,9,9,2018,2018,2018
+19,Technology,9,9,2017,2017,2017
+20,Capacity building,4,4,2022,2022,2022
+21,Capacity building,6,6,2021,2021,2021
+22,Capacity building,10,10,2019,2019,2019
+23,Capacity building,6,6,2018,2018,2018
+24,Capacity building,8,8,2017,2017,2017
+25,Social issue,3,3,2022,2022,2022
+26,Social issue,5,5,2021,2021,2021
+27,Social issue,4,4,2019,2019,2019
+28,Social issue,5,5,2018,2018,2018
+29,Social issue,3,3,2017,2017,2017
+30,Response Measures,6,6,2022,2022,2022
+31,Response Measures,4,4,2021,2021,2021
+32,Response Measures,10,10,2019,2019,2019
+33,Response Measures,17,17,2018,2018,2018
+34,Response Measures,17,17,2017,2017,2017
+35,Loss and Damage,8,8,2022,2022,2022
+36,Loss and Damage,7,7,2021,2021,2021
+37,Loss and Damage,6,6,2019,2019,2019
+38,Loss and Damage,2,2,2018,2018,2018
+39,Loss and Damage,3,3,2017,2017,2017
+40,Country specific,4,4,2022,2022,2022
+41,Country specific,3,3,2021,2021,2021
+42,Country specific,3,3,2019,2019,2019
+43,Country specific,3,3,2018,2018,2018
+44,Country specific,2,2,2017,2017,2017
+45,Adaptation,16,16,2022,2022,2022
+46,Adaptation,12,12,2021,2021,2021
+47,Adaptation,8,8,2019,2019,2019
+48,Adaptation,11,11,2018,2018,2018
+49,Adaptation,9,9,2017,2017,2017
+50,Other,3,3,2022,2022,2022
+51,Other,2,2,2021,2021,2021
+52,Other,4,4,2019,2019,2019
+53,Other,4,4,2018,2018,2018
+54,Other,3,3,2017,2017,2017
+55,Goal setting,8,8,2022,2022,2022
+56,Goal setting,2,2,2021,2021,2021
+57,Goal setting,3,3,2019,2019,2019
+58,Goal setting,6,6,2018,2018,2018
+59,Goal setting,5,5,2017,2017,2017

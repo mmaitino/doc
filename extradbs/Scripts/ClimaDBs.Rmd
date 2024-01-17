@@ -1,0 +1,711 @@
+---
+title: "DadosClima"
+output: html_document
+date: "2023-11-29"
+---
+
+```{r setup, include=FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = "C:/Users/marti/Documents/Doutorado/controle_doc/extradbs"
+)
+# knitr::opts_chunk(message = FALSE, warning = FALSE)
+
+
+## Carregando pacotes
+library(tidyverse)
+```
+
+```{r mudança wd}
+
+```
+
+# Dados Brasil (minha base)
+Carregando os dados da base das delegações brasileiras pra fazer a comparação
+
+```{r setup delegbr, include = F}
+#working directory temporario
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+getlatest_file <- function(basefilename#, folder = here::here("BD_deleg-evento")
+                           ){
+  list.files(#path = folder, 
+             pattern = paste0(basefilename, "-.+\\.csv"))
+}
+
+deleg <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+orgs <- read_delim(getlatest_file("orgs"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   #locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+class <- read_delim(getlatest_file("class"), 
+                   ";", escape_double = FALSE, 
+                   col_types = cols(
+                     #X1 = col_skip()
+                     ), 
+                   locale = locale(encoding = "ISO-8859-1"), 
+                   trim_ws = TRUE) %>% distinct()
+
+
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+
+
+```
+
+```{r integrando bases, include=FALSE}
+# Criando deleg_completo (deleg+orgs+class) --------
+orgs_classificado <- left_join(orgs, class) %>% select(-c(org_sujo, org_detalhe_sujo))
+# N de rows aumenta, porque tem orgs que ficaram apenas na class e saíram da lista orgs (foram erros na padronização e corrigidos posteriormente)
+# Teste (resultado deve ser tibble vazio): left_join(orgs, class, by = "id_org_unica") %>% filter(org_limpo.x != org_limpo.y)
+
+deleg_completo <- deleg %>% select(-c(org, org_detalhe)) %>% left_join(orgs_classificado, by = "id_org_dupla")
+
+# Limpando deleg_completo
+deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim))
+
+rm(deleg, orgs, class)
+```
+
+```{r limpando base eventos, include = F}
+# Limpando a base dos eventos --------
+
+### Limpar e renomear colunas
+eventos <- eventos %>% select(-c(`Código ONU`, Comentário, 
+                                 `Formato lista`, 
+                                 `Aberto?`, `Questões a atentar`, 
+                                 Corrigendum, Local)) %>% #retira colunas irrelevantes
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`,
+    mainconf = `Principais convenções + gdes conf`
+  )
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>% 
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = lubridate::ymd(data), 
+               ano = lubridate::year(lubridate::ymd(data))) 
+
+eventos <- eventos %>% mutate(across(where(is.character), str_trim))
+```
+
+```{r preparando base deleg_evento, include = F}
+#preparar a base do tamanho deleg
+deleg_evento <- left_join(deleg_completo,
+                          select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
+
+# identificando os eventos p/ os quais o BR nao enviou delegação:
+eventos_semdeleg <- tibble(conf = setdiff(eventos[eventos$coleta=="Sim" & !is.na(eventos$coleta),]$conf, unique(deleg_completo$conf))) %>% 
+  left_join(eventos) %>% 
+  mutate(count = 0)
+
+# contagem de tamanho da delegação, incluindo eventos acima como deleg_size = 0
+deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>% 
+  bind_rows(select(eventos_semdeleg, c(conf, ano, count)))
+
+
+```
+
+```{r filtrando apenas clima, echo = FALSE}
+deleg_size_clima <- deleg_size %>% filter(str_detect(conf, "UNFCCC"))
+deleg_completo_clima <- deleg_completo %>% filter(str_detect(conf, "UNFCCC"))
+
+rm(deleg_evento, deleg_size, deleg_completo)
+```
+
+
+# PARTICIPAÇÃO NA UNFCCC
+
+## UNFCCC Attendance
+
+Os dados apresentados aqui foram compilados e publicados por Robert McSweeney, do CarbonBrief - ver publicações [aqui](https://www.carbonbrief.org/analysis-which-countries-have-sent-the-most-delegates-to-cop27/) e [aqui](https://www.carbonbrief.org/analysis-how-delegations-at-cop-climate-summits-have-changed-over-time/). Foram baixados os dados do JSON que gera a figura publicada.
+Os dados foram compilados a partir das tabelas publicadas nas listas oficiais de participantes da UNFCCC. 
+Nas listas da COP2 (1996) e COP5 (1999), essas tabelas não foram publicadas na lista, mas estão disponíveis, em outro recorte, em [página oficial da UNFCCC sobre participação ](https://unfccc.int/process-and-meetings/parties-non-party-stakeholders/non-party-stakeholders/statistics-on-non-party-stakeholders/statistics-on-participation-and-in-session-engagement). Para esses dois anos, portanto, os dados aparecem combinados para a) países parte e observadores, e b) todos os tipos de organizações observadoras. **Pode ser interessante depois pegar a série completa da UNFCCC nesse tema da participação.**
+
+Os dados de 2022 (COP27) incluídos na série são os da lista provisória - **é preciso atualizar**.
+
+
+
+
+### Importação da base
+```{r preparo attendance, echo=FALSE, message = FALSE}
+
+attendancejson <- jsonlite::read_json(here::here("dbs", "COP Attendees 1995-2022 Sweeney Carbon Brief.json")) #ler o json, que tem três objetos
+attendancelist <- map_if(attendancejson$values, is.data.frame, list) #organizar objeto values para viabilizar unnesting
+attendancedf <- tibble(values = attendancelist) %>% #transforma p/ usar unnest_wider
+  unnest_wider(values, names_sep = "-") #transforma cada lista em uma coluna
+  
+# Organizando o df
+vector_names <- unlist(attendancedf[1,], use.names = F) #pega todos valores do row 1
+vector_names[1] <- "col"
+names(attendancedf) <- vector_names
+attendance_COP27 <- attendancedf[13:19,c(1,29)] #separando dados cop27 - sao provisorios e estao com nomes duplicados
+
+attendancedf <- attendancedf[2:12,-29] %>% #retira primeiro row, onde estavam nomes e os dados da cop27
+  pivot_longer(cols = starts_with("COP"), # cop vira variável conf
+               names_to = "conf",
+               values_to = "value") %>% 
+  pivot_wider(names_from = "col", values_from = "value") # abre valores como coluna
+
+#as colunas seguem como lista: é preciso arrumar isso
+
+attendancedf <- attendancedf %>% 
+  mutate_at(2:10, unlist) %>% #pela estrutura dos dados, os combinados tem tamanho menor que os demais e só podem ser lista
+  mutate_at(2:10, as.numeric)
+
+attendancedf <- attendancedf %>% mutate(
+  comb_parties = case_when(conf == "COP2"~ 970, 
+                           conf == "COP5"~ 1653,
+                           conf != "COP2" & conf != "COP5" ~ NA),
+  comb_obs = case_when(conf == "COP2"~ 614, 
+                           conf == "COP5"~ 2001,
+                           conf != "COP2" & conf != "COP5" ~ NA),
+  ) %>% select(-c(`Combined observers`, `Combined parties`)) %>% 
+  mutate_all(~replace(., . == "", NA)) %>% 
+  mutate(year = c(1995:2000, 2000, 2001:2019, 2021))
+
+```
+
+### Gráfico dos dados
+```{r plot attendance, echo = FALSE, warning=FALSE}
+attgraphdf <- attendancedf %>% pivot_longer(cols = 2:12, names_to = "parttype", values_to = "count") 
+
+#grafico geral
+attgraphdf %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point()
+
+#grafico attendance total
+attgraphdf %>% filter(!is.na(count) &
+                        year != 1996 & year != 1999) %>% 
+  group_by(year) %>% summarise(total = sum(count)) %>% 
+  ggplot(aes(x=year, y = total)) +
+  geom_line() + geom_point() +
+  geom_vline(xintercept = c(1997, 2009, 2015), 
+             linetype = 'dotted', color = 'blue') +
+  labs(title = "Total attendance at UNFCCC COPs")
+
+#grafico partes e ngo observers
+attgraphdf %>% filter(parttype %in% c("Parties", "NGO observers",
+                                      "Media")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  facet_wrap(~parttype, ncol = 1)
+
+#grafico das demais (tirando os que não têm muitos casos)
+attgraphdf %>% filter(!parttype %in% c("Parties", "NGO observers","Media",
+                                       "comb_obs", "comb_parties",
+                                       "Other/Staff", "Overflow")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  facet_wrap(~parttype, ncol = 2)
+```
+
+Notar que plotar por ano tem problema de duas COPs em 2000. depois fazer uma variavel mais refinada de data pro ponto de novembro ficar levemente mais pra frente
+Talvez valha fazer linhas marcando Kyoto, Copenhagen e Paris (Cops de acordo)
+
+
+Interessante ver que as tendências diferem. A participação da mídia é relativamente estável no tempo - aumento é só nas COPs de acordo (KP, Copenhagen, Paris). As demais subiram, mas a de ONGs é bem contida - cresce muito em Copenhagen, depois estável e só volta a crescer mais recente, pós Paris. No *Quo Vadis COP?* a explicação é que o secretariado conteve os registros de ONGs após os problemas em Copenhagen, não acompanhou a demanda. Nas partes, vemos também o efeito das COPs 15 e 21 (kyoto não), mas é muito clara a tendência descendo e estabilizando depois, mais baixa que no pico mas em novo patamar.
+
+### Comparando com dados do Brasil
+
+```{r graficos attendance parties br, echo=FALSE}
+attbrgeral <- deleg_size_clima %>% mutate(parttype = "Brazil") %>% 
+  rename(year = ano) %>% bind_rows(attgraphdf) %>%
+  filter(year >= 1995) #dados gerais são só das COPs
+
+attbrgeral %>% filter(parttype %in% c("Parties", "NGO observers",
+                                      "Brazil")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  facet_wrap(~parttype, ncol = 1, scales = 'free_y') +
+  labs(title = "Participação na UNFCCC", 
+       subtitle = "Escalas distintas no eixo y") +
+  theme(legend.title=element_blank())
+
+```
+
+Vemos que a trajetória de participação no Brasil segue o ritmo geral observado na UNFCCC como um todo, mas tem algumas especificidades tanto em relação às partes como aos observadores não-estatais. 
+Os picos nas Partes se dão em 2009 e 2015, com queda em seguida. Período 2010 a 2014 é baixo e relativamente estável. Pós 2015, um novo patamar, mais alto.
+Os picos nos observadores não-estatais se dão em 2009 e, em menor grau, em 2005 e 2015. Entre 2010 e 2015 o número é relativamente estável, mas dali em diante começa a crescer.
+No Brasil, há também pico em 2009, mas a delegação segue grande em 2010 e 2011 (queda é muito mais lenta). Não há pico em Paris (provavelmente pela questão do party overflow) e se mantém relativamente estável depois. Há também um pico prévio em 2004, o que é interessante porque não ocorre nos demais.
+
+Vejamos agora se separando a delegação governamental e a delegação não-governamental do Brasil os movimentos seguem algum outro padrão.
+```{r attendance br soc civil e gov, echo = F}
+#criar delegsize soc civil e delegsize gov
+delegsizeclima_gov <- deleg_completo_clima %>% 
+  left_join(eventos) %>% 
+  filter(tipo_org_reduzido %in% c("Governo federal não-MRE", 
+                                  "Governo federal MRE")) %>% group_by(conf, ano) %>% summarize(count = n()) %>% 
+  mutate(parttype = "Brazil government") %>% 
+  rename(year = ano) %>% filter(year >= 1995)
+
+delegsizeclima_govexp <- deleg_completo_clima %>% 
+  left_join(eventos) %>% 
+  filter(tipo_org_reduzido %in% c("Governo federal não-MRE", 
+                                  "Governo federal MRE",
+                                  "Legislativo federal",
+                                  "Governos subnacionais (Executivo, Legislativo, Empresas Públicas ou Autarquias)"
+                                  )) %>% group_by(conf, ano) %>% summarize(count = n()) %>% 
+  mutate(parttype = "Brazil government (expanded)") %>% 
+  rename(year = ano) %>% filter(year >= 1995)
+
+
+
+delegsizeclima_ngov <- deleg_completo_clima %>% 
+  left_join(eventos) %>% 
+  filter(tipo_org_reduzido %in% c(
+    "Sociedade civil, sindicatos, movimentos sociais",
+    "Setor empresarial","Órgãos de ensino e pesquisa"
+    )) %>% group_by(conf, ano) %>% summarize(count = n()) %>% 
+  mutate(parttype = "Brazil non-government") %>% 
+  rename(year = ano) %>% filter(year >= 1995)
+
+  # em 1995 e 1996, ngov = 0. o certo é fazer automático via complete
+  # mas vou incluir manual
+delegsizeclima_ngov <- bind_rows(delegsizeclima_ngov,
+    tibble(conf = c("UNFCCC, COP01", "UNFCCC, COP02"),
+           year = c(1995, 1996),
+           count = c(0, 0),
+           parttype = c("Brazil non-government", "Brazil non-government")
+   )
+)
+
+attbrgeral <- bind_rows(attbrgeral, 
+                        delegsizeclima_gov, delegsizeclima_ngov,
+                        delegsizeclima_govexp)
+
+```
+
+```{r graficos att br tipo part}
+
+attbrgeral %>% filter(parttype %in% c("Parties", "Brazil government")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  facet_wrap(~parttype, ncol = 1, scales = 'free_y') +
+  labs(title = "Participação na UNFCCC", 
+       subtitle = "Escalas distintas no eixo y") +
+  theme(legend.title=element_blank())
+
+attbrgeral %>% filter(parttype %in% c("Parties",
+                                      "Brazil government (expanded)")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  facet_wrap(~parttype, ncol = 1, scales = 'free_y') +
+  labs(title = "Participação na UNFCCC", 
+       subtitle = "Escalas distintas no eixo y") +
+  theme(legend.title=element_blank())
+
+
+attbrgeral %>% filter(parttype %in% c("NGO observers", 
+                                      "Brazil non-government")) %>% 
+  ggplot(aes(x=year, y = count, color = parttype)) +
+  geom_line() + geom_point() +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  facet_wrap(~parttype, ncol = 1, scales = 'free_y') +
+  labs(title = "Participação na UNFCCC", 
+       subtitle = "Escalas distintas no eixo y") +
+  theme(legend.title=element_blank())
+
+```
+
+
+
+### Ainda a fazer
+- Adicionar os dados da COP27. O banco já me dá os dados da lista provisória, mas posso pegar manualmente os dados corretos.
+- Raspar os dados da página de participação da ONU para ter um gráfico com os anos faltantes (96 e 99), mas usando os dados de Total estados e total não gov. Esses dados também dão, para os anos mais recentes, uma ideia do gap de demanda vs participação das ONGs e do tamanho das constituencies de ONGs hoje.
+
+
+## Comparação do tamanho das delegações de países
+
+Aqui, os dados vem de Kaya & Schofield (2020).
+Preciso checar certinho se os dados incluem, de fato, toda a delegação ou só os representantes governamentais/algum outro tipo de filtro. Passando rápido elo texto, parecia que incluía tudo, mas é bom ver com calma, numa leitura mais detido.
+**Me chamou muita atenção a delegação brasileira pra Varsóvia (COP 19, 2013) aparecer só com 42 pessoas - o que só pode ser um erro. É preciso checar, entender o que aconteceu e arrumar se for o caso.**
+
+### Importando a base
+
+```{r preparo delegsize global}
+
+delegsize <- read.csv(here::here("dbs","Schofield", "ClimateChangeAttendanceFPA.csv"))
+
+```
+
+
+```{r plot averagedelegsize, echo = FALSE}
+global_delegsize <- delegsize %>% group_by(Year) %>%
+  summarise(average_delegsize = mean(Delegates0),
+            median_delegsize = median(Delegates0),
+            sd_delegsize = sd(Delegates0),
+            max_delegsize = max(Delegates0),
+            min_delegsize = min(Delegates0))
+
+countries_delegsize <- delegsize %>% filter(
+  CountryCode %in% c("BRA", "ARG","USA", "IND", "CHN", "IDN")
+)
+
+ggplot(global_delegsize, aes(x =Year)) +
+  geom_line(aes(y = average_delegsize, color = "Mean")) +
+  geom_line(aes(y = median_delegsize, color = "Median")) +
+  labs(title = "Average delegation size at the UNFCCC COPs") +
+   scale_color_manual(#name = "Statistic", 
+                      values = c("Mean" = "darkblue", 
+                                 "Median" = "red"
+                                 )) +
+  theme(legend.position="bottom")
+  
+```
+
+```{r plot BR deleg, echo = FALSE}
+# Gráfico Brasil x média
+countries_delegsize <- delegsize %>% filter(
+  CountryCode %in% c("BRA", "ARG","USA", "IND", "CHN", "IDN", "ZAF",
+                     "COL"))
+
+ggplot(global_delegsize, aes(x =Year)) +
+  geom_line(aes(y = max_delegsize, color = "Max")) +
+  geom_line(aes(y = median_delegsize, color = "Median")) +
+  geom_line(data = countries_delegsize %>% filter(CountryCode == "BRA"),
+            aes(x = Year, y= Delegates0, color = "Brazil")) +
+  labs(title = "Delegation size at the UNFCCC COPs") +
+   scale_color_manual(name = "", 
+                      values = c("Mean" = "darkblue", 
+                                 "Median" = "red",
+                                 "Max" = "darkgrey",
+                                 "Brazil" = "darkgreen"
+                                 )) +
+  ylab("Number of participants") +
+  theme(legend.position="bottom")
+
+ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "CHN", "IND")), 
+       aes(x = Year, y = Delegates0, color = CountryCode)) +
+  geom_line() +
+  geom_line(data = global_delegsize, aes(y = average_delegsize, 
+                                         color = "World Mean")) +
+  labs(title = "Emerging countries delegation size at the UNFCCC COPs") +
+   scale_color_manual(name = "Countries", 
+                      values = c("BRA" = "darkgreen",
+                                 "CHN" = "red",
+                                 "IND" = "orange",
+                                 "World Mean" = "darkgrey"
+                                 )) +
+  ylab("Number of participants") 
+
+
+ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "ARG", "IDN", "ZAF")), 
+       aes(x = Year, y = Delegates0, color = CountryCode)) +
+  geom_line() +
+  geom_line(data = global_delegsize, aes(y = average_delegsize, 
+                                         color = "World Mean")) +
+  labs(title = "Delegation size at the UNFCCC COPs") +
+   scale_color_manual(name = "Countries", 
+                      values = c("BRA" = "darkgreen",
+                                 "ARG" = "darkblue",
+                                 "IDN" = "red",
+                                 "ZAF" = "magenta",
+                                 "World Mean" = "darkgrey"
+                                 )) +
+  ylab("Number of participants") + xlab("")
+```
+
+### Ainda a fazer
+- calcular e plotar médias de grupos de países (categorias de renda, anexo 1 vs nao anexo 1). pra Annex1 já tem uma dummy e a base tem outras variáveis disponíveis tb, mas categoria de renda do Banco Mundial teria que pegar.
+
+- incluir linhas dividindo momentos importantes pra conferencia (kyoto, copengagen, paris)
+
+- conferir a diferença entre a minha base de deleg size e a deles (a minha elimina alguns participantes duplicados, provavelmente)
+
+- pensar outros países que possam ser interessantes. talvez fosse possível criar algum tipo de grupo de países semelhantes (como se faz com controle sintético)
+
+- **Me chamou muita atenção a delegação brasileira pra Varsóvia (COP 19, 2013) aparecer só com 42 pessoas - o que só pode ser um erro. É preciso checar, entender o que aconteceu e arrumar se for o caso.** Infelizmente, isso é um problema porque afeta minha confiança nos dados deles. Mas são os dados que temos, então vai acabar indo por aí.
+
+# COMPOSIÇÃO DAS DELEGAÇÕES
+
+Aqui uso os dados de Skovgaard e Gallant, os quais são, por sua vez, expansão de Schroeder et al. O número de eventos e países é bem reduzido, mas cobre diferentes períodos da convenção.
+
+```{r import composicao delegs, echo=FALSE}
+composicao_delegs <- readxl::read_excel(
+  "dbs/Composição delegações demais países.xlsx", 
+    sheet = "Tabela países") %>% 
+  pivot_longer(cols = -c(Country, Type, Event),
+               names_to = "Ministry",
+               values_to = "Percentage") %>% 
+  mutate(year = case_when(
+    Event == "COP01" ~ 1995,
+    Event == "COP07" ~ 2001,
+    Event == "COP15" ~ 2009,
+    Event == "COP17" ~ 2011,
+    Event == "COP19" ~ 2013,
+  ))
+
+
+# other <- composicao_delegs %>% group_by(Country, Event) %>% 
+#   summarise(Other = 100 - sum(Percentage)) %>% 
+#   mutate(Ministry = "Other") %>% rename(Percentage = Other) %>% 
+#   mutate(
+#     Type = composicao_delegs[composicao_delegs$Country == Country,]$Type %>% first(),
+#     year = composicao_delegs[composicao_delegs$Event == Event,]$year %>% first()
+#     )
+#   
+# composicao_delegs <- bind_rows(composicao_delegs, other)
+
+```
+
+Comparemos agora o Brasil e outros países
+
+```{r grafico br vs Emerging, echo = FALSE}
+
+composicao_delegs %>% filter(Type == "Emerging") %>% 
+  # filter(Country == "Brazil") %>% 
+  ggplot(aes(x = Event, 
+             y = Percentage, fill = Ministry)) +
+  geom_col() +
+  geom_text(aes(label = paste0(Percentage, "%")), 
+            position = position_stack(vjust = .5),
+            size = 3) +
+  facet_wrap(~ Country, ncol = 1) +
+  coord_flip() +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme(legend.position="bottom")
+
+```
+
+
+```{r grafico br vs Developed, echo = FALSE}
+
+composicao_delegs %>% filter(Type == "Industrialized" |
+                               Country == "Brazil") %>% 
+  ggplot(aes(x = Event, 
+             y = Percentage, fill = Ministry)) +
+  geom_col() +
+  geom_text(aes(label = paste0(Percentage, "%")), 
+            position = position_stack(vjust = .5),
+            size = 3) +
+  facet_wrap(~ Country, ncol = 2) +
+  coord_flip() +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme(legend.position="bottom")
+
+```
+
+
+```{r grafico br vs ldc, echo = F}
+composicao_delegs %>% filter(Type == "Least Developed" |
+                               Country == "Brazil") %>% 
+  ggplot(aes(x = Event, 
+             y = Percentage, fill = Ministry)) +
+  geom_col() +
+  geom_text(aes(label = paste0(Percentage, "%")), 
+            position = position_stack(vjust = .5),
+            size = 3) +
+  facet_wrap(~ Country, ncol = 1) +
+  coord_flip() +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme(legend.position="bottom")
+
+```
+
+
+# VISIBILIDADE DO TEMA NO MUNDO
+## Cobertura midiática sobre clima - dados do MeCCO
+
+Os dados aqui são do Media and Climate Change Observatory (MeCCO), coordenado pela Universidade de Colorado. Monitoram 131 jornais em 59 países em 7 regiões do mundo. Dados cobrem 2004 até 2023, mês a mês.
+
+Nesse relatório, estou usando a atualização cobrindo **outubro de 2023 (2023-11-27)**
+
+### Importação da base
+```{r preparo midia, message=FALSE, echo = FALSE}
+excel <- readxl::read_excel(here::here("dbs","MeCCOworld_dataset - 2023-11-27.xlsx"))
+col_names <- paste0(unlist(excel[1,], use.names = FALSE), 
+                    unlist(excel[2,], use.names = FALSE))
+col_names[1] <- "database"
+col_names[2] <- "newspaper"
+names(excel) <- col_names
+
+# base organizada
+excel <- excel[-c(1,2),] %>% pivot_longer(cols = -c(database, newspaper),
+                                    names_to = "year",
+                                    values_to = "values")
+
+# os agregados aparecem como se fossem database (ASIA) e jornais (TOTAL).
+# poderia agregar região como variável, olhando para os rows acima de ASIA, EUROPE, etc. 
+
+
+# maior interesse é nos totais, para a cobertura global
+media_data <- excel %>% filter(newspaper == "TOTAL") %>% 
+  # pivot_longer(cols = -c(1,2), names_to = "datestring") %>%
+  mutate(date = lubridate::ym(year),
+         value = as.numeric(values)) #%>% 
+  #pivot_wider(values_from = "value", names_from = database)
+#nao vou pivot wider pq formato longer é melhor pro ggplot
+
+# vale olhar também para os jornais específicos do Brasil
+# no caso, cobrem - O Globo e a Folha
+# nao há variável país na base, mas no texto em newspaper
+br_media_data <- excel %>% filter(str_detect(newspaper, "Brazil")) %>% 
+  # pivot_longer(cols = -c(1,2), names_to = "datestring") %>% 
+  mutate(date = lubridate::ym(year),
+         value = as.numeric(values))
+#p/ Brasil, dados de cobertura só começam em 2005.
+
+```
+
+
+```{r plot media, echo = F}
+#gráfico separado por regiao todos juntos
+media_data %>% ggplot(aes(x=date, y= value, color = database)) +
+  geom_line() +
+  labs(title = "Cobertura midiática sobre mudança climática"
+      )
+
+#grafico separado por regiao com facet
+media_data %>% ggplot(aes(x=date, y= value)) +
+  geom_line() + facet_wrap(~database, ncol=2) +
+  labs(title = "Cobertura midiática sobre mudança climática"
+      )
+
+#grafico do total
+media_data %>% group_by(date) %>% summarise(total = sum(value)) %>% 
+ggplot(aes(x=date, y= total)) +
+  geom_line() + 
+  labs(title = "Cobertura midiática total sobre mudança climática",
+       subtitle = "soma da cobertura nas diversas regiões do mundo, dados do MeCCO")
+
+
+```
+
+```{r plot midia brasil, echo=FALSE}
+br_media_data %>% ggplot(aes(x=date, y= value, color = newspaper)) +
+  geom_line() +
+  labs(title = "Cobertura midiática brasileira sobre mudança climática"
+      )
+
+br_media_data %>% group_by(date) %>% summarise(total = sum(value)) %>% 
+ggplot(aes(x=date, y = total)) +
+  geom_line() +
+  labs(title = "Cobertura midiática brasileira sobre mudança climática",
+       subtitle = "Soma de FSP e O Globo, dados do MeCCO")
+```
+
+
+```{r compara br e mundo total}
+left_join(
+  media_data %>% group_by(date) %>% summarise(mundo = sum(value)),
+  br_media_data %>% group_by(date) %>% summarise(brasil = sum(value))
+  ) %>% 
+  pivot_longer(cols = c(2,3), names_to = "unit", values_to = "total") %>% 
+  ggplot(aes(x=date, y=total, color = unit)) +
+  geom_line() +
+  labs(title = "Comparação da cobertura midiática sobre clima no Brasil e no mundo") +
+  scale_x_date(date_breaks = "2 years", date_labels = "%b %Y")
+
+left_join(
+  media_data %>% group_by(date) %>% summarise(mundo = sum(value)),
+  br_media_data %>% group_by(date) %>% summarise(brasil = sum(value))
+  ) %>% 
+  pivot_longer(cols = c(2,3), names_to = "unit", values_to = "total") %>% 
+  ggplot(aes(x=date, y=total, color = unit)) +
+  geom_line() +
+  facet_wrap(~unit, ncol = 1, scales = "free") +
+  labs(title = "Comparação da cobertura midiática sobre clima no Brasil e no mundo", subtitle = "Escalas distintas para melhor comparação da evolução temporal") +
+  scale_x_date(date_breaks = "2 years", date_labels = "%b %Y")
+
+```
+
+Como é de se esperar, a cobertura midiática de clima no Brasil (2 jornais na amostra) representa uma parcela ínfima da cobertura no mundo (131 na amostra (*checar se for o caso - talvez seja menos, porque sao só os jornais e esse numero pode cobrir tv etc*)). 
+A diferença de escalas, porém, não nos impede de observar que a tendência da cobertura no Brasil segue, em vários momentos, a mesma tendência da observada no mundo. Há, porém, momentos de diferença importante: 
+- em 2007, quando sobe no mundo, segue com cobertura; no Brasil, cai novamente. 
+- em 2015, na época de Paris, há um pico de cobertura no mundo; no Brasil, nada acontece - e até diminui em seguida.
+- de 2018 para frente, a cobertura no mundo começa a subir muito (cai em jan 2020) e aumenta ciclicamente, mas mantendo-se em um novo patamar. No Brasil, o crescimento de 2018 praticamente não ocorre, mantendo-se estável em uma cobertura baixa. É só em 2021 que a cobertura brasileira volta a subir, acompanhando agora as tendências (cíclicas) da mídia no mundo.
+
+
+### Ainda a fazer
+
+- verificar se dinâmica de participação no Brasil parece responder mais à cobertura internacional ou à cobertura nacional/regional (**cruzar os dados**)
+
+- fora do relatório, na discussão dos dados: pensar o que está acontecendo nos momentos em que cobertura Brasil difere da internacional e o que isso significa. Em 2015-6, sei que temos o ciclo do impeachment. E nos demais? Qual é a relevância disso pra agenda de clima? O que estava acontecendo em termos de policy?
+
+- para melhorar as figuras: talvez seja interessante marcar os grandes eventos com linhas (e.g. Copenhagen, Paris, se tiver algum desastre ou coisas do IPCC); talvez seja interessante botar as marcaçoes do eixo em novembro, quando ocorre a COP - isso ajuda a ter uma noção mais certa do interesse se for juntar com participação e parece uma boa saída pra equilibrar a sazonalidade da cobertura.
+
+
+# AGENDA DA UNFCCC
+Os dados dessa seção são tomados de Allan & Bhandary. 
+Raspei os dados do Tableau desse site: https://www.bu.edu/gdp/climate-negotiations-database/
+
+A raspagem foi feita em 30/11/2023
+Consta no site:
+Data updated: Nov 1, 2023
+When citing this page: Bhandary, R.R., Pitts, J. 2023. "Climate Negotiations Database" Global Policy Development Center, Boston University
+
+## Volume de subtemas na agenda
+Allan e Bhandary compilaram o número de subitens presente nas agendas, dividindo por órgão da convenção
+```{r volumeagenda, echo=FALSE, message = FALSE, warning=FALSE}
+agenda_ntopics <- read_csv(here::here("dbs", "Allan and Bhandary",
+                      "tableau{'All topics Across Bodies across time squares'}.csv"),
+    col_types = cols(...1 = col_skip()))
+
+agenda_ntopics <- agenda_ntopics %>%
+ rename(
+  body = `Entity-alias`,
+  total = `SUM(Pivot Field Values)-alias`,
+  year = `YEAR(Year)-value`
+) %>% select(body, total, year)
+```
+
+O gráfico abaixo mostra o volume total por ano, somando os vários órgãos da convenção
+```{r grafico agendantopics, echo=FALSE}
+agenda_ntopics %>% group_by(year) %>% 
+  summarise(total = sum(total)) %>% 
+  ggplot(aes(x = year, y = total)) +
+  geom_line() + geom_point() +
+  labs(title = "Volume de trabalho na UNFCCC",
+       subtitle = "Numero de subitens na agenda dos orgãos da convencao")
+```
+
+```{r grafico ntopics delegsize, echo = FALSE}
+attgraphdf %>% filter(parttype == "Parties") %>% 
+  rename(total = count) %>% 
+  select(c(year, total)) %>% mutate(datatype = "Parties participation") %>% bind_rows(
+     agenda_ntopics %>% group_by(year) %>% 
+  summarise(total = sum(total)) %>% 
+      mutate(datatype = "Agenda volume")
+  
+  ) %>% 
+  ggplot(aes(x=year, y = total))+
+  geom_line() + geom_point() +
+  facet_wrap(~datatype, ncol = 1, scales = "free_y")
+```
+
+### Ainda a fazer
+- Dados da agenda separados por tema (esp alguns temas especificos)
+- Replicação da figura do tableau (como conversa mudou)
+- Cruzar com dados de deleg (total attendance e deleg brasil)
+- Cruzar dados de agenda especifica com orgaos especificos brasil (mma com florestas etc)
