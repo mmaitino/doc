@@ -299,7 +299,9 @@ ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
 ```
 
 
-Notar que há muitos eventos incluídos na base referentes a florestas e biodiversidade. O maior número em Florestas é o ITTC (uns 59), o que também explica a coleta ruim (só consegui listas para 2010-2021 no ITTC). Os eventos provavelmente são pequenos e nao devem distorcer muito a base ou a centralidade do MMA, mas talvez sejam distorções relevantes para dados de 'experiência' dos atores. Biodiversidade é mais disperso nesse sentido - temos mau desempenho no ITPGRFA (pouco menos da metade coletado) e em Ramsar (nenhum). 
+Notar que há muitos eventos incluídos na base referentes a florestas. O maior número em Florestas é o ITTC (uns 59), o que também explica a coleta ruim (só consegui listas para 2010-2021 no ITTC). Os eventos provavelmente são pequenos e nao devem distorcer muito a base ou a centralidade do MMA, mas talvez sejam distorções relevantes para dados de 'experiência' dos atores. 
+Biodiversidade também teve muitos dados faltantes, mas é mais disperso pela separação em subcategorias - em particular, temos mau desempenho no ITPGRFA (pouco menos da metade coletado) e em Ramsar (nenhum). Na CBD, os eventos faltantes são todos vinculados à negociação do tratado (INC e Ad Hoc WG), de modo que não afetam a análise das COPs.
+Outras categorias, como Financiamento (GEF) e Governança Ambiental (UNEA, UNEP GC) fracassaram quase completamente. Isso diminui nossa cobertura em termos de temas, mas não deve enviesar a análise.
 Valeria explorar um pouco mais, no futuro, os problemas em Oceano (acredito que seja uma situação parecida com Florestas) e em Lixo Tóxico e Químicos. Governança ambiental o fracasso é bastante uniforme, similar a Ramsar em biodiversidade.
 
 Chequemos também a variação do sucesso da coleta por tema ao longo do tempo. Talvez não haja distorção muito grande no geral, mas pode haver viés relevante em alguns períodos.
@@ -317,7 +319,7 @@ freqeventos_anotema <- freqeventos_anotema %>% ungroup() %>%
                            fill = list(value = 0))
 ```
 
-```{r plotando coletados tema-ano, echo=FALSE}
+```{r plotando coletados tema-ano, echo=FALSE, fig.width=11, fig.height=11}
 # gráfico geral
 ggplot(freqeventos_anotema, aes(x=ano, y = value, group = Legenda)) +
   scale_color_manual(values = c("palegreen4", "palegreen3")) +
