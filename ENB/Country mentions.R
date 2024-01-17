@@ -34,7 +34,7 @@ datefy <- function(string){
   
   datefy_year <- function(string){
     # regex <- paste("\\d+?[\\sof]?", "November")
-    as.numeric(str_extract(string, "19|20\\d+"))
+    as.numeric(str_extract(string, "19\\d+|20\\d+"))
   }
   
   datefied <- lubridate::ymd(
@@ -50,8 +50,11 @@ reports <- read_delim("UNFCCC_reports.csv",
                       delim = ";", 
                       escape_double = FALSE, trim_ws = TRUE)
 
+# criar id único para cada report
+reports <- mutate(reports, report_id = row_number())
+
 # Organizando datas ------------------------
-reports <- reports %>% filter(is.na(title)==F) %>% 
+reports <- reports %>% filter(is.na(text)==F) %>%  #retira observações sem dados
   mutate(#data do evento relatado
     negotiation_date = datefy(title)
   ) %>% 
@@ -66,8 +69,6 @@ reports <- reports %>% filter(is.na(title)==F) %>%
   mutate(conf_startdate = datefy(conf_startdate),
          conf_enddate = datefy(conf_enddate))
 
-# criar id único para cada report
-reports <- mutate(reports, report_id = row_number())
 
 # Adaptando lista castro (países e coalizões) ------
 country_list <- read_csv2("castro_countrylist.csv", col_select = 2) %>% 
@@ -152,6 +153,10 @@ counted_reports <- map_df(1:nrow(reports), count_countries)
 
 # Salvando dataframe ----
 write.csv2(counted_reports, "counted_reports.csv")
+
+
+
+
 
 
 

@@ -33,7 +33,7 @@ datefy <- function(string){
   
   datefy_year <- function(string){
     # regex <- paste("\\d+?[\\sof]?", "November")
-    as.numeric(str_extract(string, "19|20\\d+"))
+    as.numeric(str_extract(string, "19\\d+|20\\d+"))
   }
   
   datefied <- lubridate::ymd(
@@ -52,7 +52,6 @@ reports <- read_delim("UNFCCC_reports.csv",
                       col_types = cols(text = col_skip()), 
                       trim_ws = TRUE)
 
-# deveria ter salvado id que eu gerei no script passado pra evitar erros
 
 reports <- mutate(reports, report_id = row_number()) %>% 
   filter(is.na(link) == F) # retira os sem report
@@ -64,8 +63,8 @@ counted_reports <- read_csv2("counted_reports.csv")
 # Organizando os dados sobre os eventos ----
 reports <- reports %>% 
   select(-c(link, tags, time_scrape, event, event_url)) %>% 
-  mutate(negotiation_day = datefy(title)) %>% # cria data do relatório
-  filter(is.na(negotiation_day) == F) # retira erros
+  mutate(negotiation_date = datefy(title)) %>% # cria data do relatório
+  filter(is.na(negotiation_date) == F) # retira erros
   # note-se que filter aqui reflete decisão de ignorar relatórios
   # que não contenham data no título
   # vale a pena revisar dependendo da intenção na pesquisa
@@ -99,6 +98,26 @@ total_mentions %>% filter(type == 'bra') %>%
   ggplot(aes(x=negotiation_day, y = value)) +
   geom_point() 
 
+
+# para base summer school ----
+total_mentions %>% filter(
+  !str_detect(event_name,
+             "Talks|Subsidiary|Ad Hoc|June|February|April|May|October 2011|August|
+             October 2014|October 2015|September 2018") # retirar nao cops
+) %>% filter(event_name != "UNFCCC COP 6 Part II") %>%  #retirar COP6-2
+  mutate(year = year(negotiation_date)) %>% 
+  mutate(conf = if_else(year > 2020, 
+                        paste("UNFCCC COP", year - 1995),
+                        paste("UNFCCC COP", year - 1995 + 1)
+                        )
+         ) %>% 
+  group_by(conf, type) %>% 
+  mutate(value = sum(value)) %>% 
+  select(conf, type, value, year) %>% 
+  distinct() %>% 
+  pivot_wider(names_from = type, values_from = value) -> db
+
+write.csv(db, "br_enbcount.csv")
 # Por ano -----
 # Somado
 # Média
