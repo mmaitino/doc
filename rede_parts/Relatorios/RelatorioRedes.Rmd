@@ -1,0 +1,215 @@
+---
+title: "RelatorioRedes"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include = FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+
+```
+
+
+# Preparo dos dados
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  max(as.Date(date)) #if multiple results, return most recent date
+}
+
+latest_deleg <- get_latest("deleg")
+latest_orgs <- get_latest("orgs")
+latest_class <- get_latest("class")
+latest_eventos <- get_latest("eventos")
+```
+
+**Versão da planilha deleg**: `r latest_deleg`
+
+**Versão da planilha orgs**: `r latest_orgs`
+
+**Versão da planilha class**: `r latest_class`
+
+**Versão da planilha eventos**: `r latest_eventos`
+
+**Versão da planilha individuos**: `r get_latest("individuos")`
+
+
+## Importando os dados
+São importados os bancos do projeto de pesquisa - delegs, eventos, orgs, class, indivíduos. Não incluo o código no relatório.
+```{r preparo eventos e delegs, include = FALSE}
+
+getlatest_file <- function(basefilename#, folder = here::here("BD_deleg-evento")
+                           ){
+  list.files(#path = folder, 
+             pattern = paste0(basefilename, "-.+\\.csv")) -> file_list
+
+  if(length(file_list) == 1) {return(file_list)} 
+  else{
+    last_date <- stringr::str_remove_all(file_list, 
+                                         paste0(basefilename,
+                                                "-", "|\\.csv")) %>%
+      as.Date %>% max()
+    last_date
+
+    list.files(pattern = paste0(basefilename, "-", last_date,
+                                ".csv"))
+  }
+  
+}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+
+# Importar eventos e organizar 
+# abrir planilha eventos e organizar dados
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+
+eventos <- eventos %>%
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`
+  ) %>%
+  filter(is.na(data)==F) %>%
+  select(conf, conference, tema, data) #no momento, só me interessam essas
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>%
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = ymd(data), 
+               ano = year(ymd(data)))
+
+eventos$id_evento <- 1:nrow(eventos) #criar id numérico evento
+
+
+# Importar delegs
+delegs <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+
+# Importar orgs
+orgs <- read_delim(getlatest_file("orgs"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+```
+
+
+```{r preparo base individuos, include=FALSE}
+
+individuos <- read_csv(getlatest_file("individuos"), 
+                       col_types = cols(padrao_antigo = col_skip()#,
+                                        #nrow = col_skip()
+                                        )
+                       )
+
+# criar id numérico p/ cada indivíduo e cada individuo-evento
+delegs$id_indevento <- 1:nrow(delegs)
+
+individuos %>% select(nome_padrao) %>% distinct() %>% mutate(
+  id_individuo = row_number()
+) %>% right_join(individuos, multiple = 'all') -> individuos
+
+```
+
+
+```{r join bases, echo = F}
+# Joining the databases -----
+# Data on individuals (standardize participant names and include ids)
+matriz_part_evento <- left_join(delegs, individuos) %>% 
+  select(-c(nome, id_org_dupla, nome_padrao))
+# Data on events (include data on the events)
+matriz_part_evento <- left_join(matriz_part_evento, 
+                                select(eventos, c(conf, id_evento))
+) %>% select(-conf)
+
+  # Resulting dataframe only includes numerical ids
+
+# List of events that have participants (as some lack Brazilian delegations)
+lista_eventos_comdeleg <- matriz_part_evento$id_evento
+```
+
+
+
+# Redes de organizações
+
+## Periodização por década
+
+### Tabela centralidades
+P/ ministérios importantes, cálculo de betweenness e degree
+
+
+### Tabela Top Orgs
+
+
+### Figuras evolução
+
+
+
+## Periodização por governo
+
+### Tabela centralidades
+
+### Tabela Top Orgs
+
+### Figuras evolução
+
+
+
+## Periodização Viola
+
+### Tabela centralidades
+
+### Tabela Top Orgs
+
+### Figuras evolução
+
+
+
+## Periodização Artigo
+
+### Tabela centralidades
+
+### Tabela Top Orgs
+
+### Figuras evolução

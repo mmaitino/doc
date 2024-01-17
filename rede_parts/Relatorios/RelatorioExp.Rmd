@@ -1,0 +1,743 @@
+---
+title: "RelatorioExp"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include = FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+library(igraph)
+```
+
+# Preparo dos dados
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  max(as.Date(date)) #if multiple results, return most recent date
+}
+
+latest_deleg <- get_latest("deleg")
+latest_orgs <- get_latest("orgs")
+latest_class <- get_latest("class")
+latest_eventos <- get_latest("eventos")
+```
+
+**Versão da planilha deleg**: `r latest_deleg`
+
+**Versão da planilha orgs**: `r latest_orgs`
+
+**Versão da planilha class**: `r latest_class`
+
+**Versão da planilha eventos**: `r latest_eventos`
+
+**Versão da planilha individuos**: `r get_latest("individuos")`
+
+```{r preparo bases deleg-eventos, include = FALSE}
+
+getlatest_file <- function(basefilename#, folder = here::here("BD_deleg-evento")
+                           ){
+  list.files(#path = folder, 
+             pattern = paste0(basefilename, "-.+\\.csv")) -> file_list
+
+  if(length(file_list) == 1) {return(file_list)} 
+  else{
+    last_date <- stringr::str_remove_all(file_list, 
+                                         paste0(basefilename,
+                                                "-", "|\\.csv")) %>%
+      as.Date %>% max()
+    last_date
+
+    list.files(pattern = paste0(basefilename, "-", last_date,
+                                ".csv"))
+  }
+  
+}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+
+# Importar eventos e organizar 
+# abrir planilha eventos e organizar dados
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+
+eventos <- eventos %>%
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`
+  ) %>%
+  filter(is.na(data)==F) %>%
+  select(conf, conference, tema, data) #no momento, só me interessam essas
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>%
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = ymd(data), 
+               ano = year(ymd(data)))
+
+eventos$id_evento <- 1:nrow(eventos) #criar id numérico evento
+
+
+# Importar delegs
+delegs <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+
+# Importar orgs
+orgs <- read_delim(getlatest_file("orgs"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+# Importar class
+class <- read_delim(getlatest_file("class"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+```
+
+
+```{r preparo base individuos, include=FALSE}
+
+individuos <- read_csv(getlatest_file("individuos"), 
+                       col_types = cols(padrao_antigo = col_skip()#,
+                                        #nrow = col_skip()
+                                        )
+                       )
+
+# criar id numérico p/ cada indivíduo e cd individuo-evento
+delegs$id_indevento <- 1:nrow(delegs)
+
+individuos %>% select(nome_padrao) %>% distinct() %>% mutate(
+  id_individuo = row_number()
+) %>% right_join(individuos, multiple = 'all') -> individuos
+
+```
+
+
+# Dados experiência
+
+
+## Tamanho da rede quando se considera recorrência
+Qual o n de orgs qdo se filtra n participações (1, 2, 3, etc)?
+Em tabela, quebrar essas organizações por tipo org.
+Em tabela, ver a recorrência em clima / 'gdes conf' vs demais / 'temas menores'
+
+
+Para isso, modelamos os dados como uma rede dinâmica que indivíduos como nós (projetada a partir da rede bipartite indivíduo-evento). Esse formato dá maior liberdade para a análise, viabilizando filtros por anos, temas, etc ao mesmo tempo que podemos acessar dados por organização (colapsando os nós de indivíduos de modo a agrupá-los por org).
+
+```{r preparo rede ind dinamica, include =FALSE}
+# Joining the databases -----
+# Data on individuals (standardize participant names and include ids)
+matriz_part_evento <- left_join(delegs, individuos) %>% 
+  select(-c(nome, id_org_dupla, nome_padrao))
+# Data on events (include data on the events)
+matriz_part_evento <- left_join(matriz_part_evento, 
+                                select(eventos, c(conf, id_evento))
+) %>% select(-conf)
+
+  # Resulting dataframe only includes numerical ids
+
+# List of events that have participants (as some lack Brazilian delegations)
+lista_eventos_comdeleg <- matriz_part_evento$id_evento
+
+# Generating a new incidence matrix -------
+
+incidence_matrix <- matriz_part_evento %>% 
+select(id_indevento, id_evento) %>% # use data of individuals and events
+  table() # count if there is data in each combination of individual and event
+class(incidence_matrix) <- "matrix" # converts the dataframe into matrix object
+
+# Creating a unipartite projection ------
+#.... Projecting an IndYear-IndYear Network -----
+# IndYear-IndYear Matrix through cross-Product Method
+matriz_ind_ano <- incidence_matrix %*% t(incidence_matrix)
+
+# We can calculate matrix diagonal, giving us n of events per individual-year
+personyr_n_of_events <- diag(matriz_ind_ano)
+
+# Before creating the network projection, diagonal should be zeroed 
+# If we don't do that, there will be loops for the nodes in the projection
+diag(matriz_ind_ano) <- 0
+
+# Network: indiv projection as nodes, coparticipation as edges and weight
+# (more coparticipation = more weight)
+personyrNet <- graph.adjacency(matriz_ind_ano, mode = "undirected",
+                             weighted = TRUE)
+
+# Including attributes in the network -----------
+# For easier manipulation, will include as dataframe, not as igraph object
+node_list <- as_data_frame(personyrNet, "vertices")
+
+# Include other ids (individual and event)
+node_list$id_indevento <- as.integer(node_list$name)
+node_list$id_individuo <- matriz_part_evento[#id indivíduo
+  node_list$id_indevento==matriz_part_evento$id_indevento,
+]$id_individuo
+
+node_list$id_evento <- matriz_part_evento[#id evento
+  node_list$id_indevento==matriz_part_evento$id_indevento,
+]$id_evento
+
+# include individual name (nome padrao)
+individuos_unico <- individuos %>% select(-nome) %>% distinct()
+node_list <- left_join(node_list, individuos_unico)
+
+# include year of participation in event
+node_list <- left_join(node_list,
+                       select(eventos, c(id_evento, ano))) %>% 
+  rename(ano_part = ano)
+
+# include number of participations in events per individual
+node_list$nparticipations <- personyr_n_of_events[
+   node_list$id_indevento==names(personyr_n_of_events)]
+
+#.... Including info on organizations -----
+orgs <- distinct(orgs)
+class <- class %>% filter(is.na(id_org_unica) == F) %>% distinct()
+
+# joining the databases
+chave_orgs <- left_join(select(delegs, c(id_indevento, id_org_dupla)),
+                        orgs
+) %>% left_join(class) %>% distinct()
+
+
+# Include organization data in node list
+node_list <- left_join(node_list, chave_orgs)
+node_list$id_org_dupla <- NULL
+
+##.... Including year and issue as edge attributes ------
+edge_list <- as_data_frame(personyrNet, "edges")
+
+# Including event id
+edge_list$id_indevento <- as.integer(edge_list$from)
+edge_list <- left_join(edge_list, 
+                       select(matriz_part_evento, c(id_indevento, id_evento))
+)
+
+# Including event info
+edge_list <- left_join(edge_list, eventos) %>%
+  select(-c(data, id_indevento))
+
+#.... Remaking the network ----
+personyrNet <- graph_from_data_frame(edge_list, directed = FALSE,
+                                   vertices = node_list
+)
+
+
+
+# clear up some space
+rm(matriz_ind_ano)
+rm(incidence_matrix)
+rm(personyr_n_of_events)
+```
+
+Primeiro vamos ver como muda o tamanho da rede no nível dos indivíduos quando filtramos pelo número de eventos frequentados. Para a rede estática completa, bastaria observar a variável do n de participações. Se queremos filtrar, é preciso pensar outras estratégias (ou refazer a rede a cada filtro).
+
+
+```{r tabela netsize filtrado, echo=FALSE}
+# como estou com vertex = indyear, primeiro teria que colapsar a rede
+# no caso, vertices sendo os mesmos indivíduos (ou orgs p/ tamanho orgs)
+# vou fazer aqui só para orgs
+
+# return_sizefilter <- function(minparts, network = personyrNet){
+#   vcount(induced_subgraph(network, V(network)[nparticipations  >= minparts]))}
+# 
+# lapply(1:5, return_sizefilter)
+
+```
+
+
+
+
+
+
+
+
+## Entrantes e recorrentes nos eventos
+% das organizações a cada ano que foi na anterior; 
+% das organizações no ano que nunca participou antes;
+(idem com indivíduos)
+
+
+p/ pegar se foi na anterior, posso pegar nodelist da rede dinâmica, que tem o id do indivíduo/org e os anos em que participou (cada um em um row). p/ cada row, posso criar duas colunas - é a primeira participação? qual a part anterior/participou do evento anterior?
+com esses dados, agrupa por evento (pra pegar a delegação toda) e, se for o caso, org. p/ cada, summarize com % de entrantes etc.
+
+
+```{r tabela individuos por n participacoes, echo = F}
+df_parts <- node_list %>% 
+        group_by(id_individuo) %>% 
+        mutate(firstpart_ind = min(ano_part),
+               all_parts = list(ano_part),
+               nparts = length(ano_part),
+               id = id_individuo
+               ) 
+
+df_parts_orgs <- node_list %>% 
+        group_by(id_org_unica) %>% 
+        mutate(firstpart_ind = min(ano_part),
+               all_parts = list(ano_part),
+               nparts = length(ano_part),
+               id = id_org_unica
+               ) 
+
+#n individuos e filtros
+get_nvertices_filtered <- function(minnpart = 0, df = df_parts){
+  df %>% filter(nparts > minnpart) %>% 
+    pull(id) %>% unique %>% length()
+}
+
+# Tabela N individuos
+tibble(
+  N = 0:10,
+  count_total = lapply(0:10, get_nvertices_filtered) %>% unlist,
+) %>% 
+  knitr::kable(caption = "Number of individuals in network with more than N participations")
+
+# Tabela N orgs
+tibble(
+  N = c(0:5, 10, 15, 20),
+  count_total = lapply(c(0:5, 10, 15, 20), get_nvertices_filtered, df = df_parts_orgs) %>% unlist,
+  count_soccivil = lapply(c(0:5, 10, 15, 20), get_nvertices_filtered, 
+                          df = df_parts_orgs %>% filter(tipo_org_reduzido == "Sociedade civil, sindicatos, movimentos sociais")
+                          ) %>% unlist,
+  count_empres = lapply(c(0:5, 10, 15, 20), get_nvertices_filtered, 
+                          df = df_parts_orgs %>% filter(tipo_org_reduzido == "Setor empresarial")
+                          ) %>% unlist,
+  count_govfed = lapply(c(0:5, 10, 15, 20), get_nvertices_filtered, 
+                          df = df_parts_orgs %>% filter(str_detect(tipo_org_reduzido,
+                                                                   "Governo federal")
+                                                        )
+                          ) %>% unlist
+  
+) %>% 
+  knitr::kable(caption = "Number of orgs in network with more than N participations")
+
+
+
+
+
+# Por ano
+df_parts %>% filter(nparts > 0) %>% 
+  group_by(ano_part, id_individuo) %>% summarise(count = n()) %>%
+  group_by(ano_part) %>%
+  summarise(count_indparticipants = sum(count)) %>% 
+  knitr::kable(caption = "Number of individual participants per year")
+
+```
+
+
+
+
+
+
+
+## Experiência ao longo do tempo
+- P/ orgs específicas (MRE, MMA, MCT), experiencia média a cada ano.
+- Filtro por tema (só clima, 'gdes temas', etc)
+
+
+- Tabela com top X indivíduos mais experientes. Contar experiência em anos com participação ou em n de reuniões. 
+
+- Tabela geral e separada em diferentes periodizações.
+
+
+```{r preparo exp, include=FALSE}
+
+exp_calculator <- function(delegs, individuos, eventos,
+                           levelanalysis = "individuo"){
+  
+  # Join das bases ------------
+  
+  if(levelanalysis == "org"){
+    matriz_part_evento <- left_join(delegs, orgs, by = "id_org_dupla") %>% 
+    select(c(id_org_unica, conf)) %>% 
+    rename(id_individuo = id_org_unica)
+    #nota: gambiarra pra facilitar funçao - renomeia id org pra id individuo
+  }
+  if(levelanalysis == "individuo"){
+    matriz_part_evento <- left_join(delegs, individuos) %>% 
+    select(-c(nome, id_org_dupla, nome_padrao))
+  }
+  
+  matriz_part_evento <- left_join(matriz_part_evento, 
+                                  select(eventos, c(conf, data, id_evento))
+  ) %>% select(-conf)
+  
+  # ordenar por data do evento (ordem é importante pro loop de experiencia)
+  matriz_part_evento <- arrange(matriz_part_evento, data)
+  
+  # Gerando as funções get experience ----
+  #absoluta
+  expget_abs <- function(event_id, absat0 = 0, tst = matriz_part_evento){
+    exp_df %>% mutate(
+      absat1 = if_else(id_individuo %in% filter(tst,
+                                       id_evento == (event_id - 1))$id_individuo,
+                       absat0 + 1,
+                       absat0)
+      ) %>% pull(absat1) -> absat1
+    absat1
+  }
+  
+  #contínua (zera qdo falta uma)
+  expget_cont <- function(event_id, contat0 = 0, tst = matriz_part_evento){
+    exp_df %>% mutate(
+      contat1 = if_else(id_individuo %in% filter(tst,
+                                       id_evento == (event_id - 1))$id_individuo,
+                       contat0 + 1,
+                       0)
+    ) %>% pull(contat1) -> contat1
+    contat1
+  }
+  
+  
+  # Calculando os dados de experiência -----------
+  
+  # Lista todos os ids de indivíduo presentes nos eventos
+  lista_individuos <- pull(matriz_part_evento, id_individuo) %>% unique
+  # Lista todos os ids de evento
+  listEventid <- unique(pull(matriz_part_evento, id_evento))
+  
+  # Cria o dataframe de experiência vazio
+  exp_df <- data.frame(matrix(nrow = length(lista_individuos),
+                              ncol = (1+2*length(listEventid))
+                              )) 
+  colnames(exp_df) <- append("id_individuo", paste0("absat",listEventid)) %>% 
+                      append(paste0("contat",listEventid))
+                             #nomeia as colunas
+  exp_df$id_individuo <- lista_individuos
+  
+  # Rodando o loop:
+  
+  for(i in 1:length(listEventid)){
+    message(listEventid[i])
+  if(i == 1){#quando é o primeiro evento, precisa colocar o zero artificial pra funcionar
+    exp_df[,i+1] <- expget_abs(listEventid[i], 0)
+    exp_df[,i+1+length(listEventid)] <- expget_cont(listEventid[i], 0)
+    # cont entra na coluna seguinte ao termino de abs
+    } else {#nos demais usar a coluna anterior
+      exp_df[,i+1] <- expget_abs(listEventid[i], exp_df[,i])
+      exp_df[,i+1+length(listEventid)] <- expget_cont(
+        listEventid[i], exp_df[,i+length(listEventid)])
+    }
+  }
+  
+  exp_df <- exp_df %>% pivot_longer(cols = -id_individuo, 
+                        names_to = c("exptype", "id_evento"), 
+                        names_sep = "at", values_to = "exp") %>% 
+  pivot_wider(names_from = "exptype", values_from = "exp") %>% 
+  mutate(id_evento = as.numeric(id_evento))
+  
+  # mudando nome para org caso seja exp de organização
+  if(levelanalysis == "org"){exp_df <- exp_df %>% rename(id_org_unica = id_individuo)}
+  
+  exp_df
+}
+```
+
+```{r funcao tabela top, include = F}
+# funçao incluir nomes
+include_names <- function(df, nametype){
+  if(nametype == "individuo"){
+        return(
+    left_join(df, select(individuos, c(id_individuo, nome_padrao)) %>% distinct)
+        )
+  }
+  if(nametype == "org"){
+    df %>% #rename(id_org_unica = org) %>% 
+    left_join(select(orgs, c(id_org_unica, org_limpo)) %>% distinct)
+  }
+}
+
+
+tabelar_exp <- function(filtroconf = ".", filtroperiodo = c(1970, 2018), rowtype = "individuo", sizetabela = 20){
+  confs_periodo <- eventos %>% 
+    filter(ano >= filtroperiodo[1] & ano <= filtroperiodo[2]) %>% pull(conf)
+  
+  exp_calculator(
+  delegs %>% filter(str_detect(conf, filtroconf)) %>% 
+    filter(conf %in% confs_periodo),
+  individuos,
+  eventos %>% filter(str_detect(conf, filtroconf)) %>% 
+    filter(conf %in% confs_periodo),
+  levelanalysis = rowtype
+) -> exp_df
+
+exp_df <- left_join(exp_df, select(eventos, c(conf, id_evento, ano)))
+
+
+# id_individuomais exp ao final do periodo
+exp_df %>% filter(ano == max(ano)) %>% arrange(desc(abs)) %>% head(sizetabela) %>% 
+  include_names(rowtype) -> exp_df
+  if(rowtype == "individuo"){
+    return(
+      exp_df %>% 
+    select(nome_padrao, conf, ano, abs, cont) %>% 
+  knitr::kable(caption = paste0(sizetabela, " ", "indivíduos mais experientes",
+                                " na ", filtroconf, " (", 
+                                filtroperiodo[1], " até ", filtroperiodo[2], ")"
+                                )
+               )
+    )
+    
+  }
+ if(rowtype == "org"){
+   return(
+     exp_df %>% 
+    select(org_limpo, conf, ano, abs, cont) %>% 
+  knitr::kable(caption = paste0(sizetabela, " ", "organizações mais experientes",
+                                " na ", filtroconf, " (", 
+                                filtroperiodo[1], " até ", filtroperiodo[2], ")"
+                                )
+               )
+   )
+   
+  }
+}
+
+```
+
+### Quem são os indivíduos mais experientes?
+
+Estou usando o critério de experiência como o número de eventos prévios. Assim, a experiência absoluta consiste no número de eventos nos quais o indivíduo (ou a organização) estiveram presentes; a experiência contínua leva em conta o número de eventos em sequência com presença do indivíduo (ou organização), isto é, zera quando há uma interrupção da presença.
+Nas tabelas, ordeno os dados por experiência absoluta.
+nota: título das tabelas traz as datas usadas como limite na função - o fato de apresentar algo como 1970 até 2018 não significa que há participações desde 1970 (CBD, no caso, inicia em 1988 e unfccc em 1991)
+
+```{r tabela top individuos tema, echo=FALSE, message=FALSE}
+# nota: nao está filtrando por ano
+# cálculo de experiencia está sendo feito por presença em EVENTO ANTERIOR nao no ANO ANTERIOR. Adicionar, depois, essa diferença no cálculo (exp em neventos e exp em anos)
+
+tabelar_exp(filtroconf = "CBD", rowtype = "individuo", sizetabela = 20)
+
+tabelar_exp(filtroconf = "UNFCCC", rowtype = "individuo", sizetabela = 20)
+
+```
+
+
+Para uma análise mais profunda, vale incluir um corte mais específico, que permita ver se o perfil dos mais experientes muda ao longo do tempo. Abaixo, apresentamos as tabelas para clima com cortes temporais. Para as tabelas, conta apenas a experiência adquirida dentro do período marcado.
+
+```{r tabelas clima periodo, echo = F, message = F}
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(1990, 1995), 
+            rowtype = "individuo", sizetabela = 10)
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(1990, 1995), 
+            rowtype = "org", sizetabela = 5)
+
+
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(1996, 2002), 
+            rowtype = "individuo", sizetabela = 10)
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(1996, 2002), 
+            rowtype = "org", sizetabela = 5)
+
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(2003, 2010), 
+            rowtype = "individuo", sizetabela = 10)
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(2003, 2010), 
+            rowtype = "org", sizetabela = 5)
+
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(2011, 2018), 
+            rowtype = "individuo", sizetabela = 10)
+tabelar_exp(filtroconf = "UNFCCC", filtroperiodo = c(2011, 2018), 
+            rowtype = "org", sizetabela = 5)
+
+```
+
+
+
+### Como varia a experiência das organizações no tempo?
+
+```{r funcao grafico exp org, include=FALSE}
+
+plotar_exporgs <- function(delegsfiltrado, eventosfiltrado, extratitle = ""){
+  # aqui temos o n de eventos em sequencia nos quais havia ocorrido participaçao do ministério
+# o ideal seria fazer no nível dos individuos, trazendo a organização do ano e fazendo a média. com isso, teria uma medida de capacidade burocrática
+
+exp_orgs <- exp_calculator(
+  delegsfiltrado,
+  individuos,
+  eventosfiltrado,
+  levelanalysis = "org"
+) %>%  left_join(select(eventos, c(conf, id_evento, ano)))
+
+# se for juntar as orgs relacionadas (eg AEB e INPE com MCT) é preciso fazer antes, unindo todas sob mesmo id ainda na parte do cálculo exp!
+
+exp_orgs %>% filter(id_org_unica %in% c(435, #MRE
+                                            442, #MMA
+                                            422, #mct
+                                            421, #mapa
+                                            436, #mme
+                                            427 #mfaz
+                                            )) %>% 
+  include_names("org") %>% 
+  ggplot(aes(x=ano, y = cont, color = org_limpo
+             )) +
+  geom_line() + geom_point() +
+  facet_wrap(~org_limpo, ncol = 2) +
+  labs(title = paste("Experiência contínua dos ministérios", extratitle),
+       subtitle = "Número de eventos em sequência com presença da organização") +
+  theme(legend.position = 'bottom')
+}
+
+
+```
+
+Temos aqui os gráficos com a experiência absoluta e contínua a nível das organizações - isto é, a presença/ausência daquela organização nos eventos anteriores. Como na tabela anterior, o critério de experiência é o número de eventos, não os anos de atividade (o que gera um peso algo excessivo nos primeiros anos de INCs, vide MCT em clima).
+
+
+```{r grafico exp org, echo = FALSE, message=FALSE, warning=FALSE}
+# note-se que essa agrupa a nível de org, nao experiencia dos indivíduos na org
+# experiência plotada é fixo na contínua (se quiser mudar, editar na função)
+plotar_exporgs(
+  delegsfiltrado = delegs %>% filter(str_detect(conf, "UNFCCC")),
+  eventosfiltrado = eventos %>% filter(str_detect(conf, "UNFCCC")),
+  extratitle = "- UNFCCC"
+)
+
+plotar_exporgs(
+  delegsfiltrado = delegs %>% filter(str_detect(conf, "CBD")),
+  eventosfiltrado = eventos %>% filter(str_detect(conf, "CBD")),
+  extratitle = "- CBD"
+)
+
+```
+
+Não surpreende que a experiência seja sempre uma crescente, afinal basta que um membro qualquer da organização esteja presente nos eventos para que a experiência se mantenha. Não há distinção entre os membros.
+
+
+
+
+Temos abaixo os gráficos com a experiência absoluta e contínua dos indivíduos, agrupada a nível de organização. Como há múltiplos indivíduos por organização, utiliza-se a média como critério para resumir os dados. Teríamos, então, uma medida da "experiência média" dos servidores daquela organização. 
+Como na tabela anterior, o critério de experiência é o número de eventos, não os anos de atividade (o que gera um peso algo excessivo nos primeiros anos de INCs, vide MCT em clima).
+
+
+```{r funcao grafico avgexp org, include=FALSE}
+plotar_avgexpbyorg <- function(delegsfiltrado, eventosfiltrado,
+                               vectoridorgs = c(
+                                 435, #MRE
+                                 442, #MMA
+                                 422, #mct
+                                 421, #mapa
+                                 436, #mme
+                                 427 #mfaz
+                                            ), extratitle = ""
+                               ){#inicio da função
+  
+  exp_df <- exp_calculator(delegsfiltrado, individuos, eventosfiltrado,
+                           levelanalysis = "individuo")
+  exp_df <- left_join(exp_df, select(eventos, c(conf, id_evento, ano)))
+  
+  # a partir de exp_df, onde consta ID_IND e ID_EVENTO, fazer o match
+  left_join(delegs, individuos) %>% select(id_individuo, id_org_dupla, 
+                                           conf, id_indevento) %>% 
+    left_join(select(eventos, c(conf, id_evento))) -> dict
+  
+  inner_join(dict, exp_df) %>% # puxa dados de ORG para cada ind_evento
+    left_join(orgs %>% select(id_org_dupla, id_org_unica, org_limpo)) %>% 
+    # a cada ano/evento há mais de um ind por org. agrupa os dados e tira a média
+    group_by(ano, id_org_unica) %>% #uma alternativa seria agrupar por conf
+    summarise(org = org_limpo,
+              avgabsexp = mean(abs), avgcontexp = mean(cont)
+              ) %>% ungroup() %>% 
+    filter(id_org_unica %in% vectoridorgs) %>% 
+    pivot_longer(cols = c(avgabsexp, avgcontexp), 
+                 names_to = "exptype",values_to = "avgexp") %>% 
+    ggplot(aes(x=ano, y=avgexp, color = exptype)) + 
+    geom_line() + geom_point() +
+    facet_wrap(~org, ncol = 2) +
+    labs(title = extratitle) +
+    theme(legend.position = 'bottom')
+}
+
+
+```
+
+
+
+```{r grafico avgexp org, echo = FALSE, message=FALSE, warning=FALSE}
+plotar_avgexpbyorg(
+  delegs %>% filter(str_detect(conf, "UNFCCC")),
+  eventos %>% filter(str_detect(conf, "UNFCCC")),
+  extratitle = "Experiência média dos ministérios na UNFCCC"
+)
+
+plotar_avgexpbyorg(
+  delegs %>% filter(str_detect(conf, "CBD")),
+  eventos %>% filter(str_detect(conf, "CBD")),
+  extratitle = "Experiência média dos ministérios na CBD"
+)
+
+#geral
+plotar_avgexpbyorg(delegs, eventos)
+
+```
+
+Vemos, aqui, que há uma variação entre os órgãos mais significativa em termos da experiência média. Um órgão como o MRE, que prioriza a circulação de seus funcionários no interior da organização tem uma tendência a enviar funcionários com menos experiência. Há um caráter algo cíclico, mas relativamente estável, que corresponde aos ciclos de mudança de cargo (XX anos). Já os demais ministérios, nos quais os funcionários tendem a se manter em uma mesma função ao longo do tempo, apresentam uma experiência média mais alta e crescente.
+
+Em contrapartida, há um número muito maior de pessoas que passaram por eventos ambientais internacionais no MRE do que nos demais órgãos:
+
+```{r tabela n ind por org, echo = F, message = F}
+delegs %>% left_join(individuos) %>% 
+  left_join(orgs %>% select(id_org_dupla, org_limpo)) %>% 
+  select(id_individuo, conf, org_limpo) %>% 
+  filter(str_detect(conf, "UNFCCC")) %>% 
+  group_by(org_limpo, id_individuo) %>% 
+  summarise(count = n()) %>% 
+  group_by(org_limpo) %>% summarise(count = sum(count)) %>% 
+  arrange(desc(count)) %>% head(10) %>% 
+  filter(!is.na(org_limpo)) %>% 
+  knitr::kable(caption = "Número de indivíduos distintos presentes em algum evento da UNFCCC, por organização")
+
+
+delegs %>% left_join(individuos) %>% 
+  left_join(orgs %>% select(id_org_dupla, org_limpo)) %>% 
+  select(id_individuo, conf, org_limpo) %>% 
+  filter(str_detect(conf, "CBD")) %>% 
+  group_by(org_limpo, id_individuo) %>% 
+  summarise(count = n()) %>% 
+  group_by(org_limpo) %>% summarise(count = sum(count)) %>% 
+  arrange(desc(count)) %>% head(10) %>% 
+  filter(!is.na(org_limpo)) %>% 
+  knitr::kable(caption = "Número de indivíduos distintos presentes em algum evento da CBD, por organização")
+  
+```
