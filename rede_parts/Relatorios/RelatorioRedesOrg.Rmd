@@ -1,0 +1,606 @@
+---
+title: "RelatorioExp"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include = FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+library(igraph)
+```
+
+# A fazer no relatório
+- colapsar orgs sucessoras p/ análise de centralidade MMA etc no tempo
+- idem p/ teste com ONGs?
+- visualização das redes (mandato e década)
+- rodar cálculo centralidade p/ décadas
+- fazer estatísticas descritivas da rede (total, década, janelas 3 e 4 anos)
+
+# Preparo dos dados
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  max(as.Date(date)) #if multiple results, return most recent date
+}
+
+latest_deleg <- get_latest("deleg")
+latest_orgs <- get_latest("orgs")
+latest_class <- get_latest("class")
+latest_eventos <- get_latest("eventos")
+```
+
+**Versão da planilha deleg**: `r latest_deleg`
+
+**Versão da planilha orgs**: `r latest_orgs`
+
+**Versão da planilha class**: `r latest_class`
+
+**Versão da planilha eventos**: `r latest_eventos`
+
+**Versão da planilha individuos**: `r get_latest("individuos")`
+
+```{r preparo bases deleg-eventos, include = FALSE}
+
+getlatest_file <- function(basefilename#, folder = here::here("BD_deleg-evento")
+                           ){
+  list.files(#path = folder, 
+             pattern = paste0(basefilename, "-.+\\.csv")) -> file_list
+
+  if(length(file_list) == 1) {return(file_list)} 
+  else{
+    last_date <- stringr::str_remove_all(file_list, 
+                                         paste0(basefilename,
+                                                "-", "|\\.csv")) %>%
+      as.Date %>% max()
+    last_date
+
+    list.files(pattern = paste0(basefilename, "-", last_date,
+                                ".csv"))
+  }
+  
+}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+
+# Importar eventos e organizar 
+# abrir planilha eventos e organizar dados
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+
+eventos <- eventos %>%
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`
+  ) %>%
+  filter(is.na(data)==F) %>%
+  select(conf, conference, tema, data) #no momento, só me interessam essas
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>%
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = ymd(data), 
+               ano = year(ymd(data)))
+
+eventos$id_evento <- 1:nrow(eventos) #criar id numérico evento
+
+
+# Importar delegs
+delegs <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+
+# Importar orgs
+orgs <- read_delim(getlatest_file("orgs"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+# Importar class
+class <- read_delim(getlatest_file("class"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+```
+
+
+```{r preparo base individuos, include=FALSE}
+
+individuos <- read_csv(getlatest_file("individuos"), 
+                       col_types = cols(padrao_antigo = col_skip()#,
+                                        #nrow = col_skip()
+                                        )
+                       )
+
+# criar id numérico p/ cada indivíduo e cd individuo-evento
+# Individual-Event Id (one for each participation of the individual in event)
+delegs$id_indevento <- 1:nrow(delegs)
+
+# Individual Id (permanent individual id shared across events)
+individuos %>% select(nome_padrao) %>% distinct() %>% mutate(
+  id_individuo = row_number() #create id for each individual
+) %>% right_join(individuos, multiple = 'all') -> individuos
+
+```
+
+```{r preparo rede ind dinamica, include =FALSE}
+# Joining the databases -----
+# Data on individuals (standardize participant names and include ids)
+matriz_part_evento <- left_join(delegs, individuos) %>% 
+  select(-c(nome, id_org_dupla, nome_padrao))
+# Data on events (include data on the events)
+matriz_part_evento <- left_join(matriz_part_evento, 
+                                select(eventos, c(conf, id_evento))
+) %>% select(-conf)
+
+  # Resulting dataframe only includes numerical ids
+
+# List of events that have participants (as some lack Brazilian delegations)
+lista_eventos_comdeleg <- matriz_part_evento$id_evento
+
+# Generating a new incidence matrix -------
+
+incidence_matrix <- matriz_part_evento %>% 
+select(id_indevento, id_evento) %>% # use data of individuals and events
+  table() # count if there is data in each combination of individual and event
+class(incidence_matrix) <- "matrix" # converts the dataframe into matrix object
+
+# Creating a unipartite projection ------
+#.... Projecting an IndYear-IndYear Network -----
+# IndYear-IndYear Matrix through cross-Product Method
+matriz_ind_ano <- incidence_matrix %*% t(incidence_matrix)
+
+# We can calculate matrix diagonal, giving us n of events per individual-year
+personyr_n_of_events <- diag(matriz_ind_ano)
+
+# Before creating the network projection, diagonal should be zeroed 
+# If we don't do that, there will be loops for the nodes in the projection
+diag(matriz_ind_ano) <- 0
+
+# Network: indiv projection as nodes, coparticipation as edges and weight
+# (more coparticipation = more weight)
+personyrNet <- graph.adjacency(matriz_ind_ano, mode = "undirected",
+                             weighted = TRUE)
+
+# Including attributes in the network -----------
+# For easier manipulation, will include as dataframe, not as igraph object
+node_list <- as_data_frame(personyrNet, "vertices")
+
+# Include other ids (individual and event)
+node_list$id_indevento <- as.integer(node_list$name)
+node_list$id_individuo <- matriz_part_evento[#id indivíduo
+  node_list$id_indevento==matriz_part_evento$id_indevento,
+]$id_individuo
+
+node_list$id_evento <- matriz_part_evento[#id evento
+  node_list$id_indevento==matriz_part_evento$id_indevento,
+]$id_evento
+
+# include individual name (nome padrao)
+individuos_unico <- individuos %>% select(-nome) %>% distinct()
+node_list <- left_join(node_list, individuos_unico)
+
+# include year of participation in event
+node_list <- left_join(node_list,
+                       select(eventos, c(id_evento, ano))) %>% 
+  rename(ano_part = ano)
+
+# include number of participations in events per individual
+node_list$nparticipations <- personyr_n_of_events[
+   node_list$id_indevento==names(personyr_n_of_events)]
+
+#.... Including info on organizations -----
+orgs <- distinct(orgs)
+class <- class %>% filter(is.na(id_org_unica) == F) %>% distinct()
+
+# joining the databases
+chave_orgs <- left_join(select(delegs, c(id_indevento, id_org_dupla)),
+                        orgs
+) %>% left_join(class) %>% distinct()
+
+
+# Include organization data in node list
+node_list <- left_join(node_list, chave_orgs)
+node_list$id_org_dupla <- NULL
+
+##.... Including year and issue as edge attributes ------
+edge_list <- as_data_frame(personyrNet, "edges")
+
+# Including event id
+edge_list$id_indevento <- as.integer(edge_list$from)
+edge_list <- left_join(edge_list, 
+                       select(matriz_part_evento, c(id_indevento, id_evento))
+)
+
+# Including event info
+edge_list <- left_join(edge_list, eventos) %>%
+  select(-c(data, id_indevento))
+
+#.... Remaking the network ----
+personyrNet <- graph_from_data_frame(edge_list, directed = FALSE,
+                                   vertices = node_list
+)
+
+
+
+# clear up some space
+rm(matriz_ind_ano)
+rm(incidence_matrix)
+rm(personyr_n_of_events)
+```
+
+
+
+## ORGANIZATIONS COLLAPSED NETWORK
+We need to transform the ind-year network into org net. While this represents an inevitable loss of information, it should also help in interpreting and discerning structures.
+
+At this point of the research, we are not interested in a full picture of organizations (ie, covering the whole period). We will first filter the period of interest, then collapse to orgs. This should avoid some problems (e.g. allowing us to properly filter
+by org info such as n of events attended on that period, not complete database)
+
+```{r funcoes para simplificar rede, include=FALSE}
+yearfilter_net <- function(net, min, max){
+  net <- induced_subgraph(net,
+                          V(net)[ano_part >= min & ano_part <= max])
+  net
+}
+
+collapse_ind2org <- function(indyearnet){
+  org_list <- unique(V(indyearnet)$org_limpo)
+  
+  org_yrnet <- contract(indyearnet,
+                        mapping = as.numeric(
+                          plyr::mapvalues(V(indyearnet)$org_limpo, 
+                                          from = org_list, 
+                                          to = 1:length(org_list))
+                        ),
+                        vertex.attr.comb=list(#methods for combining attributes
+                          weight="sum", #sum weights,
+                          nparticipations = "sum",  #sum nparticipations
+                          "first")) # keep first of others
+  
+  org_yrnet <- simplify(org_yrnet) # sum weights to simplify network
+  
+  # Remove vertex of org No Info (id-org-unica = 565), as they are not
+  # really the same organization and this distorts data.
+  org_yrnet <- delete_vertices(org_yrnet, V(org_yrnet)$id_org_unica == 565)
+  
+  # As we now collapsed as organizations, various attributes stop making sense
+  # Let's remove them to avoid misiterpretation and clean up space
+  attrs_to_remove <- c("id_indevento", "id_individuo",
+                       "id_evento", "nome_padrao", "ano_part")
+  
+  for (i in seq_along(attrs_to_remove)){
+    print(attrs_to_remove[i])
+    org_yrnet <- remove.vertex.attribute(org_yrnet, attrs_to_remove[i])
+  }
+  org_yrnet
+}
+```
+
+```{r funcao calculo centralidade, include=FALSE}
+# function to calculate centrality at the networks for selected orgs
+central_stats <- function(orgdecadenet, measure, lglnormal = F, decade,
+                          invertweight = F){
+  
+  df <- data.frame(#ids for mre, mma, mapa, mct 
+    name = V(orgdecadenet)[V(orgdecadenet)$id_org_unica %in% c(435, 442, 421, 422)]$name,
+    org = V(orgdecadenet)[V(orgdecadenet)$id_org_unica %in% c(435, 442, 421, 422)]$org_limpo
+  )
+  
+  if(invertweight){E(orgdecadenet)$weight <- 1/E(orgdecadenet)$weight}
+  
+  if(measure == "betweenness"){
+    stats <- betweenness(orgdecadenet, directed = F,
+                         normalized = lglnormal) #calculate for all
+  }else if(measure == "closeness"){
+    stats <- closeness(orgdecadenet, normalized = lglnormal)
+  }else if(measure == "eigenvector"){
+    lglnormal <- NA
+    stats <- eigen_centrality(orgdecadenet)$vector
+  }else if(measure == "pagerank"){
+    lglnormal <- NA
+    stats <- page_rank(orgdecadenet)$vector
+  }
+  
+  # only keep values for selected orgs
+  stats <- data.frame(name = names(stats), value = stats)
+  stats <- add_row(stats, name = "avg", value = mean(stats$value)) %>% 
+    filter(name %in% df$name | name == "avg") %>% left_join(df)
+  
+  # include labels of calculation
+  stats$measure <- measure
+  stats$decade <- decade
+  stats$normalized <- lglnormal
+  stats$weightinverted <- invertweight
+  stats
+}
+```
+
+
+### Visualizando e calculando centralidade em diferentes recortes de período
+
+#### Preparando p/ visualização
+
+As there are too many categories of organization in total (24), we will use the simplified categorization (10). This allows us to better compare across figures.
+
+Segue a lista usada: "Other","Business","Federal Gov (non MFA)", "Subnational", "Civil Society", "Academia", "Parliament", "Not identified", "MFA"
+
+```{r paleta simplificada, include=FALSE}
+###.... Preparing a pallette based on type ----
+types <- class %>% select(tipo_org_reduzido) %>% distinct() %>% 
+  filter(is.na(tipo_org_reduzido)==F)
+
+pallette <- RColorBrewer::brewer.pal(9, "Set1") %>% rev()
+types$color <- pallette
+types$label <- c("Other","Business","Federal Gov (non MFA)",
+                 "Subnational","Civil Society","Academia",
+                 "Parliament","Not identified","MFA")
+```
+
+Criamos uma função para preparar os vértices pra visualização. Calcula-se a centralidade do nó (só aparece nome da org se alta centralidade); Atribui-se o peso às arestas (invertido, porque igraph trabalha com lógica de peso como custo e queremos peso como força)
+```{r preparo aparencia vertice, include=FALSE}
+preparing_nodeappearance <- function(orgdecadenet, nlabelstoshow){
+  #.... Calculating node centrality
+  
+  # We will use betweenness centrality here, as we are particularly interested
+  # in the influence/capacity of orgs to mediate/control the flow of information
+  
+  org_betw <- betweenness(orgdecadenet)
+  
+  # # Only show label if node is among the top largest degree
+  # top_deg <- org_betw %>% sort(decreasing = T) %>% head(nlabelstoshow)
+  # V(orgdecadenet)$origlabel <- V(orgdecadenet)$org_limpo
+  # 
+  # V(orgdecadenet)$label <- if_else(V(orgdecadenet)$name %in% names(top_deg),
+  #                                  as.character(V(orgdecadenet)$origlabel), "")
+  
+  # include betweenness as vertex attribute
+  orgdecadenet <- set.vertex.attribute(orgdecadenet, "betw", 
+                                       index = V(orgdecadenet), 
+                                       betweenness(orgdecadenet,
+                                                   normalized = T))
+  
+  ### Note: 
+  # As we will be dealing with centrality measures, we should be aware of a divergence
+  # between igraph and other packages (and, I believe, Gephi). Igraph treats edge weight
+  # as a measure of cost/friction in relations, not as a strength (measure of capacity/
+  # bandwith of the edge). This is NOT what we want.
+  # So when we are working with measures that use weight in calculation,
+  # we will need to use an inverted measure of weight (1/weight)
+  
+  E(orgdecadenet)$origweight <- E(orgdecadenet)$weight
+  # this makes weight inverted
+  E(orgdecadenet)$weight <- 1/E(orgdecadenet)$origweight
+  
+  # We will maintain this inversion just to calculate betweenness.
+  # Then, we will return it to normal, as our layout (Fruchterman Reingold) uses
+  # weight in the other way.
+  
+  org_invbetw <- betweenness(orgdecadenet)
+  
+  # Only show label if node is among the top largest degree
+  top_deg <- org_invbetw %>% sort(decreasing = T) %>% head(nlabelstoshow)
+  V(orgdecadenet)$origlabel <- V(orgdecadenet)$org_limpo
+  
+  V(orgdecadenet)$label <- if_else(V(orgdecadenet)$name %in% names(top_deg),
+                                   as.character(V(orgdecadenet)$origlabel), "")
+  
+  # include betweenness as vertex attribute
+  orgdecadenet <- set.vertex.attribute(orgdecadenet, "invbetw", 
+                                       index = V(orgdecadenet), 
+                                       betweenness(orgdecadenet,
+                                                   normalized = T))
+  # Return edge weight to the original
+  E(orgdecadenet)$invweight <- E(orgdecadenet)$weight
+  E(orgdecadenet)$weight <- E(orgdecadenet)$origweight
+  
+  #.... Coloring nodes by simplified organization type 
+  
+  index <- data.frame(tipo_org_reduzido = V(orgdecadenet)$tipo_org_reduzido)
+  index <- left_join(index, types)
+  V(orgdecadenet)$color <- index$color
+  V(orgdecadenet)$type <- index$label
+  orgdecadenet
+}
+```
+
+#### Colapsando vértices para melhorar visualização e estatísticas
+Como o banco de dados foi criado com múltiplos propósitos, as organizações foram classificadas de forma a manter o máximo de distinções entre elas. Assim, órgãos que passam por reformas e mudam de nome muitas vezes são classificados como novas organizações. Como consequência, perdemos algumas informações importantes para avaliar a centralidade das organizações ambientais, que passaram por múltiplas reformas ao longo do tempo (e.g., SEMA, SEMAM-PR, MMA). Em outros casos, podemos ter uma distinção importante para pensar questões administrativas, mas que é pouco relevante para pensar a participação de determinado grupo nas delegações (e.g., Ministério da Marinha vs Marinha do Brasil é pouco relevante para pensar se militares estão presentes ou não).
+
+Para resolver esse problema, podemos colapsar alguns vértices (ie, fundir as organizações), de modo a obter dados mais coerentes com nossos objetivos nessa etapa da pesquisa.
+
+
+**Checar os relatórios sobre deleg e ver quais foram os órgãos escolhidos para serem colapsados na análise**. No script de redes, colapsei a Marinha (nos anos 70)
+
+
+#### Estat redes por mandato presidencial
+
+```{r rede fhc1, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 1995, 1998) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw fhc1, include=FALSE}
+fullstats <- central_stats(orgdecadenet, "betweenness", lglnormal = F, "fhc1") %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc1")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "fhc1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc1", invertweight = T)  ) 
+```
+
+```{r rede fhc2, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 1999, 2002) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw fhc2, include=FALSE}
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "fhc2"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc2")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "fhc2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc2", invertweight = T)  ) 
+```
+
+```{r rede lula1, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2003, 2006) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw lula1, include=FALSE}
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "lula1"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula1")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "lula1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula1", invertweight = T)  ) 
+```
+
+```{r rede lula2, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2007, 2010) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw lula2, include=FALSE}
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "lula2"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula2")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "lula2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula2", invertweight = T)  ) 
+```
+
+```{r rede dilma1, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2011, 2014) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw dilma1, include=FALSE}
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "dilma1"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilma1")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "dilma1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilma1", invertweight = T)  ) 
+```
+
+```{r rede dilmatemer, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2015, 2018) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+```
+
+```{r betw dilmatemer, include=FALSE}
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "dilmatemer"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilmatemer")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "dilmatemer", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilmatemer", invertweight = T)  ) 
+```
+
+
+##### Visualização
+(Betweenness, normalized and inverted weights)
+```{r plot betwcentrality mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  mutate(year = case_when(decade == "fhc1" ~ 1995,
+                          decade == "fhc2" ~ 1998,
+                          decade == "lula1" ~ 2003,
+                          decade == "lula2" ~ 2007,
+                          decade == "dilma1" ~ 2011,
+                          decade == "dilmatemer" ~ 2015)) %>%
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = year, y=value, color = org)) + geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  scale_x_continuous(name = NULL,
+                     breaks = c(1995,1998,2003,2007,2011,2015),
+                     label = c("FHC1", "FHC2","Lula1","Lula2","Dilma1","Dilma-Temer")) +
+  theme(legend.position = "none", ) +
+  ggtitle("Betweenness centrality")
+```
+
+```{r tabela betwcentrality mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  select(decade, org, value) %>% rename(mandato = decade) %>% 
+  knitr::kable(caption = "Betweenness centrality")
+```
+
+
+### Janelas móveis de 3 anos
+Observar a rede ano-a-ano é problemático, porque há muitos eventos que são bianuais e a rede variaria muito de ano a ano. Ter um valor de centralidade para cada ano, porém, viabiliza uma série de análises.
+Para calcular a centralidade de modo a construir valores para cada ano, uma alternativa é montar janelas móveis para as redes. Isto é, para cada ano, veríamos a centralidade na rede formada pelos eventos daquele ano + os eventos de N anos atrás. Isso permite incorporar, também, a ideia de que os laços estabelecidos em eventos anteriores também 'se perdem' se não são renovados ao longo do tempo.
+
+Para calcular a centralidade com as janelas móveis, usaremos as funções definidas anteriormente (filtro de rede por ano e cálculo da centralidade). Ao invés de incluir os dados manualmente, porém, vamos aplicá-los a partir de uma função.
+
+```{r funcao janela movel, include = F, message = FALSE}
+
+calcularcent_janela <- function(ano_inicial, tamanho_janela = 3){
+  net <- yearfilter_net(personyrNet, ano_inicial - tamanho_janela, ano_inicial) %>% 
+  collapse_ind2org()
+  central_stats(net, "betweenness", F, ano_inicial, invertweight = T)
+}
+
+full_centr3 <- map_df(1973:2018, calcularcent_janela)
+```
+
+
+
+```{r plot betw jan3, echo = F}
+full_centr3 %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = decade, y=value, color = org)) +
+  geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  theme(legend.position = "none") +
+  ggtitle("Betweenness centrality, 3 year window network")
+```
+
+```{r tabela betwcentrality jan3, echo = F}
+full_centr3 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  select(decade, org, value) %>% rename(year = decade) %>% 
+  knitr::kable(caption = "Betweenness centrality, 3 year window network")
+```
