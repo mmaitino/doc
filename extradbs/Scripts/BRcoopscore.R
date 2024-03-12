@@ -68,8 +68,8 @@ db <- left_join(db, BR_total) %>% mutate(coop_avg = coop_score/BRtotal,
 
 # Expanding solution: function w/ grouping as argument --------------
 
-calculate_coop <- function(statementsdb, grouping, country = "Brazil"){
-  
+calculate_coop <- function(country = "Brazil", grouping, statementsdb){
+
   sender = paste0(grouping, "_sender")
   target = paste0(grouping, "_target")
   countryid_send = statementsdb[statementsdb$Country1 == country, "country1"] %>% 
@@ -122,14 +122,40 @@ calculate_coop <- function(statementsdb, grouping, country = "Brazil"){
     pivot_wider(names_from = !!rlang::parse_quo(grouping, env = rlang::caller_env()),
                  values_from = c(coop_score, weighted_score)) %>% 
     replace(is.na(.), 0) %>% #NA coded as 0
-    mutate(coop_score = coop_score_2 + coop_score_1 - coop_score_0,
-           weighted_score = weighted_score_2 + weighted_score_1 - weighted_score_0) %>% 
-    # relativize_scores
-    left_join(country_totalstatements) %>%
-    mutate(coop_avg = coop_score/state_total,
-           weighted_score_avg = weighted_score/state_total) %>% 
-    mutate(grouping = {{grouping}})
+    left_join(country_totalstatements) %>% # include data on n of statements
+    mutate(country = {{country}},
+           grouping = {{grouping}}
+           ) # %>% 
+    # mutate(coop_score = sum(coop_score_2, coop_score_1, - coop_score_0, na.rm = T),
+    #        # weighted_score = sum(weighted_score_2, weighted_score_1, - weighted_score_0,
+    #        #                   na.rm = T)
+    #        ) %>% 
+    # # relativize_scores
+    # left_join(country_totalstatements) %>%
+    # mutate(coop_avg = coop_score/state_total,
+    #        # weighted_score_avg = weighted_score/state_total
+    #        ) %>% 
+    # mutate(grouping = {{grouping}})
     
+}
+
+finish_coop_scores <- function(coopdb){
+  column_checker <- tibble(coop_score_0=numeric(),
+                           coop_score_1=numeric(), 
+                           coop_score_2=numeric(),
+                           weighted_score_2=numeric(), 
+                           weighted_score_1=numeric(),
+                           weighted_score_0=numeric()
+  )
+  
+  coopdb %>% left_join(column_checker) %>% 
+  mutate(coop_score = coop_score_2 + coop_score_1 - coop_score_0,
+         weighted_score = weighted_score_2 + weighted_score_1 - weighted_score_0
+         ) %>%
+  # relativize_scores
+  mutate(coop_avg = coop_score/state_total,
+         weighted_score_avg = weighted_score/state_total
+         )
 }
 
 
@@ -142,10 +168,10 @@ calculate_coop <- function(statementsdb, grouping, country = "Brazil"){
 # logo grupo maior tende a ser mais mencionado (há mais países p/ mencionar o BR
 # ou serem por ele mencionados). Talvez isso explique distância de BASIC?
 
-BReu <- calculate_coop(relationdb, "EU", "Brazil")
-BRg77 <- calculate_coop(relationdb, "G77", "Brazil")
-BRbasic <- calculate_coop(relationdb, "BASIC")
-BRumb <- calculate_coop(relationdb, "Umbrella")
+BReu <- calculate_coop("Brazil", "EU", relationdb)
+BRg77 <- calculate_coop("Brazil", "G77", relationdb)
+BRbasic <- calculate_coop("Brazil", "BASIC", relationdb)
+BRumb <- calculate_coop("Brazil", "Umbrella", relationdb)
 
 bind_rows(BReu, BRg77) %>% ggplot(aes(x=year, color = grouping)) + 
   geom_line(aes(y = coop_avg)) + geom_hline(yintercept = 0, color = "red") +
@@ -154,15 +180,85 @@ bind_rows(BReu, BRg77) %>% ggplot(aes(x=year, color = grouping)) +
                               2003, 2005, 2007, 2009, 2011, 2013)) +
   ggtitle("Brazil average cooperation score at UNFCCC")
 
-useu <- calculate_coop(relationdb, "EU", "United States")
-usg77 <- calculate_coop(relationdb, "G77", "United States")
-usumb <- calculate_coop(relationdb, "Umbrella", "United States")
+useu <- calculate_coop("United States", "EU", relationdb)
+usg77 <- calculate_coop("G77", "United States", "G77", relationdb)
+usumb <- calculate_coop("United States", "Umbrella", relationdb)
 bind_rows(useu, usg77, usumb) %>% ggplot(aes(x=year, color = grouping)) + 
   geom_line(aes(y = coop_avg)) + geom_hline(yintercept = 0, color = "red") +
   geom_vline(xintercept = c(1997, 2001, 2005, 2009), linetype = 'dashed') +
   scale_x_discrete(limits = c(1995, 1997, 1999, 2001, 
                               2003, 2005, 2007, 2009, 2011, 2013)) +
   ggtitle("US average cooperation score at UNFCCC")
+
+
+
+#coop for all
+country_list <- c(BR_statements$Country1, BR_statements$Country2) %>% unique
+grouping_list <- c("G77", "EU", "AOSIS", "African Group", 
+                   "Environmental Integrity Group", "LDCs","ALBA",
+                   "SICA","Coalition of Rainforest Nations", "Arab Group" ,
+                   "Like Minded Developing Countries","BASIC", "AILAC",
+                   "Congo Basin Countries", "Umbrella Group" )
+country_list <- setdiff(country_list, grouping_list)
+
+# pensei em achar algum modo de comparar se BR concorda mais do que a média com g77
+
+df_countries77 <- map_df(country_list, calculate_coop, "G77", relationdb) %>% 
+  finish_coop_scores()
+df_countriesEU <- map_df(country_list, calculate_coop, "EU", relationdb) %>% 
+  finish_coop_scores()
+
+df_countries <- bind_rows(df_countries77,df_countriesEU)
+
+country_average77 <- df_countries77 %>% group_by(year, grouping) %>% 
+  summarise(coop_countryavg = mean(coop_avg, na.rm = T),
+            coop_countrymedian = median(coop_avg, na.rm = T),
+            weightcoop_countryavg = mean(weighted_score_avg, na.rm = T),
+            weightcoop_countrymedian = median(weighted_score_avg, na.rm = T),
+            )
+
+country_averageEU <- df_countriesEU %>% group_by(year, grouping) %>% 
+  summarise(coop_countryavg = mean(coop_avg, na.rm = T),
+            coop_countrymedian = median(coop_avg, na.rm = T),
+            weightcoop_countryavg = mean(weighted_score_avg, na.rm = T),
+            weightcoop_countrymedian = median(weighted_score_avg, na.rm = T),
+  )
+
+country_average <- bind_rows(country_average77, country_averageEU)
+
+df_countries %>%
+  left_join(country_average) %>% select(year, country, grouping,
+                                        coop_avg, coop_countryavg,
+                                        coop_countrymedian) %>%
+  pivot_longer(c(coop_avg, coop_countryavg, coop_countrymedian), 
+               names_to = "type", values_to = "score") %>%
+  filter(country == "Brazil") %>% mutate(
+    type = case_when(type == "coop_avg" ~ country,
+                     type == "coop_countryavg" ~ "Country mean",
+                     type == "coop_countrymedian" ~ "Country median")) %>% 
+  
+  ggplot(aes(x=year, color = type)) +
+  geom_line(aes(y = score)) + geom_hline(yintercept = 0, color = "red") +
+  facet_wrap(~grouping, ncol =1) +
+  ggtitle("Cooperation degree at the UNFCCC with G77 and European Union")
+
+
+
+# relative coop
+
+df_countries %>% filter(country == "Brazil") %>% 
+  left_join(country_average) %>% select(year, country, grouping,
+                                        coop_avg, coop_countryavg,
+                                        coop_countrymedian) %>% 
+  mutate(coopdif = coop_avg - coop_countryavg) %>% 
+  mutate(difpos = if_else(coopdif >=0, 1, -1)) %>%
+  mutate(cooprel = abs(coop_avg) / abs(coop_countryavg) * difpos) %>% 
+  ggplot(aes(x=year, y = cooprel)) + geom_line() + geom_hline(yintercept = 0, 
+                                                              color = "red") +
+  ggtitle("Brazil relative cooperation with grouping (BR coop / avg country coop)",
+    subtitle = "above 0 = more cooperation than average country") +
+  facet_wrap(~ grouping, nrow = 1) +
+  ylim(-4, 4)
 
 
 # REPLICATION OF CASTRO NETWORK ---------
