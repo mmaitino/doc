@@ -1,5 +1,5 @@
 ---
-title: "RelatorioExp"
+title: "RelatorioRedesOrg"
 output:
   html_document:
     df_print: paged
@@ -570,9 +570,9 @@ fullstats %>% filter(weightinverted == T & normalized == T) %>%
 ```
 
 
-### Janelas móveis de 3 anos
+### Janelas móveis de 4 anos
 Observar a rede ano-a-ano é problemático, porque há muitos eventos que são bianuais e a rede variaria muito de ano a ano. Ter um valor de centralidade para cada ano, porém, viabiliza uma série de análises.
-Para calcular a centralidade de modo a construir valores para cada ano, uma alternativa é montar janelas móveis para as redes. Isto é, para cada ano, veríamos a centralidade na rede formada pelos eventos daquele ano + os eventos de N anos atrás. Isso permite incorporar, também, a ideia de que os laços estabelecidos em eventos anteriores também 'se perdem' se não são renovados ao longo do tempo.
+Para calcular a centralidade de modo a construir valores para cada ano, uma alternativa é montar janelas móveis para as redes. Isto é, para cada ano, veríamos a centralidade na rede formada pelos eventos daquele ano + os eventos de até N anos atrás (Note-se que, como mínimo e máximo são incluídos, temos N+1 anos na rede). Isso permite incorporar, também, a ideia de que os laços estabelecidos em eventos anteriores também 'se perdem' se não são renovados ao longo do tempo.
 
 Para calcular a centralidade com as janelas móveis, usaremos as funções definidas anteriormente (filtro de rede por ano e cálculo da centralidade). Ao invés de incluir os dados manualmente, porém, vamos aplicá-los a partir de uma função.
 
@@ -581,7 +581,8 @@ Para calcular a centralidade com as janelas móveis, usaremos as funções defin
 calcularcent_janela <- function(ano_inicial, tamanho_janela = 3){
   net <- yearfilter_net(personyrNet, ano_inicial - tamanho_janela, ano_inicial) %>% 
   collapse_ind2org()
-  central_stats(net, "betweenness", F, ano_inicial, invertweight = T)
+  central_stats(net, "betweenness", T, ano_inicial, invertweight = T)
+  # importante normalizar p/ comparar entre redes!
 }
 
 full_centr3 <- map_df(1973:2018, calcularcent_janela)
@@ -589,18 +590,18 @@ full_centr3 <- map_df(1973:2018, calcularcent_janela)
 
 
 
-```{r plot betw jan3, echo = F}
+```{r plot betw jan4, echo = F}
 full_centr3 %>% 
   mutate(org = if_else(is.na(org), "Average", org)) %>% 
   ggplot(aes(x = decade, y=value, color = org)) +
   geom_line() + geom_point() +
   facet_wrap(~org, ncol = 1) +
   theme(legend.position = "none") +
-  ggtitle("Betweenness centrality, 3 year window network")
+  ggtitle("Normalized betweenness centrality, 4 year window network")
 ```
 
-```{r tabela betwcentrality jan3, echo = F}
+```{r tabela betwcentrality jan4, echo = F}
 full_centr3 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
   select(decade, org, value) %>% rename(year = decade) %>% 
-  knitr::kable(caption = "Betweenness centrality, 3 year window network")
+  knitr::kable(caption = "Normalized betweenness centrality, 4 year window network")
 ```
