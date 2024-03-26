@@ -579,6 +579,7 @@ orgs_ano <- deleg_completo %>% select(conf, id_org_unica, tipo_org, tipo_org_red
 freq_orgs <- orgs_ano %>% select(-c(conf, tema)) %>% distinct %>% 
   group_by(ano) %>% summarise(total_orgs = n())
 
+
 #grafico de linha
 ggplot(freq_orgs, aes(x = ano, y = total_orgs)) +
   geom_line() + geom_point() +
@@ -599,6 +600,38 @@ Como esperado, vemos um crescimento na década de 1990, sobretudo a partir da Ri
 Interessante ver que a década de 2010 é um período de queda, mesmo desconsiderando o outlier 2012 e já antes da mudança na regra das delegações de clima (sociedade civil como party overflow, saindo das listas). 
 
 **Cálculos pontuais para o artigo**
+- Dados específicos para clima:
+```{r freq orgs clima, echo=FALSE}
+freq_orgsclima <- orgs_ano %>% filter(tema == "Clima") %>% 
+  select(-c(conf, tema)) %>% distinct %>% 
+  group_by(ano) %>% summarise(total_orgs = n())
+
+pr_ano <- tibble(ano = 1990:2018, pr = c(rep("Collor",3), rep("Itamar", 2),
+                                         rep("FHC",8), rep("Lula", 8),
+                                         rep("Dilma", 5), rep("Temer", 3))
+                 ) %>% mutate(dec = case_when(1990 <= ano & ano <= 1999 ~ "90s",
+                                          2000 <= ano & ano <= 2009 ~ "00s",
+                                          2010 <= ano & ano <= 2019 ~ "10s",))
+
+# total n orgs
+orgs_ano %>% filter(tema == "Clima") %>% left_join(pr_ano) %>% 
+  select(-c(conf, tema)) %>% distinct %>% 
+  group_by(dec) %>% summarise(total_orgs = n()) %>% knitr::kable()
+
+orgs_ano %>% filter(tema == "Clima") %>% left_join(pr_ano) %>% 
+  select(-c(conf, tema)) %>% distinct %>% 
+  group_by(pr) %>% summarise(total_orgs = n()) %>% knitr::kable()
+
+
+# average n orgs
+freq_orgsclima %>% left_join(pr_ano) %>% group_by(dec) %>%
+  summarise(avg_numorgs = mean(total_orgs)) %>% knitr::kable()
+
+left_join(freq_orgsclima, pr_ano) %>% group_by(pr) %>%
+  summarise(avg_numorgs = mean(total_orgs)) %>% knitr::kable()
+```
+
+
 - Média de n orgs pós 2015 (incluso): `r freq_orgs %>% filter(ano >= 2015) %>% pull(total_orgs) %>% mean`
 
 - Média de n orgs pós 2015 só clima (incluso): `r freq_orgs_tema %>% filter(ano >= 2015 & tema == "Clima") %>% pull(total_orgs) %>% mean`
