@@ -291,21 +291,25 @@ Primeiro vamos ver como muda o tamanho da rede no nível dos indivíduos quando 
 ```
 
 
+Dados de interesse:
 
+- % das organizações a cada ano que foi na anterior; 
+- % das organizações no ano que nunca participou antes;
+- (idem com indivíduos)
+
+Anotações sobre como implementar:
+
+p/ pegar se foi na anterior, posso pegar nodelist da rede dinâmica, que tem o id do indivíduo/org e os anos em que participou (cada um em um row). p/ cada row, posso criar duas colunas - é a primeira participação? qual a part anterior/participou do evento anterior?
+com esses dados, agrupa por evento (pra pegar a delegação toda) e, se for o caso, org. p/ cada, summarize com % de entrantes etc.
 
 
 
 
 
 ## Entrantes e recorrentes nos eventos
-% das organizações a cada ano que foi na anterior; 
-% das organizações no ano que nunca participou antes;
-(idem com indivíduos)
 
 
-p/ pegar se foi na anterior, posso pegar nodelist da rede dinâmica, que tem o id do indivíduo/org e os anos em que participou (cada um em um row). p/ cada row, posso criar duas colunas - é a primeira participação? qual a part anterior/participou do evento anterior?
-com esses dados, agrupa por evento (pra pegar a delegação toda) e, se for o caso, org. p/ cada, summarize com % de entrantes etc.
-
+Quantos indivíduos participam em mais de N eventos?
 
 ```{r tabela individuos por n participacoes, echo = F}
 df_parts <- node_list %>% 
@@ -314,14 +318,6 @@ df_parts <- node_list %>%
                all_parts = list(ano_part),
                nparts = length(ano_part),
                id = id_individuo
-               ) 
-
-df_parts_orgs <- node_list %>% 
-        group_by(id_org_unica) %>% 
-        mutate(firstpart_ind = min(ano_part),
-               all_parts = list(ano_part),
-               nparts = length(ano_part),
-               id = id_org_unica
                ) 
 
 #n individuos e filtros
@@ -336,6 +332,20 @@ tibble(
   count_total = lapply(0:10, get_nvertices_filtered) %>% unlist,
 ) %>% 
   knitr::kable(caption = "Number of individuals in network with more than N participations")
+
+```
+
+Quantas organizações participam em mais de N eventos?
+
+```{r tabela orgs por n participacoes, echo = F}
+
+df_parts_orgs <- node_list %>% 
+        group_by(id_org_unica) %>% 
+        mutate(firstpart_ind = min(ano_part),
+               all_parts = list(ano_part),
+               nparts = length(ano_part),
+               id = id_org_unica
+               ) 
 
 # Tabela N orgs
 tibble(
@@ -356,10 +366,11 @@ tibble(
 ) %>% 
   knitr::kable(caption = "Number of orgs in network with more than N participations")
 
+```
 
+Quantos indivíduos participam de eventos a cada ano?
 
-
-
+```{r n participantes por ano, echo = F}
 # Por ano
 df_parts %>% filter(nparts > 0) %>% 
   group_by(ano_part, id_individuo) %>% summarise(count = n()) %>%
@@ -367,12 +378,215 @@ df_parts %>% filter(nparts > 0) %>%
   summarise(count_indparticipants = sum(count)) %>% 
   knitr::kable(caption = "Number of individual participants per year")
 
+
+df_parts %>% filter(nparts > 0) %>% 
+  group_by(ano_part, id_individuo) %>% summarise(count = n()) %>%
+  group_by(ano_part) %>%
+  summarise(count_indparticipants = sum(count)) %>% 
+  ggplot() + geom_line(aes(x=ano_part, y=count_indparticipants)) +
+  ggtitle("Number of individual participants per year")
+  
+```
+
+A variação ano-a-ano pode ser uma medida problemática, porque os eventos têm periodicidade variável (e.g., COP UNFCCC é anual, mas CBD é bianual). Mas olhando o gráfico, acho que a tendência geral segue visível.
+
+### número de participantes recorrentes
+
+A participação em um único evento, pode ser um critério um pouco amplo demais para avaliar o tamanho de uma comunidade de políticas. É preciso que a participação seja recorrente. No início do relatório, fazemos esse mapeamento para a rede estática, mas queremos agora ver como isso muda ao longo do tempo. 
+
+Para avaliar o número de participantes recorrentes, é importante a) levar em consideração um período temporal mais amplo (dificilmente há oportunidade de vários eventos no mesmo ano) e b) definir um n mínimo de eventos para os participantes.
+
+1) Participantes recorrentes em um mesmo mandato presidencial
+
+```{r inclusao mandatos, echo = F}
+df_parts <- df_parts %>%
+  mutate(mandato = case_when(ano_part >= 1964 & ano_part <= 1984 ~ "Ditadura",
+                             ano_part >= 1985 & ano_part < 1990 ~ "Sarney",
+                             ano_part >= 1990 & ano_part < 1995 ~ "Collor-Itamar",
+                             ano_part >= 1995 & ano_part < 1999 ~ "FHC1",
+                             ano_part >= 1999 & ano_part < 2003 ~ "FHC2",
+                             ano_part >= 2003 & ano_part < 2007 ~ "Lula1",
+                             ano_part >= 2007 & ano_part < 2011 ~ "Lula2",
+                             ano_part >= 2011 & ano_part < 2015 ~ "Dilma1",
+                             ano_part >= 2015 & ano_part < 2019 ~ "Dilma2Temer")
+  ) 
+
+df_parts_orgs <- df_parts_orgs %>%
+  mutate(mandato = case_when(ano_part >= 1964 & ano_part <= 1984 ~ "Ditadura",
+                             ano_part >= 1985 & ano_part < 1990 ~ "Sarney",
+                             ano_part >= 1990 & ano_part < 1995 ~ "Collor-Itamar",
+                             ano_part >= 1995 & ano_part < 1999 ~ "FHC1",
+                             ano_part >= 1999 & ano_part < 2003 ~ "FHC2",
+                             ano_part >= 2003 & ano_part < 2007 ~ "Lula1",
+                             ano_part >= 2007 & ano_part < 2011 ~ "Lula2",
+                             ano_part >= 2011 & ano_part < 2015 ~ "Dilma1",
+                             ano_part >= 2015 & ano_part < 2019 ~ "Dilma2Temer")
+  ) 
+# note-se que, como há alguns eventos pré 64 e pós 2018, estão com NA em mandato
+```
+
+```{r parts por mandato, echo = F}
+df_parts %>% filter(nparts > 0 & ano_part >= 1970 & ano_part <= 2018) %>% 
+  group_by(mandato, id_individuo) %>% summarise(count = n()) %>%
+  group_by(mandato) %>%
+  summarise(ind_1plus = length(id_individuo[count >= 1]), 
+            ind_2plus = length(id_individuo[count >= 2]),
+            ind_3plus = length(id_individuo[count >= 3]),
+            ind_4plus = length(id_individuo[count >= 4]),
+            ind_5plus = length(id_individuo[count >= 5])
+            ) %>% 
+  arrange(factor(mandato, levels = c("Ditadura", "Sarney", "Collor-Itamar", 
+                                     "FHC1", "FHC2", "Lula1","Lula2",
+                                     "Dilma1","Dilma2Temer"))) %>% 
+  knitr::kable(caption = "Número de participantes recorrentes por período")
+
+```
+
+Para aprofundar um pouco a análise, vale observar quem são os participantes recorrentes nesses variados períodos. Os indivíduos mais experientes em cada tema são descritos mais abaixo, mas é útil trazer aqui os indivíduos recorrentes nos períodos com uma comunidade pouco estabelecida (ditadura e sarney) para ver se há algum padrão.
+
+```{r lista parts recorrentes, echo = F}
+df_parts %>% filter(nparts > 0 & ano_part >= 1970 & ano_part <= 2018) %>% 
+  group_by(mandato, id_individuo) %>% summarise(count = n()) %>%
+  filter(mandato %in% c("Ditadura") & count > 2) %>% 
+  left_join(individuos_unico) %>% 
+  knitr::kable(caption = "Indivíduos com 3+ participações na ditadura")
+
+df_parts %>% filter(nparts > 0 & ano_part >= 1970 & ano_part <= 2018) %>% 
+  group_by(mandato, id_individuo) %>% summarise(count = n()) %>%
+  filter(mandato %in% c("Sarney") & count > 1) %>% 
+  left_join(individuos_unico) %>% 
+  knitr::kable(caption = "Indivíduos com 2+ participações em Sarney")
+
+```
+
+2) Número de participantes recorrentes em janelas de 3 anos
+```{r individuos recorrentes janela, echo=FALSE}
+contar_indrecorrentes <- function(ano_inicial, tamanho_janela = 3){
+ df_parts %>% filter(nparts > 0 & ano_part >= ano_inicial - tamanho_janela &
+                       ano_part <= ano_inicial) %>% 
+  group_by(id_individuo) %>% summarise(count = n()) %>% 
+  summarise(ano = ano_inicial,
+            ind_1plus = length(id_individuo[count >= 1]), 
+            ind_2plus = length(id_individuo[count >= 2]),
+            ind_3plus = length(id_individuo[count >= 3]),
+            ind_4plus = length(id_individuo[count >= 4]),
+            ind_5plus = length(id_individuo[count >= 5])
+  ) 
+}
+
+indrecorrentes <- map_df(1973:2018, contar_indrecorrentes)
+
+```
+
+```{r plot indrec jan3, echo = F}
+
+indrecorrentes %>% pivot_longer(cols = - ano,
+                                names_to = "n_participations", names_prefix = "ind_",
+                                values_to = "n_individuals") %>% 
+  ggplot(aes(x=ano, y=n_individuals, color = n_participations)) +
+  geom_area(position='identity', aes(fill=n_participations), alpha=0.3) +
+  geom_line() + ggtitle("Número de indivíduos com N+ participações",
+                        subtitle = "Janelas de 3 anos") +
+  scale_y_continuous(n.breaks = 8) + 
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020))
+
+indrecorrentes %>% pivot_longer(cols = - ano,
+                                names_to = "n_participations", names_prefix = "ind_",
+                                values_to = "n_individuals") %>% 
+  filter(n_participations != "1plus") %>% 
+  ggplot(aes(x=ano, y=n_individuals, color = n_participations)) +
+  geom_area(position='identity', aes(fill=n_participations), alpha=0.3) +
+  geom_line() + ggtitle("Número de indivíduos com N+ participações",
+                        subtitle = "Janelas de 3 anos") +
+  scale_y_continuous(n.breaks = 8) + 
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020))
+
+indrecorrentes %>% pivot_longer(cols = - ano,
+                                names_to = "n_participations", names_prefix = "ind_",
+                                values_to = "n_individuals") %>% 
+  filter(!n_participations %in% c("1plus", "2plus")) %>% 
+  ggplot(aes(x=ano, y=n_individuals, color = n_participations)) +
+  geom_area(position='identity', aes(fill=n_participations), alpha=0.3) +
+  geom_line() + ggtitle("Número de indivíduos com N+ participações",
+                        subtitle = "Janelas de 3 anos") +
+  scale_y_continuous(n.breaks = 8) + 
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020))
+
+```
+
+```{r plot indrec difrelativa, echo=FALSE}
+
+#  calculo do percentual de variação anual 
+# escolha pelo percentual foi p/ melhorar comparabilidade entre gráficos
+indrecorrentes %>% mutate(
+  dif_1plus = (ind_1plus - lag(ind_1plus)) / lag(ind_1plus),
+  dif_2plus = (ind_2plus - lag(ind_2plus)) / lag(ind_2plus),
+  dif_3plus = (ind_3plus - lag(ind_3plus)) / lag(ind_3plus)
+) %>% 
+  select(c(ano, dif_1plus, dif_2plus, dif_3plus)) %>% filter(!is.na(dif_1plus)) %>% 
+  pivot_longer(cols = - ano, names_to = "n_participations", names_prefix = "dif_",
+               values_to = "delta_individuals") -> dif_db
+
+
+  ggplot(dif_db %>% filter(n_participations == "1plus")) + geom_line(aes(x=ano, y = delta_individuals)) +
+  geom_hline(yintercept=0, color = "red", linetype = "dashed") +
+  ggtitle("Variação percentual no número de indivíduos com 1+ participações",
+          subtitle = "Janelas de 3 anos") +
+  # scale_y_continuous(breaks = -10, -5, 0, 5, 10) + 
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020)) +
+  lemon::scale_y_symmetric(mid = 0, labels = scales::percent)
+ 
+## 2 participações 
+ggplot(dif_db %>% filter(n_participations == "2plus")) + geom_line(aes(x=ano, y = delta_individuals)) +
+  geom_hline(yintercept=0, color = "red", linetype = "dashed") +
+  ggtitle("Variação percentual no número de indivíduos com 2+ participações",
+          subtitle = "Janelas de 3 anos") +
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020)) +
+  lemon::scale_y_symmetric(mid = 0, labels = scales::percent)
+
+ggplot(dif_db %>% filter(n_participations == "2plus" &
+                           ano >= 1995)) + 
+  geom_line(aes(x=ano, y = delta_individuals)) +
+  geom_hline(yintercept=0, color = "red", linetype = "dashed") +
+  scale_x_continuous(breaks = c(1995, 2000, 2005, 2010, 2015, 2020)) +
+  lemon::scale_y_symmetric(mid = 0, labels = scales::percent) +
+  ggtitle("Variacao percentual no numero de individuos com 2+ participacoes",
+          subtitle = "Janelas de 3 anos, pos 1995")
+
+## 3 participações   
+ggplot(dif_db %>% filter(n_participations == "3plus")) + geom_line(aes(x=ano, y = delta_individuals)) +
+  geom_hline(yintercept=0, color = "red", linetype = "dashed") +
+  ggtitle("Variação percentual no número de indivíduos com 3+ participações",
+          subtitle = "Janelas de 3 anos") +
+  # scale_y_continuous(breaks = -10, -5, 0, 5, 10) + 
+  scale_x_continuous(breaks = c(1975, 1980, 1985, 1990, 1995, 
+                                2000, 2005, 2010, 2015, 2020)) +
+  lemon::scale_y_symmetric(mid = 0, labels = scales::percent)
+
+    
+ggplot(dif_db %>% filter(n_participations == "3plus" &
+                           ano >= 1995)) + 
+  geom_line(aes(x=ano, y = delta_individuals)) +
+  geom_hline(yintercept=0, color = "red", linetype = "dashed") +
+  ggtitle("Variação percentual no número de indivíduos com 3+ participações",
+          subtitle = "Janelas de 3 anos, pós 1995") +
+  # scale_y_continuous(breaks = -10, -5, 0, 5, 10) + 
+  scale_x_continuous(breaks = c(1995, 2000, 2005, 2010, 2015, 2020)) +
+  lemon::scale_y_symmetric(mid = 0, labels = scales::percent)
+
 ```
 
 
+```{r tabela indrec jan3, echo = FALSE}
+ knitr::kable(indrecorrentes,
+              caption = "Número de indivíduos com N+ participações em janelas de 3 anos")
 
-
-
+```
 
 
 ## Experiência ao longo do tempo
