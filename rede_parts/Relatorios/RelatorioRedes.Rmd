@@ -169,7 +169,7 @@ matriz_part_evento <- left_join(matriz_part_evento,
 lista_eventos_comdeleg <- matriz_part_evento$id_evento
 ```
 
-
+# A ADICIONAR NO RELATÓRIO ----------------------------------
 
 # Redes de organizações
 
