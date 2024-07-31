@@ -265,7 +265,7 @@ country_adjustments <- tibble(
               "St. Lucia", "St. Vincent and the Grenadines"
               
   ),
-  regex = c("Central Group(?! Eleven)", "Central Group Eleven",
+  regex = c("Central Group(?! Eleven)", "Central Group Eleven|CG-11",
             "Democratic Republic of Congo", "(?<!Democratic )Republic of Congo",
             "(?<!G77 and )(?<!G-77\\/)China","G-?77((\\/| and )China)?",
             "Czech Republic|Czechia",
@@ -353,11 +353,17 @@ organize_byparagraph <- function(doc_df){
   # A princípio, não parece ter grande perda (ao menos no doc testado, não houve erro)
   # backup <- doc_df
   
-  # Collapse das regex e filter com numero de matches das regex
+  # para acelerar os matches, é interessante substituir países por um placeholder
   doc_df <- doc_df %>% 
-    mutate(countrymatch_count = str_count(toupper(parag) %>% str_trim %>% str_squish,
-                                          paste0(country_list$regex, collapse = "|"))
-    ) %>% filter(countrymatch_count > 1)
+    mutate(parag_sub = str_replace_all(parag %>% str_trim %>% str_squish,
+                                          paste0(country_list$regex, collapse = "|"),
+                                          "COUNTRYNAME") %>% toupper
+    )
+  
+  # Collapse das regex e filter com numero de matches das regex
+  doc_df <- doc_df %>%
+    mutate(countrymatch_count = str_count(parag_sub, "COUNTRYNAME")) %>%
+    filter(countrymatch_count > 1)
   
   doc_df$text <- NULL
   doc_df
@@ -382,14 +388,14 @@ organize_byparagraph <- function(doc_df){
 
 organize_bysentence <- function(doc_df){
   doc_df <- doc_df %>% 
-    mutate(sentence = tokenizers::tokenize_sentences(parag)) %>% 
-    unnest(sentence) %>% ungroup %>% 
+    mutate(sentence = tokenizers::tokenize_sentences(parag),
+           sentence_sub = tokenizers::tokenize_sentences(parag_sub)) %>% 
+    unnest(c(sentence, sentence_sub)) %>% ungroup %>% 
     mutate(sent_order = row_number())
   
   doc_df <- doc_df %>% # manter apenas frases com 2 ou + menções a países
-    mutate(countrymatch_count = str_count(toupper(sentence) %>% str_trim %>% str_squish,
-                                          paste0(country_list$regex, collapse = "|"))
-    ) %>% filter(countrymatch_count > 1)
+    mutate(countrymatch_count = str_count(sentence_sub, "COUNTRYNAME")) %>%
+    filter(countrymatch_count > 1)
   
   doc_df$parag <- NULL
   doc_df
@@ -475,17 +481,6 @@ identify_speaker <- function(doc_df){
 # speaker_df$target <- ""
 # Para evitar erros, vou criar colunas lógica/sender/target pra todos os tipos de interação
 # depois faço um pivot pra organizar, mas com isso posso checar se estou classificando 2x a mesma frase
-
-
-# Algo útil para as análises é ter uma coluna com a string substituindo o nome do país por COUNTRYNAME.
-# Isso torna os testes lógicos mais rápidos/fáceis.
-
-speaker_df <- speaker_df %>% 
-  mutate(sentence_sub = str_replace_all(toupper(sentence) %>% str_trim %>% str_squish,
-                                   paste0(country_list$regex, collapse = "|"),
-                                   "COUNTRYNAME")
-         )
-
 
 
 # No codebook, 
@@ -1107,7 +1102,7 @@ parse_opposition <- function(dfspeakersentence){
   
   # formulação: c1 opposed c2, c2, opposed by, c1 /opposing c2, c1 abc
         # se tiver enumeraçao com FOR no meio, pode perder os anteriores dependendo da formulação.
-  patterns_opposition1 <- "(?:COUNTRYNAME.+AND )?((MANY )?OTHERS|(\\w+, FOR )?(THE )?COUNTRYNAME),? OPPOS(ES|ED|ING)?( BY)? (\\w+, FOR )?(THE )?COUNTRYNAME(.+AND ((MANY )?OTHERS|(\\w+, FOR )?(THE )?COUNTRYNAME))?"
+  patterns_opposition1 <- "(?:COUNTRYNAME.+AND )?((MANY )?OTHERS|(\\w+, FOR )?(THE )?COUNTRYNAME).+,?( BUT)? OPPOS(ES|ED|ING)?( BY)? (\\w+, FOR )?(THE )?COUNTRYNAME(.+AND ((MANY )?OTHERS|(\\w+, FOR )?(THE )?COUNTRYNAME))?"
   patterns_opposition2 <- "OPPOSING (\\w+, FOR )?(THE )?COUNTRYNAME(.+AND (\\w+, FOR )?((THE )?COUNTRYNAME|(MANY )?OTHERS))?,? (\\w+, FOR )?COUNTRYNAME,?(.+AND ((\\w+, FOR )?(THE )?COUNTRYNAME|(MANY )?OTHERS))?"
   
 
@@ -1234,6 +1229,8 @@ parse_opposition <- function(dfspeakersentence){
   df
 }
 
+# Em casos como "JAPAN, supported by the US and others, but opposed by Tanzania, for the G-77/CHINA, proposed inviting"
+# (report_id == 239), opposition target está pegando US além de Japão. Deveria corrigir, como em sup-oppose
 speaker_df <- parse_opposition(speaker_df)
 
 
@@ -1270,11 +1267,7 @@ analysed_ids <- sample(reports$report_id, 3)
 map_df(analysed_ids, organize_report) %>% 
   organize_byparagraph() %>% 
   organize_bysentence() %>% 
-  identify_speaker() %>% #sentence_sub acelera procedimento. deveria alterar funções p/ rodar antes?
-  mutate(sentence_sub = str_replace_all(sentence %>% str_trim %>% str_squish,
-                                        paste0(country_list$regex, collapse = "|"),
-                                        "COUNTRYNAME") %>% toupper
-         ) -> tst
+  identify_speaker() -> tst
 
 # testar as funções de parse com tst
 #parse_agreement(tst) %>% View
