@@ -360,9 +360,9 @@ central_stats <- function(orgdecadenet, measure, lglnormal = F, decade,
 ```
 
 
-### Visualizando e calculando centralidade em diferentes recortes de período
+# Visualizando e calculando centralidade em diferentes recortes de período
 
-#### Preparando p/ visualização
+## Preparando p/ visualização
 
 As there are too many categories of organization in total (24), we will use the simplified categorization (10). This allows us to better compare across figures.
 
@@ -447,7 +447,7 @@ preparing_nodeappearance <- function(orgdecadenet, nlabelstoshow){
 }
 ```
 
-#### Colapsando vértices para melhorar visualização e estatísticas
+## Colapsando vértices para melhorar visualização e estatísticas
 Como o banco de dados foi criado com múltiplos propósitos, as organizações foram classificadas de forma a manter o máximo de distinções entre elas. Assim, órgãos que passam por reformas e mudam de nome muitas vezes são classificados como novas organizações. Como consequência, perdemos algumas informações importantes para avaliar a centralidade das organizações ambientais, que passaram por múltiplas reformas ao longo do tempo (e.g., SEMA, SEMAM-PR, MMA). Em outros casos, podemos ter uma distinção importante para pensar questões administrativas, mas que é pouco relevante para pensar a participação de determinado grupo nas delegações (e.g., Ministério da Marinha vs Marinha do Brasil é pouco relevante para pensar se militares estão presentes ou não).
 
 Para resolver esse problema, podemos colapsar alguns vértices (ie, fundir as organizações), de modo a obter dados mais coerentes com nossos objetivos nessa etapa da pesquisa.
@@ -456,7 +456,7 @@ Para resolver esse problema, podemos colapsar alguns vértices (ie, fundir as or
 **Checar os relatórios sobre deleg e ver quais foram os órgãos escolhidos para serem colapsados na análise**. No script de redes, colapsei a Marinha (nos anos 70)
 
 
-#### Estat redes por mandato presidencial
+## Redes filtradas por mandato presidencial
 
 ```{r rede fhc1, include=FALSE}
 orgdecadenet <- yearfilter_net(personyrNet, 1995, 1998) %>% 
@@ -468,7 +468,9 @@ orgdecadenet <- yearfilter_net(personyrNet, 1995, 1998) %>%
 fullstats <- central_stats(orgdecadenet, "betweenness", lglnormal = F, "fhc1") %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc1")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "fhc1", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc1", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "fhc1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "fhc1", invertweight = F)  )
 ```
 
 ```{r rede fhc2, include=FALSE}
@@ -482,7 +484,9 @@ fullstats <- fullstats %>%
   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "fhc2"))   %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc2")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "fhc2", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc2", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "fhc2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "fhc2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "fhc2", invertweight = F)  )
 ```
 
 ```{r rede lula1, include=FALSE}
@@ -496,7 +500,9 @@ fullstats <- fullstats %>%
   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "lula1"))   %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula1")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "lula1", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula1", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula1", invertweight = F)  )
 ```
 
 ```{r rede lula2, include=FALSE}
@@ -510,7 +516,9 @@ fullstats <- fullstats %>%
   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "lula2"))   %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula2")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "lula2", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula2", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "lula2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula2", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula2", invertweight = F)  )
 ```
 
 ```{r rede dilma1, include=FALSE}
@@ -524,7 +532,9 @@ fullstats <- fullstats %>%
   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "dilma1"))   %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilma1")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "dilma1", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilma1", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilma1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "dilma1", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "dilma1", invertweight = F)  )
 ```
 
 ```{r rede dilmatemer, include=FALSE}
@@ -538,14 +548,18 @@ fullstats <- fullstats %>%
   bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "dilmatemer"))   %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilmatemer")  ) %>% 
   bind_rows( central_stats(orgdecadenet, "betweenness", F, "dilmatemer", invertweight = T)  ) %>% 
-  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilmatemer", invertweight = T)  ) 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "dilmatemer", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "dilmatemer", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "eigenvector", T, "dilmatemer", invertweight = F)  )
 ```
 
 
-##### Visualização
+### Visualização das estatísticas por mandato presidencial
 (Betweenness, normalized and inverted weights)
 ```{r plot betwcentrality mandatos, echo = F}
 fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  filter(decade %in% c("fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
+  filter(measure == "betweenness") %>%
   mutate(year = case_when(decade == "fhc1" ~ 1995,
                           decade == "fhc2" ~ 1998,
                           decade == "lula1" ~ 2003,
@@ -562,15 +576,771 @@ fullstats %>% filter(weightinverted == T & normalized == T) %>%
   ggtitle("Betweenness centrality")
 ```
 
+(Eigenvector, normalized and inverted weights)
+```{r plot betwcentrality mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  filter(decade %in% c("fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
+  filter(measure == "eigenvector") %>% 
+  mutate(year = case_when(decade == "fhc1" ~ 1995,
+                          decade == "fhc2" ~ 1998,
+                          decade == "lula1" ~ 2003,
+                          decade == "lula2" ~ 2007,
+                          decade == "dilma1" ~ 2011,
+                          decade == "dilmatemer" ~ 2015)) %>%
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = year, y=value, color = org)) + geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  scale_x_continuous(name = NULL,
+                     breaks = c(1995,1998,2003,2007,2011,2015),
+                     label = c("FHC1", "FHC2","Lula1","Lula2","Dilma1","Dilma-Temer")) +
+  theme(legend.position = "none", ) +
+  ggtitle("Eigenvector centrality")
+```
+### Tabela das estatísticas por mandato presidencial
 ```{r tabela betwcentrality mandatos, echo = F}
 fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  filter(decade %in% c("fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
+  filter(measure == "betweenness") %>% 
   mutate(org = if_else(is.na(org), "Average", org)) %>% 
   select(decade, org, value) %>% rename(mandato = decade) %>% 
   knitr::kable(caption = "Betweenness centrality")
 ```
 
+```{r tabela eigenvector mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  filter(decade %in% c("fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
+  filter(measure == "eigenvector") %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  select(decade, org, value) %>% rename(mandato = decade) %>% 
+  knitr::kable(caption = "Eigenvector centrality")
+```
 
-### Janelas móveis de 4 anos
+## Redes filtradas por década
+Outra forma de separar os dados é filtrar as redes por décadas.
+Aqui, para permitir a comparabilidade no tempo, seria interessante colapsar, no futuro, MMA com outras organizações antecessoras.
+
+Na visualização da rede, estamos usando o algoritmo Fruchterman-Reingold (na implementação do pacote qgraph, feita por meio do pacote multienrichjam - não me lembro exatamente qual era a vantagem da implementação aqui, mas é algo relativo a ajustes como os nós não ficarem tão sobrepostos). O Fruchterman-Reingold é um dos algoritmos mais comuns em visualização de redes, assim como o Kawada-Kawai. No FR, o peso é um fator de atração (mais peso = maior atração, menos peso repele); no KK, a lógica é a inversa, como uma mola (mais peso = mais distância).
+
+```{r install pacote vis, include =FALSE}
+# remotes::install_github("jmw86069/multienrichjam", dependencies = T)
+```
+
+
+
+### Década de 1970
+Due to the use of the database for a different purpose, the Ministry of the Navy was originally separated from the Navy as an organization. This is to allow for future ministerial changes (Ministry becomes the Ministry of Defense in the 00s which is not to be confused with the Navy itself). For our purposes, however, this separation does not make any sense. So we need to fuse these vertices.
+
+```{r rede 70s, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 1970, 1979) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+V(orgdecadenet)$combine <- if_else(
+  V(orgdecadenet)$org_limpo == "Ministério da Marinha",
+  "Marinha do Brasil", #rename Ministério da Marinha to Marinha do Brasil
+  V(orgdecadenet)$org_limpo
+)
+# now combine the two vertices for this network
+comb_list <- unique(V(orgdecadenet)$combine)
+  
+orgdecadenet <- contract(orgdecadenet,
+                      mapping = as.numeric(
+                        plyr::mapvalues(V(orgdecadenet)$combine, 
+                                        from = comb_list, 
+                                        to = 1:length(comb_list))
+                      ),
+                      vertex.attr.comb=list(#methods for combining attributes
+                        weight="sum", #sum weights,
+                        nparticipations = "sum",  #sum nparticipations
+                        "first")) # keep first of others
+
+orgdecadenet <- simplify(orgdecadenet)
+
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "70s"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "70s")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "70s", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "70s", invertweight = T)  )
+```
+
+
+```{r plot net 70s, echo = F}
+#.... Generating the figure ------
+
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(orgdecadenet, with_fr())
+# coords <- layout_(orgdecadenet, with_kk())
+# KK functions as a spring, more weight giving more distance. 
+# FR does the opposite: attract when more weight, repels others
+
+
+spaced_coords <- multienrichjam::layout_with_qfr(orgdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^3.2)-(2*10^5)
+)
+
+# Change labels: name for top5 between orgs
+short_lab <- data.frame( long = V(orgdecadenet)$label) %>% filter(long != "")
+# short_lab$short <- c("MRE","IPqM","BNH","IBGE","UFRGS")
+# n = 10
+# short_lab$short <- c("MRE","IPqM","BNH","IBGE", "MDIC", "MAPA","MS","SP","PR","UFRGS")
+# n = 30
+short_lab$short <- c("IBDF", "MRE", "SUDAM", "EMBRAPA", "UNDP-FAO-IBDF","MInt","IPqM",
+                     "BNH", "IBGE", "MDIC", "MAPA", "MS", "SP", "PR", "SEPLAN", 
+                     "Senate", "Deputies", "CNI", "SANESP", "Llloyd", "DOCENAVE",
+                     "Navy", "Petro", "RDEP", "Syndarma", "SUNAMAM", "UFRGS")
+
+all_labs <- left_join(data.frame( long = V(orgdecadenet)$label),
+                      short_lab)
+
+
+V(orgdecadenet)$longlab <- V(orgdecadenet)$label
+V(orgdecadenet)$label <- all_labs$short
+
+# Plotting the figure
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(orgdecadenet,
+     # layout = coords, 
+     layout = spaced_coords,
+     vertex.size = 5 + V(orgdecadenet)$invbetw*10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .8,
+     edge.width= 1 + E(orgdecadenet)$weight/15
+)
+
+# Including legend
+tipos_presentes <- V(orgdecadenet)$type %>% unique
+temp_legend <- filter(types, label %in% tipos_presentes)
+
+legend("bottomright",legend=temp_legend$label, 
+       col= temp_legend$color,
+       bty = "n", pt.cex = 1.2,
+       cex = 1, pch=16,
+       inset = -0.05, xpd = TRUE
+)
+
+# Including title
+title("Figure 7. Organizations Network (1970-1979)")
+
+# #.... Saving output -----
+# 
+# dev.copy(pdf, paste0("Figures/","Fig7", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+#          )
+# dev.off()
+```
+
+
+
+### Década de 1980
+
+```{r rede 80s, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 1980, 1989) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "80s"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "80s")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "80s", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "80s", invertweight = T)  )
+```
+
+```{r plot net 80s, echo = F}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(orgdecadenet, with_fr())
+# coords <- layout_(orgdecadenet, with_kk())
+# KK functions as a spring, more weight giving more distance. 
+# FR does the opposite: attract when more weight, repels others
+
+
+spaced_coords <- multienrichjam::layout_with_qfr(orgdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^3.2)-(2*10^5)
+)
+
+# Change labels: name for top between orgs
+short_lab <- data.frame( long = V(orgdecadenet)$label) %>% filter(long != "")
+short_lab$short <- c("MRE","EMBRAPA","IBDF", "FBCN","IBAMA",
+                     "UNDP-FAO-IBDF","SEMAM", "Navy", "USP")
+all_labs <- left_join(data.frame( long = V(orgdecadenet)$label),
+                      short_lab)
+
+
+V(orgdecadenet)$longlab <- V(orgdecadenet)$label
+V(orgdecadenet)$label <- all_labs$short
+
+# Plotting the figure
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(orgdecadenet,
+     #layout = coords, 
+      layout = spaced_coords,
+     vertex.size = 5 + V(orgdecadenet)$invbetw*10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .9,
+     edge.width= 1 + E(orgdecadenet)$weight/15
+)
+
+# Including legend
+tipos_presentes <- V(orgdecadenet)$type %>% unique
+temp_legend <- filter(types, label %in% tipos_presentes)
+
+legend("right",legend=temp_legend$label, 
+       col= temp_legend$color,
+       bty = "n", pt.cex = 1.2,
+       cex = 1, pch=16,
+       inset = -0.1, xpd = TRUE
+)
+
+# Including title
+title("Figure 8. Organizations Network (1980-1989)")
+
+# #.... Saving output -----
+# 
+# dev.copy(pdf, paste0("Figures/","Fig8", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+
+### Década de 1990
+Aqui, idealmente, faríamos um collapse dos nós referentes a MMA-SEMAM e SCT-MCT.
+
+```{r rede 90s, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 1990, 1999) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "90s"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "90s")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "90s", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "90s", invertweight = T)  )
+```
+
+
+```{r plot net 90s, echo = F}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(orgdecadenet, with_fr())
+# coords <- layout_(orgdecadenet, with_kk())
+# KK functions as a spring, more weight giving more distance. 
+# FR does the opposite: attract when more weight, repels others
+#for this 70s graph, Kamada-Kawai shows the structure better, as distancing the 
+#'main bloc' from MRE allows us to see its structure more clearly
+
+spaced_coords <- multienrichjam::layout_with_qfr(orgdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^3)-(2*10^5)
+)
+
+# Change labels: name for top between orgs
+short_lab <- data.frame( long = V(orgdecadenet)$label) %>% filter(long != "")
+short_lab$short <- c("MRE", "EMBRAPA", "SCT", "SEMAM", "MMA", "MCT", "MS", "MPOG", "MAPA", "IBAMA", "SP", "ABIQUIM",
+                     rep("", 18))
+                     # "ABPMEX", "SINDIMAD", "AIMEX", "MinPolFund", "MinIN", "PE", "UFPE", "AL", "FJN", "SUDENE", "DF",
+                     # "ABINEE", "USP", "CCSEE", "MDIC", "IBPC", "AEB", "CEBDS")
+all_labs <- left_join(data.frame( long = V(orgdecadenet)$label),
+                      short_lab)
+
+
+V(orgdecadenet)$longlab <- V(orgdecadenet)$label
+V(orgdecadenet)$label <- all_labs$short
+
+# Plotting the figure
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(orgdecadenet,
+     # layout = coords, 
+     layout = spaced_coords,
+     vertex.size = 3 + V(orgdecadenet)$invbetw*10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(orgdecadenet)$weight/100
+)
+
+# Including legend
+tipos_presentes <- V(orgdecadenet)$type %>% unique
+temp_legend <- filter(types, label %in% tipos_presentes)
+
+legend("bottomright",legend=temp_legend$label, 
+       col= temp_legend$color,
+       bty = "n", pt.cex = 1.2,
+       cex = .7, pch=16,
+       inset = -0.05, xpd = TRUE
+)
+
+# Including title
+title("Figure 9. Organizations Network (1990-1999)")
+
+# #.... Saving output -----
+# 
+# dev.copy(pdf, paste0("Figures/","Fig9a", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+#### Filtragem da rede: apenas N+ participações
+To clear up the graph and better look at the community structure, it might be more interesting to limit the organizations in the figure. Normally, this would be done by filtering vertex degree (n of connections). This would not be what we want, as someone who participates in only one COP or at UNCED might have a higher degree than someone at 10 smaller events. What we want, instead, is the number of event participations per org as the filter.
+
+*3 ou mais participações da organização*
+
+Idealmente, incluir os nomes das organizações de novo. Como a rede é induzida da rede anterior, já chega com nomes corrigidos (e apagados). Tem alguns que já estavam sem label. Rever código para ver como fazer isso. (É a função prepare nodes?)
+```{r plot filtnet90, echo = F}
+filtdecadenet <- induced_subgraph(orgdecadenet, 
+                 V(orgdecadenet)[nparticipations  >= 3])
+
+set.seed(123)
+l <- layout_(filtdecadenet, with_fr())
+#kk highlights MRE centrality by pushing it away but makes structure otherwise cluttered
+# l <- layout_(filtdecadenet, with_kk()) 
+
+#recalculate betweenness for subcommunity
+# filtdecadenet <- set.vertex.attribute(filtdecadenet, "newbetw", 
+#                                      index = V(filtdecadenet), 
+#                                      betweenness(filtdecadenet, normalized = T))
+
+#not using this in this paper but comparison of newbetw vs general betw is great
+#can help identify different functions: eg, some, like MRE, connect inside-outside and
+#others connect inside the community. Should remember to use INVERTED WEIGHT as well.
+
+# plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(filtdecadenet,
+     layout = l, 
+     # layout = spaced_coords,
+     vertex.size = 3 + V(filtdecadenet)$invbetw*10,
+     # vertex.size = 3 + V(filtdecadenet)$newbetw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(filtdecadenet)$weight/100
+)
+
+title("Figure 11. Filtered Organizations Network (1990-1999, 3+)",
+      sub = "Orgs with 3 or more event participations")
+
+# # Save
+# dev.copy(pdf, paste0("Figures/","Fig9b", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+
+### Década de 2000
+
+```{r rede 00s, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2000, 2009) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "00s"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "00s")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "00s", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "00s", invertweight = T)  )
+```
+
+```{r plot net 00s, echo = F, message = F}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(orgdecadenet, with_fr())
+# coords <- layout_(orgdecadenet, with_kk())
+
+
+# KK functions as a spring, more weight giving more distance. 
+# FR does the opposite: attract when more weight, repels others
+
+spaced_coords <- multienrichjam::layout_with_qfr(orgdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^2.4)-(4*10^5)
+)
+
+# Change labels: name for top between orgs
+short_lab <- data.frame( long = V(orgdecadenet)$label) %>% filter(long != "")
+short_lab$short <- c("MRE","MAPA","MMA", "MDIC","MCT",
+                     "CEBDS","FBOMS", "Senado", "IBAMA","MS",
+                     # rep("",20)
+                     "Palmares","Vitae","CONTAG","MD","CNI","MG","PR","GO",
+                     "MinC", "BNDES","ES","UEAM","PRRI","ABIA","SP","AC","SC",
+                     "UFRJ","Câmara","Marinha"
+                     )
+all_labs <- left_join(data.frame( long = V(orgdecadenet)$label),
+                      short_lab)
+
+
+V(orgdecadenet)$longlab <- V(orgdecadenet)$label
+V(orgdecadenet)$label <- all_labs$short
+# Manually include relevant labels
+V(orgdecadenet)[id_org_unica == 435]$label <- "MRE"
+V(orgdecadenet)[id_org_unica == 442]$label <- "MMA"
+V(orgdecadenet)[id_org_unica == 422]$label <- "MCT"
+V(orgdecadenet)[id_org_unica == 421]$label <- "MAPA"
+
+
+
+# Plotting the figure
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(orgdecadenet,
+     # layout = coords, 
+     layout = spaced_coords,
+     vertex.size = 3 + V(orgdecadenet)$invbetw*10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(orgdecadenet)$weight/2700
+)
+
+# Including legend
+tipos_presentes <- V(orgdecadenet)$type %>% unique
+temp_legend <- filter(types, label %in% tipos_presentes)
+
+legend("right",legend=temp_legend$label, 
+       col= temp_legend$color,
+       bty = "n", pt.cex = 1.2,
+       cex = .7, pch=16,
+       inset = -0.05, xpd = TRUE
+)
+
+# Including title
+title("Figure 10. Organizations Network (2000-2009)")
+
+# #.... Saving output -----
+# dev.copy(pdf, paste0("Figures/","Fig10a", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+#### Filtragem da rede: apenas N+ participações
+To clear up the graph and better look at the community structure, it might be more interesting to limit the organizations in the figure. Normally, this would be done by filtering vertex degree (n of connections). This would not be what we want, as someone who participates in only one COP or at UNCED might have a higher degree than someone at 10 smaller events. What we want, instead, is the number of event participations per org as the filter.
+
+*10 ou mais participações da organização*
+
+Idealmente, incluir os nomes das organizações de novo. Como a rede é induzida da rede anterior, já chega com nomes corrigidos (e apagados). Tem alguns que já estavam sem label. Rever código para ver como fazer isso. (É a função prepare nodes?)
+
+```{r plot filtnet 00s, echo = F}
+#.... Alternative figure: only orgs with 10+ participations -----
+# To clear up the graph and better look at the community structure, 
+# it might be more interesting to limit the organizations in the figure.
+# Normally, this would be done by filtering vertex degree (n of connections).
+# This would not be what we want, as someone who participates in only one COP or at UNCED
+# might have a higher degree than someone at 10 smaller events.
+# What we want, instead, is the number of event participations per org as the filter.
+
+filtdecadenet <- induced_subgraph(orgdecadenet, 
+                                  V(orgdecadenet)[nparticipations  >= 10])
+
+set.seed(123)
+# l <- layout_(filtdecadenet, with_kk()) 
+# l <- layout_(filtdecadenet, with_fr())
+l <- multienrichjam::layout_with_qfr(filtdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^2.3)-(4*10^5)
+                                     )
+
+
+# l <- layout_nicely(filtdecadenet)
+
+#recalculate betweenness for subcommunity
+# filtdecadenet <- set.vertex.attribute(filtdecadenet, "newbetw", 
+#                                       index = V(filtdecadenet), 
+#                                       betweenness(filtdecadenet, normalized = T))
+
+#not using this in this paper but comparison of newbetw vs general betw is great
+#can help identify different functions: eg, some, like MRE, connect inside-outside and
+#others connect inside the community. Remember to INVERT WEIGHTS.
+
+# plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(filtdecadenet,
+     layout = multienrichjam::rotate_igraph_layout(layout = l, degrees = 45), 
+     # layout = spaced_coords,
+     vertex.size = 3 + V(filtdecadenet)$invbetw*10,
+     # vertex.size = 3 + V(filtdecadenet)$newbetw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(filtdecadenet)$weight/2700
+)
+
+title("Figure 12. Filtered Organizations Network (2000-2009, 10+)",
+      sub = "Orgs with 10 or more event participations")
+
+# # Save
+# dev.copy(pdf, paste0("Figures/","Fig10b", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+### Década de 2010
+```{r rede 10s, include=FALSE}
+orgdecadenet <- yearfilter_net(personyrNet, 2010, 2018) %>% 
+  collapse_ind2org() %>% preparing_nodeappearance(30)
+
+fullstats <- fullstats %>% 
+  bind_rows(central_stats(orgdecadenet, "betweenness", lglnormal = F, "10s"))   %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "10s")  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", F, "10s", invertweight = T)  ) %>% 
+  bind_rows( central_stats(orgdecadenet, "betweenness", T, "10s", invertweight = T)  )
+```
+
+```{r plot net 10s, echo = F, message = F}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(orgdecadenet, with_fr())
+# coords <- layout_(orgdecadenet, with_kk())
+
+
+# KK functions as a spring, more weight giving more distance. 
+# FR does the opposite: attract when more weight, repels others
+
+spaced_coords <- multienrichjam::layout_with_qfr(orgdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^2.4)-(4*10^5)
+)
+
+# Change labels: name for top between orgs
+short_lab <- data.frame( long = V(orgdecadenet)$label) %>% filter(long != "")
+short_lab$short <- c("MRE","MMA", "IBAMA", "ANVISA", "MAPA","MS",
+                     rep("",24)
+                     # "ABREA","SP","UEL","Delbrasgen","ICMBIO","SFB",
+                     # "EMBRAPA","BNDES","MPA", "MPS","MTE","SGPR",
+                     # "SPM","MCT","MEsp","MFaz", "MME","SECOM",
+                     # "SRI","MCOM","CC-PR","AC","Câmara","CEBDS"
+                     )
+all_labs <- left_join(data.frame( long = V(orgdecadenet)$label),
+                      short_lab)
+
+
+V(orgdecadenet)$longlab <- V(orgdecadenet)$label
+V(orgdecadenet)$label <- all_labs$short
+# Manually include relevant labels
+V(orgdecadenet)[id_org_unica == 435]$label <- "MRE"
+V(orgdecadenet)[id_org_unica == 442]$label <- "MMA"
+V(orgdecadenet)[id_org_unica == 422]$label <- "MCT"
+V(orgdecadenet)[id_org_unica == 421]$label <- "MAPA"
+
+
+
+# Plotting the figure
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(orgdecadenet,
+     # layout = coords, 
+     layout = spaced_coords,
+     vertex.size = 3 + V(orgdecadenet)$invbetw*10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(orgdecadenet)$weight/2700
+)
+
+# Including legend
+tipos_presentes <- V(orgdecadenet)$type %>% unique
+temp_legend <- filter(types, label %in% tipos_presentes)
+
+legend("bottomright",legend=temp_legend$label, 
+       col= temp_legend$color,
+       bty = "n", pt.cex = 1.2,
+       cex = .7, pch=16,
+       inset = -0.05, xpd = TRUE
+)
+
+# Including title
+title("Figure. Organizations Network (2010-2018)")
+
+# #.... Saving output -----
+# dev.copy(pdf, paste0("Figures/","Fig10a", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+#### Filtragem da rede: apenas N+ participações
+To clear up the graph and better look at the community structure, it might be more interesting to limit the organizations in the figure. Normally, this would be done by filtering vertex degree (n of connections). This would not be what we want, as someone who participates in only one COP or at UNCED might have a higher degree than someone at 10 smaller events. What we want, instead, is the number of event participations per org as the filter.
+
+*10 ou mais participações da organização*
+
+Idealmente, incluir os nomes das organizações de novo. Como a rede é induzida da rede anterior, já chega com nomes corrigidos (e apagados). Tem alguns que já estavam sem label. Rever código para ver como fazer isso. (É a função prepare nodes?)
+
+```{r plot filtnet 10s, echo = F}
+#.... Alternative figure: only orgs with 10+ participations -----
+# To clear up the graph and better look at the community structure, 
+# it might be more interesting to limit the organizations in the figure.
+# Normally, this would be done by filtering vertex degree (n of connections).
+# This would not be what we want, as someone who participates in only one COP or at UNCED
+# might have a higher degree than someone at 10 smaller events.
+# What we want, instead, is the number of event participations per org as the filter.
+
+filtdecadenet <- induced_subgraph(orgdecadenet, 
+                                  V(orgdecadenet)[nparticipations  >= 10])
+
+set.seed(123)
+# l <- layout_(filtdecadenet, with_kk()) 
+# l <- layout_(filtdecadenet, with_fr())
+l <- multienrichjam::layout_with_qfr(filtdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^2.3)-(4*10^5)
+                                     )
+
+
+# l <- layout_nicely(filtdecadenet)
+
+#recalculate betweenness for subcommunity
+# filtdecadenet <- set.vertex.attribute(filtdecadenet, "newbetw", 
+#                                       index = V(filtdecadenet), 
+#                                       betweenness(filtdecadenet, normalized = T))
+
+#not using this in this paper but comparison of newbetw vs general betw is great
+#can help identify different functions: eg, some, like MRE, connect inside-outside and
+#others connect inside the community. Remember to INVERT WEIGHTS.
+
+# plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(filtdecadenet,
+     layout = multienrichjam::rotate_igraph_layout(layout = l, degrees = 45), 
+     # layout = spaced_coords,
+     vertex.size = 3 + V(filtdecadenet)$invbetw*10,
+     # vertex.size = 3 + V(filtdecadenet)$newbetw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(filtdecadenet)$weight/2700
+)
+
+title("Figure. Filtered Organizations Network (2010-2018, 10+)",
+      sub = "Orgs with 10 or more event participations")
+
+# # Save
+# dev.copy(pdf, paste0("Figures/","Fig10b", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+```{r plot filtnet 10s 20plus, echo = F}
+#.... Alternative figure: only orgs with 10+ participations -----
+# To clear up the graph and better look at the community structure, 
+# it might be more interesting to limit the organizations in the figure.
+# Normally, this would be done by filtering vertex degree (n of connections).
+# This would not be what we want, as someone who participates in only one COP or at UNCED
+# might have a higher degree than someone at 10 smaller events.
+# What we want, instead, is the number of event participations per org as the filter.
+
+filtdecadenet <- induced_subgraph(orgdecadenet, 
+                                  V(orgdecadenet)[nparticipations  >= 20])
+
+set.seed(123)
+# l <- layout_(filtdecadenet, with_kk()) 
+# l <- layout_(filtdecadenet, with_fr())
+l <- multienrichjam::layout_with_qfr(filtdecadenet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(orgdecadenet)^2.3)-(4*10^5)
+                                     )
+
+
+# l <- layout_nicely(filtdecadenet)
+
+#recalculate betweenness for subcommunity
+# filtdecadenet <- set.vertex.attribute(filtdecadenet, "newbetw", 
+#                                       index = V(filtdecadenet), 
+#                                       betweenness(filtdecadenet, normalized = T))
+
+#not using this in this paper but comparison of newbetw vs general betw is great
+#can help identify different functions: eg, some, like MRE, connect inside-outside and
+#others connect inside the community. Remember to INVERT WEIGHTS.
+
+# plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(filtdecadenet,
+     layout = multienrichjam::rotate_igraph_layout(layout = l, degrees = 45), 
+     # layout = spaced_coords,
+     vertex.size = 3 + V(filtdecadenet)$invbetw*10,
+     # vertex.size = 3 + V(filtdecadenet)$newbetw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 1 + E(filtdecadenet)$weight/2700
+)
+
+title("Figure. Filtered Organizations Network (2010-2018, 20+)",
+      sub = "Orgs with 20 or more event participations")
+
+# # Save
+# dev.copy(pdf, paste0("Figures/","Fig10b", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+
+
+## Visualização das estatísticas por década
+(Betweenness, normalized and inverted weights)
+```{r plot betwcentrality mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  filter(decade %in% c("70s","80s","90s","00s","10s")) %>% 
+  mutate(year = case_when(decade == "70s" ~ 1970,
+                          decade == "80s" ~ 1980,
+                          decade == "90s" ~ 1990,
+                          decade == "00s" ~ 2000,
+                          decade == "10s" ~ 2010)) %>%
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = year, y=value, color = org)) + geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  scale_x_continuous(name = NULL,
+                     breaks = c(1970,1980,1990,2000,2010),
+                     label = c("70s","80s","90s","00s","10s")) +
+  theme(legend.position = "none", ) +
+  ggtitle("Betweenness centrality")
+```
+
+### Tabela das estatísticas por mandato presidencial
+```{r tabela betwcentrality mandatos, echo = F}
+fullstats %>% filter(weightinverted == T & normalized == T) %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  filter(decade %in% c("70s","80s","90s","00s","10s")) %>% 
+  select(decade, org, value) %>%
+  knitr::kable(caption = "Betweenness centrality")
+```
+
+## Estatísticas da rede em janelas móveis de 4 anos
 Observar a rede ano-a-ano é problemático, porque há muitos eventos que são bianuais e a rede variaria muito de ano a ano. Ter um valor de centralidade para cada ano, porém, viabiliza uma série de análises.
 Para calcular a centralidade de modo a construir valores para cada ano, uma alternativa é montar janelas móveis para as redes. Isto é, para cada ano, veríamos a centralidade na rede formada pelos eventos daquele ano + os eventos de até N anos atrás (Note-se que, como mínimo e máximo são incluídos, temos N+1 anos na rede). Isso permite incorporar, também, a ideia de que os laços estabelecidos em eventos anteriores também 'se perdem' se não são renovados ao longo do tempo.
 
@@ -588,8 +1358,9 @@ calcularcent_janela <- function(ano_inicial, tamanho_janela = 3){
 full_centr3 <- map_df(1973:2018, calcularcent_janela)
 ```
 
+### Centralidade de intermediação (betweenness)
 
-
+#### Visualização de betweenness
 ```{r plot betw jan4, echo = F}
 full_centr3 %>% 
   mutate(org = if_else(is.na(org), "Average", org)) %>% 
@@ -600,6 +1371,8 @@ full_centr3 %>%
   ggtitle("Normalized betweenness centrality, 4 year window network")
 ```
 
+
+#### Tabela dados betweenness
 ```{r tabela betwcentrality jan4, echo = F}
 full_centr3 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
   select(decade, org, value) %>% rename(year = decade) %>% 
