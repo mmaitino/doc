@@ -259,6 +259,7 @@ country_adjustments <- tibble(
               "Korea, Republic","Korea, Democratic Rep.",
               "Kyrgyz Republic","Lao PDR",
               "Niger",
+              "Russian Federation",
               "Slovak Republic",
               "Swaziland", "Timor-Leste",
               "Syrian Arab Republic",
@@ -275,6 +276,7 @@ country_adjustments <- tibble(
             "(?<!People's )(?<!Peoples )Republic of Korea", "Democratic People'?s Republic of Korea",
             "Kyrgyz Republic|Kyrgistan", "Lao(s| People| PDR)",
             "Niger(?!ia)",
+            "Russia(n Federation)?",
             "Slovakia|Slovak Republic",
             "Swaziland|Eswatini", "Timor(-| )Leste",
             "Syria(|n Arab)",
@@ -298,7 +300,7 @@ country_list <- left_join(country_list, country_adjustments) %>% mutate(
 ) %>% rbind(new_countries) %>% mutate(regex = toupper(regex)) %>% 
   mutate(regex = paste0("(\\b|\\B)", regex, "(\\b|\\B)")) %>% 
   mutate(regex = if_else(country == "US", "\\bUS(?![$\\w])", regex)) %>% 
-  mutate(regex = if_else(country %in% c("LDCs", "EITs"), str_replace(regex, "S","s"), regex))
+  mutate(regex = if_else(country %in% c("LDCs", "EITs"), str_replace(regex, "S","[Ss]"), regex))
 #garantir que não está no meio de palavra (boundaries word e non-word)
 # \b = pattern é seguido de um NON-WORD CHARACTER. \B = pattern é seguido de um word char
 # Provavelmente incluí o \B pra dar conta de erros como falta de espaço etc entre palavras
@@ -355,10 +357,10 @@ organize_byparagraph <- function(doc_df){
   
   # para acelerar os matches, é interessante substituir países por um placeholder
   doc_df <- doc_df %>% 
-    mutate(parag_sub = str_replace_all(parag %>% str_trim %>% str_squish,
-                                          paste0(country_list$regex, collapse = "|"),
-                                          "COUNTRYNAME") %>% toupper
-    )
+    mutate(parag_sub = str_replace_all(parag, #%>% str_trim %>% str_squish,
+                                       paste0(country_list$regex, collapse = "|"),
+                                       "COUNTRYNAME") #%>% toupper
+           )
   
   # Collapse das regex e filter com numero de matches das regex
   doc_df <- doc_df %>%
@@ -393,11 +395,21 @@ organize_bysentence <- function(doc_df){
     unnest(c(sentence, sentence_sub)) %>% ungroup %>% 
     mutate(sent_order = row_number())
   
+  # # p/ manter apenas um unnest e evitar erros, refazemos o sentence_sub via sentence
+  # doc_df <- doc_df %>% 
+  #   mutate(sentence_sub = str_replace_all(sentence %>% str_trim %>% str_squish,
+  #                                      paste0(country_list$regex, collapse = "|"),
+  #                                      "COUNTRYNAME") %>% toupper
+  #   )
+  doc_df <- doc_df %>% 
+    mutate(sentence_sub = toupper(sentence_sub) %>% str_trim %>% str_squish)
+  
   doc_df <- doc_df %>% # manter apenas frases com 2 ou + menções a países
     mutate(countrymatch_count = str_count(sentence_sub, "COUNTRYNAME")) %>%
     filter(countrymatch_count > 1)
   
   doc_df$parag <- NULL
+  doc_df$parag_sub <- NULL
   doc_df
 }
 
@@ -420,13 +432,15 @@ identify_speaker <- function(doc_df){
                                                                    collapse = "|")))
   
   speaker_df <- doc_df %>% unnest(speakerlist) %>% rename(speaker = speakerlist) %>% ungroup
+  speaker_df <- speaker_df %>% 
+    mutate(interaction = "", sender = "", target = "")
   speaker_df
 }
 
 
 
 
-#......3.1.1 Limpar texto da base: manter apenas o trecho no qual o speaker aparece
+#......3.1.1 Limpar texto da base: manter apenas o trecho no qual o speaker aparece -------------
 # Como pode haver múltiplas menções ao país no texto, é preciso identificar a qual
 # trecho se refere essa menção.
 # speaker_df <- mutate(speaker_df, rownumber = row_number())
@@ -455,11 +469,8 @@ identify_speaker <- function(doc_df){
 
 
 # 4. IDENTIFICANDO O TIPO DE INTERAÇÃO -------------------
-#...3.2 Extrair os 'objetos' da interação
-  # Identificar a frase na qual o SPEAKER é mencionado
-  # Verificar se há um outro país como objeto
-  # Se sim, extrair o país objeto e extrair o verbo
-    # Aqui temos a primeira limitação: vamos tentar usar casos em que há interação em frases distintas?
+# 4.0 Discutindo características do problema ---------
+# Aqui temos a primeira limitação: vamos tentar usar casos em que há interação em frases distintas?
     # Se for usar, vamos ter que criar um segundo fluxo pra esses casos.
     # Se não, podemos interromper o fluxo aqui e ignorar as falas com essa característica
     # (ou criar algo como 'objeto = NA', permitindo análise das falas totais pela mesma planilha)
@@ -520,6 +531,7 @@ parse_onbehalf <- function(dfspeakersentence){
   patterns_onbehalf <- "COUNTRYNAME,? (SPEAKING FOR|FOR|ON BEHALF OF) (THE )?COUNTRYNAME" 
   df <- dfspeakersentence %>% mutate(behalf = str_detect(sentence_sub, patterns_onbehalf))
   # identifica frases com 'on behalf of' e padroes afins
+  # vi um padrão de on behalf com "C1 (on behalf of ...)". Checar se pega.
   
   # Isolar os rows que não têm spokewith
   df_onbehalf <- df %>% filter(behalf == T)
@@ -705,8 +717,14 @@ parse_spokewith <- function(dfspeakersentence){
   }
   
   # Rejoin the parts of the dataframe
-  df_nospokewith$sender_spokewith <- ""
-  df_nospokewith$target_spokewith <- ""
+  df_nospokewith$spokewith <- NULL
+  
+  df_spokewith <- df_spokewith %>% 
+    mutate(interaction = if_else(spokewith, "spokewith", interaction),
+           sender = sender_spokewith,
+           target = target_spokewith) %>% 
+    select(-c(spokewith, sender_spokewith, target_spokewith))
+  
   
   df <- bind_rows(df_nospokewith, df_spokewith) %>% 
     arrange(report_id, section_order, parag_order, sent_order)
@@ -714,7 +732,7 @@ parse_spokewith <- function(dfspeakersentence){
   df
 }
 
-speaker_df <- parse_spokewith(speaker_df)
+# speaker_df <- parse_spokewith(speaker_df)
 
 # A fazer na função:
 # Vale tentar capturar casos como 'JAPAN proposed abcd, and with A and B, said xyz'?
@@ -754,10 +772,15 @@ speaker_df <- parse_spokewith(speaker_df)
   # se não houver essas enumerações em outros tipos de interação, podemos fazer a busca eliminando with
 
 parse_agreement <- function(dfspeakersentence){
-  patterns_agreement <- "(?!WITH )(THE )?COUNTRYNAME,?(?! WITH)(.+AND)? (THE )?COUNTRYNAME"
-              # retirei um "^" que tinha no início pra resolver um problema. checar se nao criou novos.
-              ### REVISAR O PADRÃO, ESTÁ PEGANDO MAIS DO QUE DEVERIA!
-              # COUNTRYNAME xyz, and COUNTRYNAME2 abc' está sendo capturado
+  patterns_agreement <- "(?<!FOR THE |FOR |WITH THE |WITH )COUNTRYNAME(?!, WITH)(?<!WITH COUNTRYNAME, COUNTRYNAME|WITH COUNTRYNAME, COUNTRYNAME, COUNTRYNAME).+?(?<!, )AND ((MANY )?OTHERS|(THE )?COUNTRYNAME)"
+    #"(?<!FOR THE |FOR |WITH THE |WITH )COUNTRYNAME(?!, WITH).+?(?<!, )AND ((MANY )?OTHERS|(THE )?COUNTRYNAME)"
+    # Padrão ainda pega trechos dentro de WITH CLAUSE quando ela é muito longa (ou se tem THE).
+    # Tentei cobrir mais, mas lookbehind nao permite maior complexidade.
+    # Padrão também captura casos como "C1 EXPRESSED CONCERN, WHILE C2 AND THE C3 URGED"
+    # Casos como "COUNTRYNAME ABC AND COUNTRYNAME XYZ" são capturados se não há vírgula no ", AND"
+    # Para os casos do WHILE e de BEHALF capturados, é possível limpar a clause.
+    
+  
   df <- dfspeakersentence %>% 
     mutate(agreement = str_detect(sentence_sub, patterns_agreement)) 
   
@@ -767,38 +790,46 @@ parse_agreement <- function(dfspeakersentence){
   
   if(nrow(df_agreement)!=0){
     # Criar coluna com AND CLAUSE para auxiliar análise
-    
+    # primeiro fazemos uma regex só com os países mencionados para acelerar teste
     df_agreement <- df_agreement %>%
-      # primeiro regex com países mencionados para acelerar teste
-      mutate(speaker = if_else(#colocar boundaries para países que podem estar dentro de outros
-        speaker %in% c("US","EU","NIGER"), paste0("(THE |\\b)", speaker, "(\\b|,)"), speaker)
-      ) %>% # \b sozinho vai impedir match se COUNTRYNAME for seguido de vírgula
-      # talvez precise colocar "^" também pra quando inicia a frase
+      separar_paiseschatos() %>%  # corrigir regex países que podem estar dentro de palavra (EU, US, NIGER)
       group_by(sentence) %>% #juntar os mencionados em uma regex
       mutate(mentioned_countries = paste0("(",
                                           paste0(speaker, collapse = "|"), 
                                           ")")) %>% 
-      ungroup() %>% 
+      ungroup()
+    
+    df_agreement <- df_agreement %>% 
       rowwise() %>% 
       mutate(and_clause = str_extract_all(toupper(sentence), 
                                           gsub("COUNTRYNAME", mentioned_countries, patterns_agreement)
                                           )
-             ) #%>% unnest(and_clause) #multiplica rows em caso de mais de uma and_clause
+             ) %>% 
+      # criar "" nos rows cuja clause não é capturada, para nao eliminar com unnest
+      mutate(and_clause = if_else(length(unlist(and_clause)) == 0,
+                                      list(""),
+                                      list(and_clause))) %>% 
+      unnest(and_clause) #multiplica rows em caso de mais de uma and_clause
+    
+    # Verificar se há WHILE clauses ("A said xyz, WHILE B and C said abc")
+    # (será que há outras formulações, como ", but ..."?)
+    # e corrigir de acordo
+    df_agreement <- df_agreement %>% 
+      mutate(and_clause = if_else(str_detect(and_clause, ", WHILE"),
+                                  str_remove(and_clause, ".+, WHILE"),
+                                  and_clause))
+    
     
     # Transferir falsos positivos de volta para noagreement
-    false_agreement <- df_agreement %>% filter(str_detect(and_clause, speaker) == F) %>% 
+    false_agreement <- df_agreement %>% 
+      filter(str_detect(and_clause, speaker) == F) %>% 
       select(-c(mentioned_countries, and_clause)) %>% mutate(agreement = F)
     df_noagreement <- bind_rows(df_noagreement, false_agreement)
     
     # Criar rows com as permutações dos países mencionados
     df_agreement <- df_agreement %>% 
       filter(str_detect(and_clause, speaker) == T) %>% #retira os falsos agreement
-      
-      # limpar novamente os speakers problematicos, pq estavam quebrando o código
-      mutate(speaker = if_else(str_detect(speaker, "\\)EU\\("), "EU", speaker)) %>% 
-      mutate(speaker = if_else(str_detect(speaker, "\\)US\\("), "US", speaker)) %>% 
-      mutate(speaker = if_else(str_detect(speaker, "\\)NIGER\\("), "NIGER", speaker)) %>% 
-      
+      corrigir_paiseschatos() %>% # limpar novamente os speakers problematicos, pra nao quebrar o código
       group_by(sentence) %>% mutate(speaker = paste0(speaker, collapse = ",")) %>% 
       mutate(mentioned_countries = str_split(speaker, ",")) %>% 
       ungroup() %>% distinct() %>%  # eliminar duplicações da mesma and_clause
@@ -814,8 +845,13 @@ parse_agreement <- function(dfspeakersentence){
   }
   
   # Juntar novamente os dataframes
-  df_noagreement$sender_agreement <- ""
-  df_noagreement$target_agreement <- ""
+  df_noagreement$agreement <- NULL
+  
+  df_agreement <- df_agreement %>% 
+    mutate(interaction = if_else(agreement, "agreement", ""),
+           sender = sender_agreement,
+           target = target_agreement) %>% 
+    select(-c(sender_agreement, target_agreement, agreement))
   
   df <- bind_rows(df_noagreement, df_agreement) %>% 
     arrange(report_id, section_order, parag_order, sent_order)
@@ -825,37 +861,17 @@ parse_agreement <- function(dfspeakersentence){
 
 # A fazer na função:
 # >>>>>>>>>> Casos em que há behalf na enumeração ('C1, for C2, C1, C1, and C1, for C2') quebram and_clause
-# >>>>>>>>>> Isso é especialmente problemático porque temos UNNEST deletando esses rows.
-# >>>>>>>>>> Fazer uma correção para o unnest não eliminar esses casos da base (ao menos retorná-los
-# >>>>>>>>>> sem classificação p/ agreement) e, no futuro, fazer as soluções de BEHALF clause
 # Vi uma formulação em que temos ";" no lugar de "," na enumeração dos países
-
-# - retirar casos com "and" não relacionado ("Egypt xyz, and Ukraine abc")
-# - retirar países incluídos errado ("A, supported by B, C, D and E" está pegando A)
-# - incluir casos que terminam com "and others" ("Many countries, including A, B, C, D, and others)
 # - arrumar casos em que ocorre 'andCOUNTRY' (esse é problema anterior, de limpeza do texto)
-# >>> Nas funções em geral: funcionalizar subtarefas repetidas, para correção valer para todos)
+# investigar outros problemas, como os do tipo 'while clause' ou 'a and b, opposed by c and d'
 
-speaker_df <- parse_agreement(speaker_df)
+# speaker_df <- parse_agreement(speaker_df)
 
-
-
-
-
-# Agreement patterns to correct:
-#   
-# The PHILIPPINES urged implementation and said the EGTT already fulfills that advisory role, and GHANA noted that an advisory group is similar to the expert panels proposed by the G-77/China. 
-# {false, now true}
-# The AFRICAN GROUP outlined concerns with a sole focus on adaptation integration into planning, and, with BRAZIL, differentiated between short- and long-term needs.
-# {true, now false}
-# Welcomed by the PHILIPPINES, INDIA and others, the US said financing is crucial for developing countries, and stressed the need for institutions and financial architecture that respond to developing country financing needs and improve developing countries’ capacity to benefit from carbon markets.
-# {unclear to me how it should be, now true for PHIL, IND}
-# JAPAN, AUSTRALIA, SWITZERLAND and others, opposed by BARBADOS, the PHILIPPINES and others, supported enhancing existing institutions. 
-# {should be separate agreements, JAP-AUS-SWI / BAR-PHI. now true for all}
 
 
 
 # 4.4 SUPPORT --------------
+# 4.4.1 Descrição do problema ----------
 # From codebook:
 # is used when the text explicitly says that country2 (or its statement) was supported by country1, even when
 # this support is expressed in different sentences.
@@ -877,24 +893,39 @@ speaker_df <- parse_agreement(speaker_df)
   # With C1 and C2, C3 supported C4; C1, supported by C2, C3, and C4, xyz
   # Aqui, uma sentence_sub trocando as enumerações por um placeholder poderiam ser úteis.
 
+# 4.4.2 Implementação de solução --------------
 # Formulação "Welcomed by C2, C1.." - isso é support?
+
 separar_paiseschatos <- function(subdfspeakersentence){
   #colocar boundaries para países que podem estar dentro de outros
   subdfspeakersentence <- subdfspeakersentence %>% 
-    mutate(speaker = if_else(
-      speaker %in% c("US","EU","NIGER"), paste0("[^ ]?(THE)?", speaker, "( |[,\\.])"), speaker)
-    )
+    # mutate(speaker = if_else(
+    #   speaker %in% c("US","EU","NIGER"), paste0("(^| )?(THE )?", speaker#, "( |[,\\.])"
+    #                                             ), speaker)
+    # ) %>% 
+    mutate(speaker = if_else(speaker == "US", "(^| )?(THE )?US(?!TRALIA)", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "EU", "(^| )?(THE )?EU", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "NIGER", "(^| )?(THE )?NIGER(?!IA)", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "CHINA", "(?<!G77 AND )(?<!G-77\\/)CHINA", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "LDCs", "LDCS", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "EITs", "EITS", speaker)) 
   subdfspeakersentence
 }
 
 corrigir_paiseschatos <- function(subdfspeakersentence){
   subdfspeakersentence <- subdfspeakersentence %>% 
-    mutate(speaker = if_else(str_detect(speaker, "EU\\("), "EU", speaker)) %>% 
-    mutate(speaker = if_else(str_detect(speaker, "US\\("), "US", speaker)) %>% 
-    mutate(speaker = if_else(str_detect(speaker, "NIGER\\("), "NIGER", speaker))
+    mutate(speaker = if_else(str_detect(speaker, "\\)\\?EU"), "EU", speaker)) %>% 
+    mutate(speaker = if_else(str_detect(speaker, "\\)\\?US"), "US", speaker)) %>% 
+    mutate(speaker = if_else(str_detect(speaker, "\\)\\?NIGER"), "NIGER", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "(?<!G77 AND )(?<!G-77\\/)CHINA", "CHINA", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "LDCS", "LDCs", speaker)) %>% 
+    mutate(speaker = if_else(speaker == "EITS", "EITs", speaker))
   subdfspeakersentence
 }
 
+colar_padroes <- function(pattern_list){
+  paste0(paste0("(",pattern_list, ")"), collapse = "|")
+}
 
 parse_support <- function(dfspeakersentence){
   # Antes de tratar dos casos mais complexos, vamos para as formulações mais simples possíveis:
@@ -903,15 +934,16 @@ parse_support <- function(dfspeakersentence){
   # a) formulação país-verbo-país e b) aposto 'supported by'
   patterns_support <- "(?:COUNTRYNAME.+AND )?( \\w+, FOR)?(\\bS?HE|(THE )?COUNTRYNAME|(MANY )?OTHERS),? SUPPORT(S|ED|ING)?( BY)?( \\w+, FOR)? (THE )?COUNTRYNAME(.+AND( \\w+, FOR)? ((THE )?COUNTRYNAME|(MANY )?OTHERS))?"
   patterns_support2 <- "SUPPORTING( \\w+, FOR)? (THE )?COUNTRYNAME,?( \\w+, FOR)? (THE )?COUNTRYNAME,?(.+AND( \\w+, FOR)? ((THE )?COUNTRYNAME|(MANY )?OTHERS))?"
-  patterns_support3 <- "SUPPORTED BY( \\w+, FOR)? (THE )?COUNTRYNAME(.+AND( \\w+, FOR)? ((THE )?COUNTRYNAME|(MANY )?OTHERS))?,?( \\w+, FOR)? (THE )?COUNTRYNAME"
+  patterns_support3 <- "^SUPPORTED BY( \\w+, FOR)? (THE )?COUNTRYNAME(.+AND( \\w+, FOR)? ((THE )?COUNTRYNAME|(MANY )?OTHERS))?,?( \\w+, FOR)? (THE )?COUNTRYNAME"
   # incluir na formulação a garantia que não seja 'not support'?
   # incluir na formulação a possibilidade de que seja 'country said (s?he|they) support'?
   # (só vi o 'not support' com uma formulação de 'country said')
   
   df <- dfspeakersentence %>% 
-    mutate(support = str_detect(sentence_sub, paste0("(", patterns_support, ")|(", patterns_support2, 
-                                                     ")|(", patterns_support3, ")"))) 
-  
+    mutate(support = str_detect(sentence_sub, colar_padroes(c(patterns_support, patterns_support2,
+                                                              patterns_support3))
+                                )
+           ) 
   
   # Isolar os rows que não têm agreement
   df_nosupport <- df %>% filter(support == F)
@@ -929,7 +961,10 @@ parse_support <- function(dfspeakersentence){
                                           ")")) %>% 
       ungroup()
     # extrair support_clause
-    df_support <- df_support %>% 
+    # tem um problema das frases "SUPP BY A, B, C AND D, HE..."
+    # a captura da clause para em "SUPP BY A, B"
+    
+      df_support <- df_support %>% 
       rowwise() %>%
       mutate(support_clause = str_extract_all(toupper(sentence), 
                                               paste0("(", #substitui em todos padrões
@@ -948,7 +983,8 @@ parse_support <- function(dfspeakersentence){
       mutate(support_clause = if_else(length(unlist(support_clause)) == 0,
                                       list(""),
                                       list(support_clause))) %>% 
-      unnest(support_clause) #multiplica rows em caso de mais de uma and_clause
+      unnest(support_clause) %>% #multiplica rows em caso de mais de uma and_clause
+      distinct()
 
       
       
@@ -989,14 +1025,15 @@ parse_support <- function(dfspeakersentence){
           select(-c(mentioned_countries, support_clause, clean_clause, suplem_clause, keepinsupport,
                     tgt_clause, sender_clause, opposition_targets)) %>%
           ungroup()
+        
+        df_supoppose <- df_supoppose %>% 
+          mutate(interaction = if_else(opposition, "opposition", "")) %>% 
+          mutate(sender = sender_opposition, target = target_opposition) %>% 
+          select(-c(sender_opposition, target_opposition, opposition))
 
-          # junta resultado em df_nosupport
-          if("opposition" %in% colnames(df_nosupport) == F){
-            df_nosupport$opposition <- NA
-            df_nosupport$sender_opposition <- ""
-            df_nosupport$target_opposition <- ""
-          }
-        df_nosupport <- bind_rows(df_nosupport, df_supoppose)
+        # junta resultado em df_nosupport
+        df_nosupport <- bind_rows(df_nosupport, df_supoppose) %>% 
+          corrigir_paiseschatos()
         
         
         # Retoma a análise do df_support
@@ -1019,12 +1056,11 @@ parse_support <- function(dfspeakersentence){
         lgl_supported = if_else(str_detect(support_clause, "^SUPPORTING|, SUPPORTED BY"), # qdo aparece primeiro
                                 str_detect(countries_vector[1], speaker), #teste se speaker é 1o do vetor
                                 str_detect(support_clause, 
-                                           paste0("(", "SUPPORTING ", speaker, ")|(", #colar id target pro padrao2
-                                                  "^SUPPORTED BY.+AND.+, ", speaker, ")") # e pro padrao 3
-                                           ) 
-                                #problema: no padrao3, "^SUPPORTED BY.+, " pega tudo menos 1o país
-                                #incluí o AND, mas com isso excluo os casos simples "SUPPORTED BY C1, C2.."
-                                #acho que vai exigir nova lógica.
+                                           paste0("(", #colar identificador de target 
+                                                  "SUPPORT(S|ED|ING) ", speaker, ")|(", #pro padrao2
+                                                  "^SUPPORTED BY.+(AND.+)?,? ", speaker,# e pro padrao 3
+                                                  "(?! AND|,)",")") #neg look pra evitar erro em enumeraçao
+                                           )
                                 )
         )
 
@@ -1032,15 +1068,11 @@ parse_support <- function(dfspeakersentence){
     
     df_support <- df_support %>% 
       rowwise() %>% 
-      # limpar novamente os speakers problematicos
-      corrigir_paiseschatos() %>% 
-      # mutate(speaker = if_else(str_detect(speaker, "EU\\("), "EU", speaker)) %>% 
-      # mutate(speaker = if_else(str_detect(speaker, "US\\("), "US", speaker)) %>% 
-      # mutate(speaker = if_else(str_detect(speaker, "NIGER\\("), "NIGER", speaker)) %>% 
+      corrigir_paiseschatos() %>% # limpar novamente os speakers problematicos
       mutate(sender_support = if_else(lgl_supported == F, speaker, ""), #incluir nomes dos países
              target_support = if_else(lgl_supported == T, speaker, "")) %>% 
       ungroup %>% 
-      group_by(support_clause) %>% 
+      group_by(sent_order, support_clause) %>% 
       mutate(target_support = paste0(target_support, collapse = "")) %>% # inclui o target em todos os rows
       ungroup() %>% 
       filter(sender_support != "") %>% # Garantir que mesma interação nao aparece duplicada
@@ -1050,17 +1082,24 @@ parse_support <- function(dfspeakersentence){
   
   # Juntar os dataframes support e os no support
   # Juntar novamente os dataframes
-  df_nosupport$sender_support <- ""
-  df_nosupport$target_support <- ""
+  df_nosupport$support <- NULL
+  
+  df_support <- df_support %>% 
+    mutate(interaction = if_else(support, "support", ""),
+           sender = sender_support,
+           target = target_support) %>% 
+    select(-c(sender_support, target_support, support))
   
   df <- bind_rows(df_nosupport, df_support) %>% 
     arrange(report_id, section_order, parag_order, sent_order)
+  
+  
   
   df
 }
 
 
-speaker_df <- parse_support(speaker_df)
+# speaker_df <- parse_support(speaker_df)
 
 
 # A fazer na função:
@@ -1145,7 +1184,8 @@ parse_opposition <- function(dfspeakersentence){
       mutate(opposition_clause = if_else(length(unlist(opposition_clause)) == 0,
                                       list(""),
                                       list(opposition_clause))) %>% 
-      unnest(opposition_clause) #multiplica rows em caso de mais de uma clause
+      unnest(opposition_clause) %>% #multiplica rows em caso de mais de uma clause
+      distinct() #retira repetidos (e.g. mesmo país fala duas vezes na frase)
     
     # Retirar casos da frase fora da OPPOSITION CLAUSE, devolvendo-os para df_noopposition
     false_opposition <- df_opposition %>% filter(str_detect(opposition_clause , speaker) == F) %>% 
@@ -1186,18 +1226,21 @@ parse_opposition <- function(dfspeakersentence){
       rowwise() %>% 
       mutate(sender_opposition = if_else(lgl_opposer == T, speaker, ""), #incluir nomes dos países
              target_opposition = if_else(lgl_opposed == T, speaker, "")) %>% 
-      ungroup %>% 
-      group_by(opposition_clause) %>% # junta os sender e target em todos os rows
-      mutate(sender_opposition = paste0(sender_opposition, collapse = ","),
-             target_opposition = paste0(target_opposition, collapse = ",")) %>% 
+      ungroup %>%
+      group_by(sent_order, opposition_clause) %>% #nao pode ser só op_clause, pq pode ser igual em + frases
+      # junta os sender e target em todos os rows. unique p/ nao vir repetido
+      mutate(sender_opposition = paste0(unique(sender_opposition), collapse = ","),
+             target_opposition = paste0(unique(target_opposition), collapse = ",")) %>% 
       # evitar a duplicação: manter apenas um row por opposition_clause
       select(-c(lgl_opposer, lgl_opposed)) %>%  # retira as colunas do teste lógico agora, p/ distinct()
-      mutate(speaker = paste0(speaker, collapse = ",")) %>% # p/ distinct() funcionar, speaker igual
+      mutate(speaker = paste0(unique(speaker), collapse = ",")) %>% # p/ distinct() funcionar, speaker igual
       ungroup() %>% distinct()
     
-    df_opposition <- df_opposition %>% group_by(opposition_clause) %>% 
-      mutate(mentioned_senders = str_split(sender_opposition, ","),
-             mentioned_targets = str_split(target_opposition, ",")) %>% 
+    
+    df_opposition <- df_opposition %>% 
+      group_by(sent_order, opposition_clause) %>%
+      mutate(mentioned_senders = str_split(unique(sender_opposition), ","),
+             mentioned_targets = str_split(unique(target_opposition), ",")) %>%
       # retirar eventuais elementos vazios no vetor
       mutate(mentioned_senders = list(unlist(mentioned_senders) %>% stringi::stri_remove_empty() ),
              mentioned_targets = list(unlist(mentioned_targets) %>% stringi::stri_remove_empty() )
@@ -1220,8 +1263,15 @@ parse_opposition <- function(dfspeakersentence){
   
   # Juntar os dataframes support e os no support
   # Juntar novamente os dataframes
-  df_noopposition$sender_opposition <- ""
-  df_noopposition$target_opposition <- ""
+  # df_noopposition$sender_opposition <- ""
+  df_noopposition$opposition <- NULL
+  
+  df_opposition <- df_opposition %>% 
+    mutate(interaction = if_else(opposition, "opposition", ""),
+           sender = sender_opposition,
+           target = target_opposition) %>% 
+    select(-c(sender_opposition, target_opposition, opposition))
+  
   
   df <- bind_rows(df_noopposition, df_opposition) %>% 
     arrange(report_id, section_order, parag_order, sent_order)
@@ -1230,8 +1280,8 @@ parse_opposition <- function(dfspeakersentence){
 }
 
 # Em casos como "JAPAN, supported by the US and others, but opposed by Tanzania, for the G-77/CHINA, proposed inviting"
-# (report_id == 239), opposition target está pegando US além de Japão. Deveria corrigir, como em sup-oppose
-speaker_df <- parse_opposition(speaker_df)
+# (report_id == 239), opposition target está pegando US além de Japão. Deveria corrigir como em sup-oppose?
+# speaker_df <- parse_opposition(speaker_df)
 
 
 # 4.6 CRITICISM ------------
@@ -1262,14 +1312,84 @@ speaker_df <- parse_opposition(speaker_df)
 # - "TOGO, supported by MALAYSIA, proposed adjourning until numbers were proposed"
 
 # 5. RODANDO AS FUNÇÕES ------------------------------------------
-analysed_ids <- sample(reports$report_id, 3)
+# a corrigir: primeiros relatórios têm estrutura diferente e devem ser parseados diferente
+# (se notar, nenhum resultado em tst pré 96)
+# em support/opposition, adicionar os "text, proposal, suggestion, ammendment" 
+# (todos com/sem 's antes e singular e plural) seguindo os países. não é tao comum, mas perde os casos
+
+
+analysed_ids <- sample(reports$report_id, 10)
+# analysed_ids <- reports$report_id
 
 map_df(analysed_ids, organize_report) %>% 
   organize_byparagraph() %>% 
   organize_bysentence() %>% 
   identify_speaker() -> tst
 
-# testar as funções de parse com tst
+
+# 5.1 pipe para processar os dados ----------------
+# a princípio, vou parsear os dados segundo uma sequencia específica
+# tanto support como opposition vão rodar com os dados completos
+# em seguida, vou juntar os dois e retirar duplicados (lembrando que há alguns opposition em support)
+# depois, p/ os casos sem classificação, vou rodar as funções menos organizadas
+# (no caso, só agreement, pq nao arrumei spokewith ainda) - interessante manter assim, pq
+# agreement pega enumerações dentro de support/oppose ('A, B, and C opposed D' -> oppose parseia, agree tb)
+# ao final, juntamos tudo, limpamos eventuais duplicados, pegamos dados do relatorio e salva
+sup <- parse_support(tst)
+sup <- sup %>% corrigir_paiseschatos() %>% distinct()
+op <- parse_opposition(tst)
+op <- op %>% corrigir_paiseschatos() %>% distinct()
+
+dados <- bind_rows(sup, op)
+
+agre <- dados %>% filter(interaction != "") %>% 
+  parse_agreement()
+agre <- agre %>% corrigir_paiseschatos() %>% distinct()
+
+dados <- bind_rows(dados, agre)
+dados <- dados %>% filter(interaction != "") %>% 
+  filter(target != ""|sender != "") %>% 
+  select(-speaker) %>% distinct()
+dados <- left_join(dados, reports)
+dados <- arrange(dados, negotiation_date) %>% mutate(row_id = row_number())
+dados <- select(dados, -c(section_order, parag_order, countrymatch_count,
+                          sentence_sub, link, text))
+
+# precisaria padronizar os países pra nao ter problema de várias grafias (G77)
+
+
+write.csv2(dados, "interacoesscraped96-13.csv")
+
+
+
+# # testar as funções de parse com tst
+# supported <- parse_support(tst) %>% filter(interaction != "")
+# opposed <- parse_opposition(tst) %>% filter(interaction != "")
+# interactions <- bind_rows(supported, opposed) %>% select(-speaker) %>% distinct
+# interactions <- left_join(interactions, select(reports, c(event, negotiation_date, report_id)))
+# interactions <- interactions %>% select(-c(section_order, parag_order, countrymatch_count,
+#                                            sentence_sub, sent_order))
+# View(parse_opposition(tst))
 #parse_agreement(tst) %>% View
-View(parse_support(tst))
-View(parse_opposition(tst))
+# 
+# # 6. Correção de problemas -----------------
+# # Rodando para tudo, identificamos alguns erros recorrentes:
+# 
+# # 2) Em vários casos, não temos a interação completa. pode ser útil ver o tipo de padrão que quebrou
+# # faltando o sender só um caso; faltando target, foram 103 vazios
+# interactions %>% filter(target == "" | sender == "") %>% 
+#   select(c(report_id, sentence, interaction, sender, target)) -> problem_sentences
+# 
+# # 3) Além desses, é preciso inspecionar mais manualmente pra entender o que mais está falhando
+# # isso deve ser feito antes dos filtros, não nos dfs supported/opposed.
+# op <- parse_opposition(tst)
+# op <- distinct(op) 
+# oppose_patterns_toexplore <- op %>% filter(interaction != "opposition") %>% 
+#   filter(str_detect(toupper(sentence),"OPPOS"))
+#   # Alguns padrões: 'he', oposição menos explícita (fala o conteúdo das posições), proposal
+# 
+# 
+# sup <- parse_support(tst) 
+# sup <- distinct(sup)
+# support_patterns_toexplore <- sup %>% filter(interaction != "support") %>% 
+#   filter(str_detect(toupper(sentence),"SUPPOR"))
