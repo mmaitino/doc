@@ -197,6 +197,19 @@ freqeventos_ano <- left_join(freqeventos_ano, freqeventos_ano_coletados) %>%
 freqeventos_ano <- complete(freqeventos_ano, ano = 1970:2018, nesting(Legenda),
                             fill = list(value = 0))
 ```
+```{r tabela pctcoleta decada, echo = F}
+freqeventos_ano <- mutate(freqeventos_ano,
+                          decada = cut(ano, c(1969, 1979, 1989, 1999, 2009, 2019), 
+                                       labels = c("70s","80s","90s","00s","10s"))
+                          )
+
+freqeventos_ano %>% group_by(decada, Legenda) %>% summarise(soma = sum(value)) %>% 
+  pivot_wider(names_from = "Legenda", values_from = soma) %>%
+  mutate(pct_coleta = coletados / total) %>% 
+  knitr::kable(caption = "Taxa de sucesso da coleta, por década")
+```
+
+
 
 ```{r plotando eventos coletados no tempo, echo=FALSE}
 #gráficos
@@ -271,6 +284,17 @@ ggplot(diffprinc_anos, aes(x = ano, y = (total-coletados)/total)) +
         legend.position="bottom")
 ```
 
+```{r tabela coldec principais, echo = F}
+freq_princ_ano <- mutate(freq_princ_ano,
+                          decada = cut(ano, c(1969, 1979, 1989, 1999, 2009, 2019), 
+                                       labels = c("70s","80s","90s","00s","10s"))
+                          )
+
+freq_princ_ano %>% group_by(decada, Legenda) %>% summarise(soma = sum(value)) %>% 
+  pivot_wider(names_from = "Legenda", values_from = soma) %>%
+  mutate(pct_coleta = coletados / total) %>% 
+  knitr::kable(caption = "Taxa de sucesso da coleta, por década (principais conferências)")
+```
 
 ### Variação do sucesso da coleta por tema e tipo de evento
 ```{r plotando variacao do sucesso por tema, echo=FALSE}
@@ -282,8 +306,8 @@ freq_tema <- eventos %>% group_by(tema, coleta) %>% summarise(total = n()) %>%
                           coleta))
 
     # p/ mudar ordem da legenda e do gráfico, acho que tem que mudar ordem dos factors antes
-
-ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
+freq_tema %>% group_by(tema) %>% mutate(total_tema = sum(total)) %>% ungroup %>% 
+ggplot(aes(x = reorder(tema, total_tema), y = total, fill = coleta, label = total)) +
   geom_bar(position="stack", stat="identity") +
   geom_text(size = 3, position = position_stack(vjust = 0.5)) +
   scale_fill_manual(values = c("indianred1", "dodgerblue3", "snow4")) +
@@ -296,6 +320,14 @@ ggplot(freq_tema, aes(x = tema, y = total, fill = coleta, label = total)) +
         legend.position="bottom",
         axis.text.x = element_text(size = 7)) +
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
+```
+
+```{r tabela cob tema}
+freq_tema %>% pivot_wider(names_from = coleta, values_from = total) %>% 
+  replace_na(list(Sim = 0, Não = 0)) %>% 
+  mutate(pct = Sim / (Sim + Não), total = Sim + Não) %>% select(-Não) %>% 
+  rename("coletados" = Sim) %>% arrange(-pct) %>% 
+  knitr::kable(caption = "% Sucesso coleta, por tema")
 ```
 
 
@@ -333,7 +365,7 @@ ggplot(freqeventos_anotema, aes(x=ano, y = value, group = Legenda)) +
         legend.text = element_text(size=10),
         legend.title = element_blank(),
         legend.position="bottom") +
-  facet_wrap(~ tema, ncol = 2)
+  facet_wrap(~ tema, ncol = 1)
 
 ```
 
@@ -344,6 +376,10 @@ Pra ver a importância, basta olhar pra Ozônio: apesar de ter listas pra quase 
 
 ```{r plotando variacao do sucesso por tipo evento, echo=FALSE}
 ###.... Colunas empilhadas: número de eventos coletados/total, divididos por tipo ----
+eventos[eventos$conf == "OILPOL, CONF71",]$tipo_evento <- "Main regular party meetings (COP, MOP, etc)" # falta corrigir/atualizar na planilha eventos. 
+# Não está clara classificação, mas parece ser o caso (encontrei fontes falando que emendamento foi em IMO Assembly 7)
+
+
 freq_tipo <- eventos %>% group_by(tipo_evento, coleta) %>% summarise(total = n()) %>%
   filter(is.na(coleta)== F) %>% #ignorando os que não tentei coletar ainda 
   mutate(coleta = if_else(coleta == "Senha",
@@ -368,6 +404,13 @@ ggplot(freq_tipo, aes(x = tipo_evento, y = total,
   scale_x_discrete(NULL) + scale_y_continuous("Contagem de eventos")
 ```
 
+```{r table tipo evento, echo = F}
+eventos %>% group_by(tipo_evento) %>% summarise(count = n()) %>% mutate(pct = count/sum(count)) %>% 
+  knitr::kable(caption = "Distribuição da base por tipo de evento")
+
+freq_tipo %>% pivot_wider(names_from = coleta, values_from = total) %>% mutate(pct = Sim / (Não + Sim)) %>% 
+  knitr::kable(caption = "Taxa de sucesso por tipo de evento")
+```
 
 
 ## Lista de conferências incluídas na base
