@@ -458,9 +458,10 @@ Se observarmos apenas os eventos da **CDB, `r mean(deleg_size[str_detect(deleg_s
 ggplot(deleg_size %>% left_join(select(eventos, c(conf, tema))) %>% 
          filter(str_detect(tema, "Biodiversidade")) %>% 
          mutate(tema = str_replace(tema, "Biodiversidade - ", "")), 
-       aes(x = ano, y = count, group = Local, color = tema)) +
-  geom_point(aes(shape = Local)) +
-  scale_size_manual(values = c(3,2)) +
+       aes(x = ano, y = count, color = tema)) +
+  geom_point(aes(shape = Local), size = 3) +
+  geom_smooth(aes(color = tema), method = "loess", se = F) +
+  # scale_size_manual(values = c(3,2)) +
   scale_shape_manual(values = c(17,16)) +
   labs(title = "Tamanho das delegações de biodiversidade por evento") +
   scale_y_continuous("Número de participantes registrados", n.breaks = 8) +
@@ -518,6 +519,27 @@ Vemos que, à exceção de Clima, Biodiversidade, e das grandes Conferências de
 
 ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
                                           "Clima", "Biodiversidade - CBD")), 
+       aes(x = ano, y = count, color = tema)) +
+  geom_point(aes(color = tema)) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ tema, ncol = 2) +
+  scale_size_manual(values = c(3,2)) +
+  scale_shape_manual(values = c(17,16)) +
+  labs(title = "Tamanho da delegação por tema de evento",
+       subtitle = "retirando a ICCD COP3 para melhor visualização") +
+  scale_y_continuous("Número de participantes registrados", n.breaks = 8,
+                     limits = c(0,25)) +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=22), 
+        # legend.text = element_text(size=10),
+        # legend.title = element_text(size =12),
+        legend.position="none")
+
+
+
+ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
+                                          "Clima", "Biodiversidade - CBD",
+                                          "Governança ambiental")), 
        aes(x = ano, y = count, color = tema)) +
   geom_point(aes(color = tema)) +
   geom_smooth(method = "loess") +
@@ -713,7 +735,7 @@ orgs_ano %>% distinct %>% group_by(tema, ano) %>%
 
 
 
-```{r plotando n org com facet por tema, echo = FALSE, message = FALSE, warning = F, fig.width=11, fig.height=13}
+```{r plotando n org com facet por tema, echo=FALSE, fig.height=13, fig.width=11, message=FALSE, warning=FALSE}
 freq_orgs_tema <- orgs_ano %>% select(-c(conf)) %>% distinct %>% 
   group_by(ano, tema) %>% summarise(total_orgs = n()) %>% ungroup() %>% 
   complete(ano, tema#, fill = list(total_orgs = 0)
@@ -727,6 +749,36 @@ ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),],
   # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano") +
   scale_x_continuous(NULL, n.breaks = 12) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
+# sem as principais:
+ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),] %>% 
+         filter(!tema %in% c("Clima", "Grandes conferências ONU", "Biodiversidade - CBD")), 
+       aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tema, ncol = 3) +
+  # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  scale_y_continuous(breaks = c(2,4,6,8,10)) +
+  theme(plot.title = element_text(size=16), 
+        legend.text = element_text(size=10),
+        legend.title = element_blank(),
+        legend.position="bottom")
+
+# v alternativa
+ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),] %>% 
+         filter(!tema %in% c("Clima", "Grandes conferências ONU", "Biodiversidade - CBD")), 
+       aes(x = ano, y = total_orgs)) +
+  geom_line() + geom_point() +
+  facet_wrap(~ tema, ncol = 2) +
+  # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_x_continuous(NULL, n.breaks = 12) +
+  scale_y_continuous(breaks = c(2,4,6,8,10)) +
   theme(plot.title = element_text(size=16), 
         legend.text = element_text(size=10),
         legend.title = element_blank(),
@@ -1078,6 +1130,35 @@ ggplot() +
         legend.text = element_text(size=10),
         legend.title = element_text(size =12),
         legend.position="bottom")
+
+
+
+# repetindo o eixo y para fazer manualmente um ncol=1 com mesmo aspect ratio
+MRE_conf %>% mutate(sizefacet2 = case_when(sizefacet2 == "(0,10]" ~ "Entre 1 e 10",
+                                           sizefacet2 == "(10,30]" ~ "Entre 11 e 30",
+                                           sizefacet2 == "(30,100]" ~ "Entre 31 e 100",
+                                           sizefacet2 == "(100,1.47e+03]" ~ "Maior que 101")
+                    ) %>% 
+ggplot() +
+  facet_wrap(~sizefacet2, nrow = 2) +
+  lemon::facet_rep_wrap(~sizefacet2, repeat.tick.labels = "left") +
+  geom_point(aes(x=ano, y=percentual, size = deleg_size, color = Tema 
+                 )) +
+  geom_smooth(aes(x=ano, y=percentual),
+              method = "loess") +
+  scale_y_continuous(name = "% de representantes do MRE", labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("olivedrab4","tomato1","magenta3","royalblue3")) +
+  # scale_color_manual(values = c("tomato1","olivedrab4", "royalblue3")) +
+  labs(title = "% MRE, conforme tamanho da delegação",
+       subtitle = "Percentual da delegação composto por pessoas vinculadas ao Itamaraty, separado pelo tamanho da delegação") +
+  scale_x_continuous(name = NULL, n.breaks = 8) +
+  scale_size(range = c(1, 5), name="Tamanho da delegação") +
+  theme(plot.title = element_text(size=22), 
+        legend.text = element_text(size=10),
+        legend.title = element_text(size =12),
+        legend.position="bottom")
+
+
 ```
 
 Checando a distribuição das categorias ao longo do tempo
@@ -1540,6 +1621,23 @@ freq_tipoorgs_tempotema %>%
   scale_y_continuous(name = "Índice HHI") +
   theme(plot.title = element_text(size=22))
 
+# Só clima e cbd
+freq_tipoorgs_tempotema %>% 
+  filter(tema %in% c("Clima", "Biodiversidade - CBD")) %>% 
+   group_by(ano, tema) %>% summarise(hhi_tipoorg = sum(percentual^2)) %>% 
+  # grafico
+  ggplot(aes(x=ano, y=hhi_tipoorg)) +
+  facet_wrap(~tema, ncol = 1) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Grau de concentração da comunidade (1988-2018)",
+       subtitle = "Índice Herfindahl-Hirschman para principais temas ambientais internacionais") +
+  scale_x_continuous(name = NULL, n.breaks = 10,
+                     limits = c(1988,2018)) +
+  scale_y_continuous(name = "Índice HHI") +
+  theme(plot.title = element_text(size=22))
+
+
 # Demais temas
 freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências ONU",
                                                "Biodiversidade - CBD")) %>% 
@@ -1547,6 +1645,24 @@ freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências O
   # grafico
   ggplot(aes(x=ano, y=hhi_tipoorg)) +
   facet_wrap(~tema, ncol = 2) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Grau de concentração da comunidade (1970-2018)",
+       subtitle = "Índice Herfindahl-Hirschman para principais temas ambientais internacionais") +
+  scale_x_continuous(name = NULL, n.breaks = 12,
+                     limits = c(1970,2020)) +
+  scale_y_continuous(name = "Índice HHI") +
+  theme(plot.title = element_text(size=22))
+
+# varios temas versao alternativa
+freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências ONU",
+                                               "Biodiversidade - CBD")) %>% 
+   group_by(ano, tema) %>% summarise(hhi_tipoorg = sum(percentual^2)) %>% 
+  # grafico
+  ggplot(aes(x=ano, y=hhi_tipoorg)) +
+  facet_wrap(~tema, ncol = 1) +
+  lemon::facet_rep_wrap(~ tema, ncol = 2,
+                        repeat.tick.labels = "left") +
   geom_line() +
   geom_point() +
   labs(title = "Grau de concentração da comunidade (1970-2018)",
