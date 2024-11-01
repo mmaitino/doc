@@ -1,0 +1,814 @@
+---
+title: "IdealPoints"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    
+date: "`r Sys.Date()`"
+---
+
+Teste de aplicação de algoritmos de estimação de pontos ideais nos dados de interações negociadoras na UNFCCC (Castro 2017)
+
+Alguns pontos a considerar:
+
+- Incluí votos em si mesmos para os países que constam nas colunas.
+
+- Tenho duas versões da matriz de dados: a) com votos só a favor (não se manifestar a favor seria um voto contrário) e b) com a soma de manifestações na negociação resultando em um score de cooperação (voto a favor) ou conflito (voto contra). Nessa, não se manifestar = missing; quando a soma das manifestações = 0, também fica como missing. Talvez valesse tentar um modelo com mais pontos (como os que consideram abstenção) pra diferenciar o missing real da posição ambivalente. 
+
+- Também não faço distinção entre intensidade de cooperação/conflito (discordar 15 vezes é o mesmo que discordar 1 vez). Existe alguma maneira de dar pesos distintos às concordâncias cf o número de interações?
+
+- Não consegui entender como devo organizar os dados para estimar os pontos de forma dinâmica. Estou estimando para cada período separadamente (o que prejudica a comparação no tempo, que é o que mais me interessaria).
+
+- Não sei qual a melhor forma de definir a polaridade nos modelos. Nos exemplos do pacote wnominate ele só definia o primeiro legislador como positivo e segui o exemplo. Em um dos casos, tive que mudar, pq em alguns períodos o 1o não tinha votos suficientes para a estimação.
+
+
+Código a fazer para pesquisa:
+
+- tabela comparando resultados dos modelos para cada iteração. Tenho os dados salvos em listas, mas nao sei quais as métricas para avaliar os modelos.
+
+- testar outras implementações de pontos ideais, especialmente as que permitem a mesma dimensão com a variação no tempo
+
+
+### Importação e organização do banco de dados
+```{r libraries, echo = FALSE, message = F}
+library(tidyverse)
+library(haven)
+```
+
+```{r import bd castro}
+# path1 <- here::here("C:/Users/marti/Documents/Doutorado/controle_doc/extradbs", "dbs", "Castro", "ENB_relationships.dta")
+# relationdb <- haven::read_dta(path1)
+relationdb <- haven::read_dta(here::here("dbs","Castro", "ENB_relationships.dta"))
+```
+
+```{r edge e node list}
+# node list
+node_list <- tibble(node_id = NA,
+                    country_name = c(relationdb$Country1, relationdb$Country2) %>% unique) %>% 
+  arrange(country_name)
+node_list$node_id <- 1:nrow(node_list)
+
+node_list <- node_list %>% mutate(
+  sigla = countrycode::countrycode(country_name, origin = 'country.name.en', destination = 'iso3c')
+) %>% mutate(sigla = if_else(is.na(sigla), country_name, sigla)) %>% 
+  mutate(
+    subregiao = countrycode::countrycode(country_name, origin = 'country.name.en', destination = 'un.regionsub.name'),
+    flag = countrycode::countrycode(country_name, origin = 'country.name.en', destination = 'unicode.symbol')
+    ) %>% mutate(flag = if_else(is.na(flag), sigla, flag))
+
+#correção: o countrycode pegou errado pro grupo Congo Basin Countries. fica duplicada sigla
+node_list <- node_list %>% mutate(sigla = if_else(country_name == "Congo Basin Countries",
+                                                  "CongoBasin", sigla)
+                                  )
+
+#edge list
+edge_list <- relationdb %>% select(c(
+  obs_id,
+  Country1, Country2, #nodes
+  relation, relation2, #tipo de interação (categórica)
+  cooperation, # 1 == interações de coop
+  # características da aresta também entram aqui:
+  year, e_date, topic #topic é categórica
+  ))
+
+edge_list <- edge_list %>% #filter(cooperation == 1) %>%
+  select(-c(relation, relation2))
+
+# Agora incluo os ids dos países na edge_list.
+edge_list <- edge_list %>% rename(country_name = Country1) %>% 
+  left_join(node_list %>% select(country_name, node_id) %>% rename(from = node_id)) %>%
+  select(-c(country_name)) %>% 
+  rename(country_name = Country2) %>% 
+    left_join(node_list %>% select(country_name, node_id) %>% rename(to = node_id)) %>% 
+  select(-c(country_name)) %>% 
+  rename(edge_id = obs_id)
+
+
+edge_list <- edge_list %>% relocate(from, to) # importante ter a ordem certa em alguns programas
+
+edge_list <- edge_list %>% mutate(
+  periodo = cut(year, c(1994, 1997, 2001, 2006, 2013), 
+                          labels = c('pre-kyoto', 'regras de kyoto', 
+                                     'implementação de kyoto', 'negociações de novo acordo'))
+  
+)
+```
+
+Geramos as arestas para redes separadas de cooperação e conflito. Primeiro vou tentar estimar só com rede de cooperação, o que torna mais simples (e.g. posso usar binário na coluna ao invés de ordinal). Depois vejo se consigo montar o algoritmo de forma mais complexa (e.g. estimar pontos a partir de ordinal, como alguns em AGNU; trabalhar oposição e apoio como redes multiplex etc).
+
+```{r arestas confl e coop separadas}
+coop_edges <- edge_list %>% filter(cooperation == 1) %>% select(-cooperation)
+confl_edges <- edge_list %>% filter(cooperation == 0) %>% select(-cooperation)
+```
+
+## Adaptando os dados para o formato dos pontos ideais
+
+Para estimar os pontos ideais aqui, vamos tentar usar a estratégia do Pablo Barberá. A lógica é a de que usuários tendem a seguir contas políticas como função de a) popularidade da conta política em questão, b) interesse geral do usuário por política, c) diferença entre a posição ideológica do usuário e da conta política em questão. Com esse modelo e os dados de seguidores, estimam-se todos os parâmetros e temos, pelas estimativas de posição ideológica de usuários e contas políticas, os equivalentes a pontos ideais.
+
+No nosso caso, ao invés de termos usuários e contas políticas, temos uma rede de interações entre países. A probabilidade de, e.g., o Egito apoiar os EUA seria uma função desses vários parâmetros, dos quais nos interessa mais a ideologia de cada um.
+
+Precisamos de uma matriz com mais linhas do que colunas. Precisamos, portanto, selecionar quem seriam os países equivalentes às 'contas políticas' (as colunas da matriz), que seriam particularmente úteis para distinguir entre os posicionamentos dos atores. Alguns critérios possíveis:
+
+- qualitativa: por conhecimento prévio, quem são os países ativos que mais diferenciam os lados da negociação?
+
+- coalizões: selecionar todas as coalizões e, como atividade delas pode ser muito rara, usar o proxy de apoio a países membros da coalizão
+
+- por atividade: quem são os países mais vocais ou mais apoiados nas negociações? escolher os top x e usar como coluna.
+
+Vamos começar pelo critério quantitativo de atividade. Nao parecem variar muito os tops dependendo do critério. Vou usar o geral (atividade)
+
+```{r top atividade}
+top_apoiadores <- coop_edges %>% group_by(from) %>% summarise(count = n()) %>% arrange(desc(count))
+top_apoiados <- coop_edges %>% group_by(to) %>% summarise(count = n()) %>% arrange(desc(count))
+
+top_criticos <- confl_edges %>% group_by(from) %>% summarise(count = n()) %>% arrange(desc(count))
+top_criticados <- confl_edges %>% group_by(to) %>% summarise(count = n()) %>% arrange(desc(count))
+
+top_atividade <- c(edge_list$from, edge_list$to) %>% table %>% sort(dec = T) %>% as_tibble() %>% 
+  rename(id = ".", count = "n") %>% mutate(id = as.numeric(id))
+```
+
+```{r definindo colunas}
+n_cols <- 30
+cols <- top_atividade %>% head(n_cols) %>% left_join(node_list %>% rename(id = node_id))
+cols <- mutate(cols,
+               sigla = str_remove(sigla, " "))
+```
+
+Os países e coalizões a serem usados na coluna parecem ok. Parece balanceado também (5 desenvolvidos, 5 em desenvolvimento, com variações de posição dentro das categorias e coalizões importantes nas negociações). São bastante ativos ao longo do tempo também. Vamos reorganizar a matriz agora usando esses países como coluna.
+
+O objetivo final é termos uma matriz na qual cada linha corresponde a um país em determinado período de negociação (vamos usar ano a princípio). As colunas vão ser binárias: 1 se apoiou o país da coluna no ano, 0 se não.
+
+A primeira estratégia trabalha com duas matrizes: uma de apoio e outra de conflito, estimando-as de forma separada.
+
+```{r criando a matriz de apoios}
+matriz_apoios <- coop_edges %>% select(-c(e_date, topic, periodo)) %>% 
+  left_join(cols %>% select(id, sigla) %>% rename(to = id)) %>% #pegar a sigla
+  # vou manter só os rows com as colunas que me interessam, depois completo o resto com false
+  filter(to %in% (top_atividade %>% head(n_cols) %>% pull(id))) %>% mutate(value = TRUE) %>% 
+  pivot_wider(names_from = sigla, values_from = value, values_fill = FALSE) %>% 
+  select(-c(to, edge_id)) %>% 
+  group_by(from, year) %>%
+    summarise(across(everything(), any)) %>% ungroup 
+  
+# completando os dados
+matriz_apoios <- matriz_apoios %>% complete(from, year) %>% replace(is.na(.), FALSE)
+# note-se que não estou usando casos em que o país não apoia em nenhuma vez um dos principais (os 10 da coluna)
+# (é um equivalente, menos restritivo do que faz barberá ao amostrar apenas aqueles que seguem ao menos 3 dos perfis das colunas)
+# como agrupei por ano, há os casos em que nao segue ninguem naquele ano. talvez isso seja ruim para a estimação, se for o caso retorno ao problema e/ou reagrupo os dados.
+```
+
+```{r matriz conf}
+matriz_conf <- confl_edges %>% select(-c(e_date, topic, periodo)) %>% 
+  left_join(cols %>% select(id, sigla) %>% rename(to = id)) %>% #pegar a sigla
+  # vou manter só os rows com as colunas que me interessam, depois completo o resto com false
+  filter(to %in% (top_atividade %>% head(n_cols) %>% pull(id))) %>% mutate(value = TRUE) %>% 
+  pivot_wider(names_from = sigla, values_from = value, values_fill = FALSE) %>% 
+  select(-c(to, edge_id)) %>% 
+  group_by(from, year) %>%
+    summarise(across(everything(), any)) %>% ungroup 
+  
+# completando os dados
+matriz_conf <- matriz_conf %>% complete(from, year) %>% replace(is.na(.), FALSE)
+```
+Como alguns países (os mais ativos) estão tanto nas linhas como nas colunas, temos uma pequena distorção. Nos dados originais, não faz sentido que um país apoie a si mesmo, mas aqui é o que precisa acontecer - é como se o legislador votasse em uma proposição própria. Para isso, precisamos modificar um pouco os dados. Evidentemente isso só vale pra matriz de apoio, não de conflito.
+
+```{r selfvotes}
+# funçao criando o código a rodar e ser avaliado
+mutate_selfvotes <- function(country, coopvalue){
+  f <- paste0("matriz_self %>% mutate(", country, " = if_else(from == cols[cols$sigla == '", country, 
+            "',]$id,",coopvalue,", ",country,"))")
+  eval(parse(text = f))
+}
+
+# loop para corrigir sequencialmente cada coluna
+matriz_self <- matriz_apoios
+for (country in unique(cols$sigla)){
+  # print(country)
+  matriz_self <- mutate_selfvotes(country, TRUE)
+}
+
+matriz_apoios <- matriz_self
+rm(matriz_self)
+```
+
+
+Uma estratégia alternativa é incluir tudo em uma mesma matriz, com valores positivos quando os países cooperam entre si, negativos quando discordam, e missing quando nao há manifestação.
+
+```{r matriz_total}
+# notar que estou usando o pacote 'hablar' para a função sum_, que ignora o NA quando há outros valores
+# mas mantém o NA se todos os valores são NA (usar sum(na.rm = T) transforma tudo em zero)
+
+matriz_total <- edge_list %>% select(-c(e_date, topic, periodo)) %>% 
+  left_join(cols %>% select(id, sigla) %>% rename(to = id)) %>% #pegar a sigla
+  # manter só os rows com as colunas que me interessam. o resto será completado com NA
+  filter(to %in% (top_atividade %>% head(n_cols) %>% pull(id))) %>% 
+  mutate(value = if_else(cooperation == 1, 1, -1)) %>% 
+  pivot_wider(names_from = sigla, values_from = value, values_fill = NA) %>% 
+  select(-c(to, edge_id, cooperation)) %>% 
+  group_by(from, year) %>% # somar as interações cooperativas e conflitivas (cada uma vale 1 ou -1)
+    summarise(across(everything(), hablar::sum_)) %>% ungroup 
+
+# completando os dados
+matriz_total <- matriz_total %>% complete(from, year)
+
+# Matriz total tem valores com diferentes intensidades (como o peso das interações nas redes). 
+# Para simplificar vou só separar negativos, positivos e zeros. Intensidade não entrará no cálculo
+# Estou retornando valores padrao do wnominate (1-3 = Yay, 4-6 = Nay, 7-9 = Abstention)
+# 'Abstenção' por não se manifestar = 9; por soma de conflito e coop se anular = 7
+simplificar_coop <- function(x){case_when(x > 0 ~ 1,
+                                          x < 0 ~ 4,
+                                          x == 0 ~ 7,
+                                          is.na(x) ~ 9)}
+
+matriz_total <- matriz_total %>% mutate(across(-c(from, year), simplificar_coop))
+
+
+# incluindo self_votes
+matriz_self <- matriz_total
+for (country in unique(cols$sigla)){
+  # print(country)
+  matriz_self <- mutate_selfvotes(country, 1)
+}
+
+matriz_total <- matriz_self
+rm(matriz_self)
+
+```
+
+
+
+## Estimando pontos ideais com wnominate
+
+Vamos testar o pacote wnominate. Preciso criar um objeto rollcall a partir dos meus dados e, depois, rodamos o modelo.
+
+Da documentação do pacote:
+
+To create a rollcall object for use with wnominate(), one ideally should
+have three things:
+
+- A matrix of votes from some source. The matrix should be arranged as
+a legislators x votes matrix. It need not be in 1/6/9 or 1/0/NA format,
+but users must be able to distinguish between Yea, Nay, and missing
+votes.
+
+- A vector of names for each member in the vote matrix.
+
+- OPTIONAL: A vector describing the party or party-like memberships
+for the legislator
+
+A matriz de votos tem o formato rows = votantes, cols = votações. Preciso pensar qual seria exatamente o melhor análogo no meu caso. No momento, posso fazer de dois jeitos: usando a matriz original e estimando a posição de todos os países ou usando a matriz transposta e estimando só os países principais. 
+
+```{r lib wnominate}
+library(wnominate)
+```
+
+Vou estimar pontos ideais diferentes para os quatro períodos, usando todos os anos de cada período como 'votos' distintos. Os 'legisladores' serao o total de países
+```{r preparo matrizes}
+matriz_apoios <- matriz_apoios %>%
+  # mutate(periodo = cut(year, c(1994, 1997, 2001, 2006, 2013),
+  #                                labels = c('pre-kyoto', 'regras de kyoto',
+  #                                           'implementação de kyoto', 'negociações de novo acordo'))
+  # ) #%>% 
+  mutate(periodo = cut(year, c(1994, 1998, 2002, 2006, 2010, 2014),
+                                 labels = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
+                       )
+  )
+
+
+  # se quiser simplificar os dados:
+  # group_by(from, periodo) %>% summarise(across(everything(), any)) %>%
+  # ungroup %>% select(-year)
+  
+
+matriz_conf <- matriz_conf %>%
+ # mutate(periodo = cut(year, c(1994, 1997, 2001, 2006, 2013),
+  #                                labels = c('pre-kyoto', 'regras de kyoto',
+  #                                           'implementação de kyoto', 'negociações de novo acordo'))
+  # ) #%>% 
+  mutate(periodo = cut(year, c(1994, 1998, 2002, 2006, 2010, 2014),
+                                 labels = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
+                       )
+  )
+
+
+
+matriz_total <- matriz_total %>%
+  # mutate(periodo = cut(year, c(1994, 1997, 2001, 2006, 2013),
+  #                                labels = c('pre-kyoto', 'regras de kyoto',
+  #                                           'implementação de kyoto', 'negociações de novo acordo'))
+  # ) #%>% 
+  mutate(periodo = cut(year, c(1994, 1998, 2002, 2006, 2010, 2014),
+                                 labels = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
+                       )
+  )
+
+
+# se quiser fazer transpondo a matriz
+# congressmen_vector <- colnames(matriz_apoios %>% select(-c(from, periodo)))
+# transposta <- matriz_apoios %>% filter(periodo == "negociações de novo acordo") %>% 
+#   select(-c(from, periodo)) %>%  t() %>% as.tibble()
+# row.names(transposta) <- congressmen_vector
+# dados_partidos <- matrix(congressmen_vector, length(congressmen_vector), 1)
+
+
+
+
+# criando rollcall
+# rc <- rollcall(matriz_apoios, 
+#                yea=TRUE, nay=FALSE,
+#                # missing=c(7,8,9),
+#                # notInLegis=0, 
+#                legis.names=congressmen_vector,
+#                legis.data=dados_partidos
+#                )
+
+# result <- wnominate(rc,polarity=c(1,1))
+
+```
+
+
+
+```{r resultados wnominate}
+# summary(result)
+# plot(result)
+# plot.coords(result)
+```
+
+
+```{r scatterplot}
+# df <- tibble(sigla = congressmen_vector, 
+#              dim1 = result1[["legislators"]]$coord1D,
+#              dim2 = result1[["legislators"]]$coord2D)
+# 
+# ggplot(df, aes(x=dim1, y=dim2, label = sigla)) + 
+#     geom_point() +
+#     geom_text()
+```
+
+
+
+```{r criando varios rollcall objects}
+
+criar_rc <- function(neg_phase, matriz_dados = matriz_apoios, 
+                     yea_values = TRUE, nay_values = FALSE, 
+                     missing_values = NA, notlegis_values = 9
+                     ){
+   matriz_dados_full <- matriz_dados %>% filter(periodo == neg_phase) %>% 
+    select(-periodo) %>% 
+    pivot_wider(names_from = year, values_from = -c(from, year)) #%>% 
+    # como temos varias colunas novas, muitas delas são não-informativas (todos votos == FALSE)
+    # select(where(any))  # retirar colunas se any == F
+  
+  congressmen_vector <- left_join(matriz_dados_full, node_list %>% rename(from = node_id)) %>% pull(sigla)
+  dados_partidos <- node_list %>% filter(node_id %in% matriz_dados_full$from) %>% as.matrix()
+  colnames(dados_partidos) <- c("node_id","country_name","sigla","subregiao","flag")
+
+  rc <- rollcall(matriz_dados_full %>% select(-from), 
+               yea = yea_values, nay = nay_values,
+               missing = missing_values,
+               notInLegis=notlegis_values, 
+               # legis.names = congressmen_vector,
+               legis.data = dados_partidos,
+               desc = paste("Interação no período:", neg_phase)
+               )
+}
+
+
+```
+
+
+```{r funçao plot}
+
+plotar_resultados <- function(wnom_results, nfiltro = NULL, title = ""){
+  
+ 
+  
+  df <- tibble(sigla = wnom_results$legislators$sigla, 
+               node_id = wnom_results$legislators$node_id, 
+               dim1 = wnom_results[["legislators"]]$coord1D,
+               dim2 = wnom_results[["legislators"]]$coord2D)
+  
+  if(is.null(nfiltro)){nfiltro = nrow(top_atividade)}
+  
+  df <- df %>% mutate(node_id = as.integer(node_id)) %>% 
+    filter(node_id %in% head(top_atividade$id, nfiltro))
+  
+  ggplot(df, aes(x=dim1, y=dim2, label = sigla)) + 
+    geom_point() +
+    geom_text() + 
+    # ylim(-1,1) + xlim(-1,1) +
+    ggtitle(paste("Pontos ideais com WNominate", nfiltro, "atores mais ativos",
+                  "no período", title)
+            )
+  
+}
+
+```
+
+### Pontos ideais - matriz de cooperação
+
+```{r rodando coop para todos os periodos}
+
+# periodos_analisados = c('pre-kyoto', 'regras de kyoto', 'implementação de kyoto', 'negociações de novo acordo')
+
+periodos_analisados = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
+
+ls_rc <- lapply(periodos_analisados, criar_rc)
+
+g_list <- list()
+res_list <- list()
+
+# rodando só com cooperação
+for (i in seq_along(ls_rc)){
+  result <- ls_rc[[i]] %>% wnominate(polarity=c(1,1)) 
+  result %>% plotar_resultados(nfiltro = 20,
+                               title = periodos_analisados[i]
+                               ) -> g
+  
+  res_list <- c(res_list, list(result))
+  g_list <- c(g_list, list(g))
+}
+```
+
+
+```{r graficoscoop}
+g_list
+```
+
+### Pontos ideais - matriz total
+
+```{r rodando geral}
+
+# Revisando, acho que nao fazia sentido a implementação abaixo: 
+# estou fazendo merge de coop e conf, mas nao mudo os valores das matrizes.
+
+
+# # rodando 'votos' pró e contra de cada período em um mesmo rollcall
+# ls_confl <- lapply(periodos_analisados, criar_rc, matriz_conf)
+# # wnominate(ls_confl[[1]], polarity = c(1,1)) %>% summary
+# 
+# 
+# ls_rc_completa <- list()
+# for (i in seq_along(ls_rc)){
+#   rc_periodo <- dwnominate::merge_rollcalls(list(ls_rc[[i]], ls_confl[[i]]), by = "node_id")
+#   ls_rc_completa <- c(ls_rc_completa, list(rc_periodo))
+# }
+# 
+# # plotando
+# 
+# g_completa_list <- list()
+# 
+# for (i in seq_along(ls_rc)){
+#   ls_rc_completa[[i]] %>% wnominate(polarity=c(1,1)) %>% plotar_resultados(nfiltro = 20, 
+#                                                                   title = periodos_analisados[i]
+#                                                                   ) -> g_completa
+#   
+#   g_completa_list <- c(g_completa_list, list(g_completa))
+# }
+```
+
+```{r rodando matriz_completa}
+periodos_analisados = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
+
+ls_rc <- lapply(periodos_analisados, criar_rc, matriz_dados = matriz_total,
+                yea_values = c(1,2,3), nay_values = c(4,5,6), 
+                missing_values = c(7,8,9),                notlegis_values = 0)
+
+g_completa_list <- list()
+res_completa_list <- list()
+
+# rodando geral - tive que mudar a ref de polaridade, pq nao havia votos suficientes em alguns casos
+for (i in seq_along(ls_rc)){
+  
+  result <- ls_rc[[i]] %>% wnominate(polarity=c(3,3)) 
+  result %>% plotar_resultados(nfiltro = 20, 
+                               title = periodos_analisados[i]
+                               ) -> g
+  
+  
+  res_completa_list <- c(res_completa_list, list(result))
+  g_completa_list <- c(g_completa_list, list(g))
+}
+
+
+```
+
+
+
+```{r plotar graf completa}
+
+g_completa_list
+```
+
+
+
+## Estimando de forma dinâmica com DW-Nominate
+
+O DW Nominate permite estimar os pontos de forma dinâmica, mudando o cálculo para considerar que é o mesmo legislador em vários períodos
+```{r instalar dwnominate}
+# devtools::install_version("basicspace", version = 0.24, repos = "http://cran.us.r-project.org")
+# basic space é dependencia de dwnominate, mas nao foi atualizado pra nova versao do r entao nao esta mais no cran
+# remotes::install_github('wmay/dwnominate')
+```
+
+```{r}
+library(dwnominate)
+
+```
+
+Para rodar dwnominate, preciso de uma lista de rollcall objects. Até consegui fazer a lista ser lida pela função, mas nao estou conseguindo fazer rodar, mesmo olhando documentação e código do dwnominate e do pscl (que cria rollcall object).
+
+
+
+```{r rc dw}
+criar_rc_anual <- function(ano, matriz_dados = matriz_apoios, 
+                     yea_values = c(1,2,3), nay_values = c(4,5,6), 
+                     missing_values = c(7,8,9), notlegis_values = 0
+                     ){
+   matriz_dados_full <- matriz_dados %>% filter(year == ano) %>% 
+    select(-c(year, periodo))
+  
+  congressmen_vector <- left_join(matriz_dados_full, node_list %>% rename(from = node_id)) %>% pull(sigla)
+  dados_partidos <- node_list %>% filter(node_id %in% matriz_dados_full$from) %>%
+    select(node_id, sigla) %>% rename(id = node_id, party = sigla)
+  
+  dados_votacoes <- matriz_dados_full %>% select(-from) %>% colnames() %>% as.matrix()
+  colnames(dados_votacoes) <- "id"
+
+  rc <- rollcall(matriz_dados_full %>% select(-from), 
+               yea = yea_values, nay = nay_values,
+               missing = missing_values,
+               notInLegis=notlegis_values, 
+               # legis.names = congressmen_vector,
+               legis.data = dados_partidos,
+               vote.data = dados_votacoes,
+               desc = paste("Interação no ano:", ano)
+               )
+}
+
+
+criar_rc2 <- function(neg_phase, matriz_dados = matriz_total, 
+                     yea_values = c(1,2,3), nay_values = c(4,5,6), 
+                     missing_values = c(7,8,9), notlegis_values = 0
+                     ){
+  
+   matriz_dados_full <- matriz_dados %>% filter(periodo == neg_phase) %>% 
+    select(-periodo) %>% pivot_wider(names_from = year, values_from = -c(from, year))
+  
+  congressmen_vector <- left_join(matriz_dados_full, node_list %>% rename(from = node_id)) %>% pull(sigla)
+  dados_partidos <- node_list %>% filter(node_id %in% matriz_dados_full$from) %>%
+    select(node_id, sigla) %>% rename(id = node_id, party = sigla)
+  
+  dados_votacoes <- matriz_dados_full %>% select(-from) %>% colnames() %>% as.matrix()
+  colnames(dados_votacoes) <- "id"
+
+  rc <- rollcall(matriz_dados_full %>% select(-from), 
+               yea = yea_values, nay = nay_values,
+               missing = missing_values,
+               notInLegis=notlegis_values, 
+               # legis.names = congressmen_vector,
+               legis.data = dados_partidos,
+               vote.data = dados_votacoes,
+               desc = paste("Interação no ano:", neg_phase)
+               )
+}
+
+```
+
+```{r criar listrc dwnom}
+# l <- lapply(1995:2013, criar_rc_anual)
+# l_coop <- lapply(2004:2009, criar_rc_anual, matriz_dados = matriz_apoios,
+#                  yea_values = T, nay_values = F, missing_values = NA, notlegis_values = 9)
+
+# nao consigo rodar anual - sempre dá erro no uso de qualquer legislador como polarity em algum dos anos
+# sao muito poucas 'votações' por ano, algoritmo não consegue estimar.
+# solução foi agrupar por mandato presidencial
+
+l_coop <- lapply(periodos_analisados, criar_rc2, matriz_dados = matriz_apoios,
+                 yea_values = T, nay_values = F, missing_values = NA, notlegis_values = 9)
+
+l <- lapply(periodos_analisados, criar_rc2)
+
+```
+
+
+```{r}
+
+# res_coop <- trydwnominate(l_coop)
+
+# res <- dwnominate(l)
+
+# a função encontra um erro ao rodar. Não consegui debugar, acho que o problema já é quando ele chama
+# o programa em fortran.
+# Error in dwnominate(l) : NAs em chamada de função externa (argumento 14)
+```
+
+## Idealstan
+
+```{r}
+# library(idealstan)
+```
+
+## Barberá
+
+Barberá estima pontos ideais a partir de dados do twitter, usando a lógica de que, se o Usuário A segue a ContaPolítica 1, é provável que a diferença entre suas posições seja baixa. O modelo segue a mesma lógica das demais estimações e IRT.
+
+Na última iteração, a implementação se dá conforme registrado no github: https://github.com/pablobarbera/twitter_ideology/blob/master/2020-update 
+
+Evidentemente, a quantidade de dados é muito diferente da minha. Vamos ver tentar replicar os métodos com meus dados.
+
+O primeiro passo é construir uma matriz de contingência, em formato esparso, para os padrões de 'seguidores' de cada página. As linhas seriam os seguidores e as colunas as contas políticas. No meu caso, as 'contas políticas' são os atores mais apoiados na UNFCCC (rodando aqui com 20). Os demais países são usados como 'seguidores'. Note-se que estou trabalhando só com dados de COOPERAÇÃO.
+
+```{r nova matriz apoio}
+n_cols <- 20
+# o que me interessa aqui é quem sao os mais apoiados
+cols <- top_apoiados %>% rename(id = to) %>% head(n_cols) %>%
+  left_join(node_list %>% rename(id = node_id))
+
+matriz_apoios <- coop_edges %>% select(-c(e_date, topic, periodo)) %>% 
+  left_join(cols %>% select(id, sigla) %>% rename(to = id)) %>% #pegar a sigla
+  # vou manter só os rows com as colunas que me interessam, depois completo o resto com false
+  filter(to %in% (top_apoiados %>% rename(id = to) %>% head(n_cols) %>%
+                    pull(id))) %>% mutate(value = TRUE) %>% 
+  pivot_wider(names_from = sigla, values_from = value, values_fill = FALSE) %>% 
+  select(-c(to, edge_id)) %>% 
+  group_by(from, year) %>%
+    summarise(across(everything(), any)) %>% ungroup 
+  
+# completando os dados
+matriz_apoios <- matriz_apoios %>% complete(from, year) %>% replace(is.na(.), FALSE)
+
+
+# incluindo os votos em si mesmos
+matriz_self <- matriz_apoios
+for (country in unique(cols$sigla)){
+  # print(country)
+  matriz_self <- mutate_selfvotes(country, TRUE)
+}
+```
+
+Com o formato atual, estou tratando os países gerais a cada ano como usuários diferentes, mas os países principais como contas políticas que se mantêm estáveis no tempo. Isso é, obviamente, uma premissa problemática. Mas vamos manter assim por enquanto.
+
+Barberá estima o espaço mantendo apenas os usuários que seguem ao menos 3 contas políticas. Com essa restrição, os usuários caem significativamente.
+
+```{r filtrando matrizes}
+matriz_filtrada <- matriz_apoios %>% rowwise() %>% 
+  filter(sum(c_across(-one_of(c("from", "year")))) >= 3) %>% ungroup()
+```
+
+Vamos formatar agora a matriz. Estou seguindo como referência o script create-adjacency-matrix do GitHub do Barberá.
+
+```{r matriz esparsa barbera}
+matriz_filtrada <- mutate(matriz_filtrada, id_str = paste0(from, "_", year)) %>% select(-c(from, year))
+
+users <- unique(matriz_filtrada$id_str)
+n <- length(users)
+
+accounts <- unique(cols$sigla)
+m <- length(accounts)
+
+rows <- list()
+columns <- list()
+pb <- txtProgressBar(min=1, max=m, style=3)
+
+for (j in 1:m){
+    followers <- matriz_filtrada %>% filter( !! rlang::sym(accounts[j]) == T) %>% pull(id_str)
+    to_add <- which(users %in% followers)
+    rows[[j]] <- to_add
+    columns[[j]] <- rep(j, length(to_add))
+    setTxtProgressBar(pb, j)
+}
+
+rows <- unlist(rows)
+columns <- unlist(columns)
+
+library(Matrix)
+y <- sparseMatrix(i=rows, j=columns)
+rownames(y) <- users[1:nrow(y)]
+colnames(y) <- accounts
+```
+
+Agora seguimos para a estimação, cf o script 04-estimation.R. É usada a função CA do próprio pacote de Barberá (tweetscores) para a Análise de Correspondência. É uma versao modificada de ca::ca com maior otimização computacional.
+
+```{r}
+# devtools::install_github("pablobarbera/twitter_ideology/pkg/tweetscores")
+```
+
+Barberá adiciona o parametro supcol, usando as colunas correspondentes a usuarios de fora do congresso como colunas suplementares (pelo que entendo, elas não contribuem para as dimensões, mas ajudam na estimação. teria que ler mais). Estou ignorando isso, mas talvez valesse incluir os demais países como supcol pra ver se algo muda.
+
+```{r analise corresp}
+# fitting CA model with reduced matrix
+res <- tweetscores::CA(y, nd=3) 
+
+```
+
+
+No script, Barberá segue com "sanity checks" - checar se os resultados fazem sentido. Além de olhar os valores de atores em particular, traça correlação com resultados de wnominate.
+```{r checagem dados}
+# Phi corresponde à primeira dimensão das coordenadas para as colunas.
+phi <- res$colcoord[,1]
+cols$phi <- phi
+cols$phi <- as.numeric(scale(cols$phi)) # ajusta a escala, normalizando
+
+# Vendo os extremos da escala, parece razoável
+head(cols[order(cols$phi),])
+tail(cols[order(cols$phi),])
+
+cols[cols$sigla %in% c("USA", "EU", "BRA", "G77", "AOSIS"),] #checando alguns países aleatorios, tambem parece ok
+```
+
+Vamos tentar plotar os países em uma mesma escala. A análise de correspondencia foi traçada com três dimensões, então vou plotar as duas primeiras em um gráfico de dispersão
+```{r}
+dim2 <- res$colcoord[,2] %>% scale() %>% as.numeric()
+dim3 <- res$colcoord[,3] %>% scale() %>% as.numeric()
+
+cols %>% ggplot(aes(x = phi, y = dim2, label = sigla)) +
+  geom_point() +
+  geom_text()
+
+```
+
+Posso fazer o mesmo com os rows (os vários países, ano-a-ano, que 'votam' em apoiar os principais).
+
+```{r}
+row_estimates <- tibble(rownames = res$rownames,
+                        dim1 = as.numeric(scale(res$rowcoord[,1])),
+                        dim2 = as.numeric(scale(res$rowcoord[,2])),
+                        dim3 = as.numeric(scale(res$rowcoord[,3]))
+                        )
+
+row_estimates <- row_estimates %>% 
+  separate(rownames, into = c("node_id", "year"), sep = "_") %>% 
+  mutate(node_id = as.integer(node_id), year = as.integer(year)) %>% 
+  left_join(node_list)
+
+# plotar
+# temos muitos países e muitos anos, entao fica impossível visualizar
+# inclusos_imagem <- head(top_atividade, 10)$id
+inclusos_imagem <- node_list[node_list$sigla == "BRA",]$node_id
+
+row_estimates %>% filter(node_id %in% inclusos_imagem) %>% 
+  ggplot(aes(x=dim1, y = dim2, label = paste0(sigla, year))) +
+  geom_point() + geom_text()
+
+```
+
+Plotando só um país fica claro que a medida é problemática, porque depende de os países apoiados se manterem com a mesma posição ao longo do tempo. Se ao invés de estimar o período inteiro de uma vez fizermos isso para recortes menores, a premissa fica menos frágil.
+
+Antes disso, porém, vamos plotar rowestimates para todos, usando a média da posição do país no tempo.
+
+```{r}
+row_estimates %>% arrange(dim1) %>% head()
+row_estimates %>% arrange(dim1) %>% tail()
+
+
+row_estimates %>% arrange(dim2) %>% head()
+row_estimates %>% arrange(dim2) %>% tail()
+
+row_estimates %>% group_by(sigla) %>% 
+  summarise(dim1 = mean(dim1), dim2 = mean(dim2), dim3 = mean(dim3)) %>% 
+  ggplot(aes(x=dim1, y = dim2, label = sigla)) +
+  geom_point() + geom_text()
+
+
+row_estimates %>% group_by(sigla) %>% 
+  summarise(dim1 = mean(dim1), dim2 = mean(dim2), dim3 = mean(dim3)) %>% 
+  filter(sigla %in% cols$sigla) %>% 
+  ggplot(aes(x=dim1, y = dim2, label = sigla)) +
+  geom_point() + geom_text() +
+  ggtitle('posição média dos principais atores, estimados como row')
+
+
+cols %>% ggplot(aes(x = phi, y = dim2, label = sigla)) +
+  geom_point() +
+  geom_text() +
+  ggtitle('posição dos principais atores, estimados como col')
+
+```
+
+De fato, os resultados não parecem fazer muito sentido. É melhor ficar com as estimativas só dos mais ativos (os equivalentes às 'contas políticas') e fazer os cálculos separadamente para diferentes períodos. Quando fizer isso, é importante observar que não teremos um espaço compartilhado - os cálculos para cada período serão independentes.
+
+
+## Teste: Análise de correspondência com três níveis?
+
+(nao terminei de montar)
+
+```{r}
+matriz_multivar <- edge_list %>% select(-c(e_date, topic, periodo)) %>% 
+  left_join(cols %>% select(id, sigla) %>% rename(to = id)) %>% #pegar a sigla
+  # vou manter só os rows com as colunas que me interessam, depois completo o resto com false
+  filter(to %in% (top_atividade %>% head(n_cols) %>% pull(id))) %>% 
+  mutate(value = if_else(cooperation == 1, 1,-1)) %>% 
+  select(-cooperation) %>% 
+  pivot_wider(names_from = sigla, values_from = value, values_fill = 0) %>% 
+  select(-c(to, edge_id))
+
+# coop = +1, confl = -1, inação = 0. Resultado é soma das posições por ano.
+matriz_multivar <- matriz_multivar %>% 
+  group_by(from, year) %>% summarise(across(everything(), sum)) %>% ungroup 
+
+```
