@@ -2,8 +2,10 @@ library(tidyverse)
 
 # Open files from Castro database (.dta) -----
 # path1 <- here::here("C:/Users/marti/Documents/Doutorado/controle_doc/extradbs", "dbs", "Castro", "ENB_relationships.dta")
+# relationdb <- haven::read_dta(path1)
 
 relationdb <- haven::read_dta(here::here("dbs","Castro", "ENB_relationships.dta"))
+
 # country_actdb <- haven::read_dta(here::here("dbs","Castro", "statements_count.dta"))
 
 # File from my replication ------
@@ -276,11 +278,10 @@ finish_coop_scores <- function(coopdb){
 # logo grupo maior tende a ser mais mencionado (há mais países p/ mencionar o BR
 # ou serem por ele mencionados). Talvez isso explique distância de BASIC?
 
-# mudei a ordem da função -> precisa inverter grouping e country abaixo pra rodar agora!
-BReu <- calculate_coop("Brazil", "EU", relationdb) %>% finish_coop_scores()
-BRg77 <- calculate_coop("Brazil", "G77", relationdb) %>% finish_coop_scores()
-BRbasic <- calculate_coop("Brazil", "BASIC", relationdb)
-BRumb <- calculate_coop("Brazil", "Umbrella", relationdb)
+BReu <- calculate_coop("EU", "Brazil", relationdb) %>% finish_coop_scores()
+BRg77 <- calculate_coop("G77", "Brazil", relationdb) %>% finish_coop_scores()
+BRbasic <- calculate_coop( "BASIC", "Brazil", relationdb)
+BRumb <- calculate_coop("Umbrella", "Brazil", relationdb)
 
 bind_rows(BReu, BRg77) %>% ggplot(aes(x=year, color = grouping)) + 
   geom_line(aes(y = coop_avg)) + geom_hline(yintercept = 0, color = "red") +
@@ -289,9 +290,9 @@ bind_rows(BReu, BRg77) %>% ggplot(aes(x=year, color = grouping)) +
                               2003, 2005, 2007, 2009, 2011, 2013)) +
   ggtitle("Brazil average cooperation score at UNFCCC")
 
-useu <- calculate_coop("United States", "EU", relationdb) %>% finish_coop_scores()
-usg77 <- calculate_coop("G77", "United States", "G77", relationdb) %>% finish_coop_scores()
-usumb <- calculate_coop("United States", "Umbrella", relationdb) %>% finish_coop_scores()
+useu <- calculate_coop("EU", "United States", relationdb) %>% finish_coop_scores()
+usg77 <- calculate_coop("G77", "United States", relationdb) %>% finish_coop_scores()
+usumb <- calculate_coop("Umbrella", "United States", relationdb) %>% finish_coop_scores()
 bind_rows(useu, usg77, usumb) %>% ggplot(aes(x=year, color = grouping)) + 
   geom_line(aes(y = coop_avg)) + geom_hline(yintercept = 0, color = "red") +
   geom_vline(xintercept = c(1997, 2001, 2005, 2009), linetype = 'dashed') +
@@ -312,6 +313,8 @@ country_list <- setdiff(country_list, grouping_list)
 
 # pensei em achar algum modo de comparar se BR concorda mais do que a média com g77
 
+## checar pq parou de funcionar. uma possível causa é que
+## mudei a ordem da função (calculate coop agora tem seq GROUPING, PAIS, c/ BR como padrao)
 df_countries77 <- map_df(country_list, calculate_coop, "G77", relationdb) %>% 
   finish_coop_scores()
 df_countriesEU <- map_df(country_list, calculate_coop, "EU", relationdb) %>% 
@@ -475,7 +478,7 @@ df_topics_ano %>%
     topic == 18 ~ "Research / climate science",
     topic == 18 ~ "Agriculture"
   )) %>% 
-  filter(topic %in% c(#1,2,3,7,9,12
+  filter(topic %in% c(#1,2,3,7,9,12,
                       13,14)) %>% 
   pivot_wider(names_from = c(grouping, topic_name), values_from = "coop_avg") -> df_topicspivot
 
@@ -485,12 +488,13 @@ df_topicspivot %>% select(-c(year, country, topic)) %>% scale() %>% as_tibble() 
 # standardize
 df_num <- df %>% 
   select(-c(weighted_score, weighted_score_avg, coop_score, coop_score_2)) %>% #calcular c/ coop_avg
-  # filter(year == 1995) %>% # separar o ano (nao vamos fazer PCA p/ todos dados juntos)
+  # filter(year == 1995) %>% # separar o ano (se nao quiser rodar PCA p/ todos dados juntos)
   pivot_wider(names_from = "grouping", values_from = "coop_avg") %>% 
   select(-c(year, country)) %>% # remover as colunas não numéricas
   scale() %>% as_tibble() %>% 
-  select(-c(COMIFAC, CaribbeanC, CentralAm, CentralG11, EITs, G9,
-            Mountain, OPEC, SAfricaDC, Visegrad))
+  # select(-c(COMIFAC, CaribbeanC, CentralAm, CentralG11, EITs, G9,
+  #           Mountain, OPEC, SAfricaDC, Visegrad))
+  select(AOSIS, EU, G77, BASIC)
 
 
 #correlações de cada variavel
@@ -552,7 +556,7 @@ df2 %>%
   ylab("BR Position index") + #ylim(-1, 1) +
   theme(legend.position = 'bottom', axis.title.x = element_blank()) +
   ggtitle("Yearly variation in Brazilian cooperation with groupings at UNFCCC",
-          subtitle = "PCA, first three components (83,9% of variance)") #all groupings
-  # subtitle = "PCA, first three components (93,4% of variance)") #only EU, AOSIS, BASIC, G77
+          # subtitle = "PCA, first three components (83,9% of variance)") #all groupings
+  subtitle = "PCA, first three components (93,4% of variance)") #only EU, AOSIS, BASIC, G77
   # ggtitle("Brazil position - PCA 1st component",
   # subtitle = "positive = close to G77, negative = close to EU/AOSIS\n PCA of cooperation with EU, AOSIS, BASIC and G77")
