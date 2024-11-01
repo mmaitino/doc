@@ -1,0 +1,1413 @@
+---
+title: "RelatorioRedesEventos"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include = FALSE}
+#working directory
+knitr::opts_knit$set(root.dir = here::here())
+
+## Carregando pacotes
+library(tidyverse)
+library(igraph)
+```
+# A fazer no relatório
+
+- Aumentar tamanho das imagens
+- Incluir imagem só com a legenda, para adicionar futuramente em editores de imagem
+- Incluir mais labels em alguns dos graficos
+- Incluir comparativo dos dados de topografia de cada rede
+- Incluir redes em janelas 4 anos
+
+# Preparo dos dados
+
+## Versão do banco
+Relatório mais recente: "`r Sys.Date()`"
+```{r get_latest function, include=FALSE}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+get_latest <- function(basefilename){
+  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
+  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
+  max(as.Date(date)) #if multiple results, return most recent date
+}
+
+latest_deleg <- get_latest("deleg")
+latest_orgs <- get_latest("orgs")
+latest_class <- get_latest("class")
+latest_eventos <- get_latest("eventos")
+```
+
+**Versão da planilha deleg**: `r latest_deleg`
+
+**Versão da planilha orgs**: `r latest_orgs`
+
+**Versão da planilha class**: `r latest_class`
+
+**Versão da planilha eventos**: `r latest_eventos`
+
+**Versão da planilha individuos**: `r get_latest("individuos")`
+
+```{r preparo bases deleg-eventos, include = FALSE}
+
+getlatest_file <- function(basefilename#, folder = here::here("BD_deleg-evento")
+                           ){
+  list.files(#path = folder, 
+             pattern = paste0(basefilename, "-.+\\.csv")) -> file_list
+
+  if(length(file_list) == 1) {return(file_list)} 
+  else{
+    last_date <- stringr::str_remove_all(file_list, 
+                                         paste0(basefilename,
+                                                "-", "|\\.csv")) %>%
+      as.Date %>% max()
+    last_date
+
+    list.files(pattern = paste0(basefilename, "-", last_date,
+                                ".csv"))
+  }
+  
+}
+
+setwd("C:/Users/marti/Documents/Doutorado/controle_doc/BD_deleg-evento")
+
+
+# Importar eventos e organizar 
+# abrir planilha eventos e organizar dados
+eventos <- read_delim(getlatest_file("eventos"),
+                      ";", escape_double = FALSE, 
+                      #locale = locale(encoding = "UTF-8"), 
+                      trim_ws = TRUE)
+
+eventos <- eventos %>%
+  rename(#renomeia colunas
+    conf = `Nome do evento`,
+    conference = `Conf/Conv`,
+    tema = `Regime/Tema`,
+    data = Data,
+    location = Locale,
+    tipo_evento = `Tipo evento`,
+    infMEA_list = `Lista MEA?`,
+    coleta = `Coleta?`,
+    proces = `Proces.?`
+  ) %>%
+  filter(is.na(data)==F) %>%
+  select(conf, conference, tema, data) #no momento, só me interessam essas
+
+eventos <- eventos %>% mutate(
+  data = if_else(str_count(data)==4, #se falta o mês (só ano)
+                 paste0(data, "-01"), #padroniza como janeiro
+                 data)) %>%
+  mutate(
+    data = if_else(is.na(data)== F,
+                   paste0(data, "-01"), #padroniza data no dia 1 do mês
+                   data)
+  ) %>% mutate(data = ymd(data), 
+               ano = year(ymd(data)))
+
+eventos$id_evento <- 1:nrow(eventos) #criar id numérico evento
+
+
+# Importar delegs
+delegs <- read_delim(getlatest_file("deleg"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE)
+
+
+# Importar orgs
+orgs <- read_delim(getlatest_file("orgs"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    #locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+# Importar class
+class <- read_delim(getlatest_file("class"), 
+                    ";", escape_double = FALSE, 
+                    col_types = cols(
+                      #X1 = col_skip()
+                      ), 
+                    locale = locale(encoding = "ISO-8859-1"), 
+                    trim_ws = TRUE) %>% distinct()
+
+```
+
+
+```{r preparo base individuos, include=FALSE}
+
+individuos <- read_csv(getlatest_file("individuos"), 
+                       col_types = cols(padrao_antigo = col_skip()#,
+                                        #nrow = col_skip()
+                                        )
+                       )
+
+# criar id numérico p/ cada indivíduo e cd individuo-evento
+# Individual-Event Id (one for each participation of the individual in event)
+delegs$id_indevento <- 1:nrow(delegs)
+
+# Individual Id (permanent individual id shared across events)
+individuos %>% select(nome_padrao) %>% distinct() %>% mutate(
+  id_individuo = row_number() #create id for each individual
+) %>% right_join(individuos, multiple = 'all') -> individuos
+
+```
+
+```{r preparo rede ind dinamica, include =FALSE}
+# Joining the databases -----
+# Data on individuals (standardize participant names and include ids)
+matriz_part_evento <- left_join(delegs, individuos) %>% 
+  select(-c(nome, id_org_dupla, nome_padrao))
+# Data on events (include data on the events)
+matriz_part_evento <- left_join(matriz_part_evento, 
+                                select(eventos, c(conf, id_evento))
+) %>% select(-conf)
+
+  # Resulting dataframe only includes numerical ids
+
+# List of events that have participants (as some lack Brazilian delegations)
+lista_eventos_comdeleg <- matriz_part_evento$id_evento
+```
+
+```{r preparo rede eventos, include=FALSE}
+# STEP 2 - THE EVENTS PROJECTED NETWORKS ------
+
+# 2A - GENERATING THE BIPARTITE NETWORK -----------
+# Generating an incidence matrix -----
+# Before creating a network projection, we must create an incidence matrix
+
+incidence_matrix <- matriz_part_evento %>% 
+  select(id_individuo, id_evento) %>% # use data of individuals and events
+  table() # count if there is data in each combination of individual and event
+class(incidence_matrix) <- "matrix" # converts the dataframe into matrix object
+
+# If we wanted to create a bipartite network for analysis, this would be enough
+
+
+# 2B - GENERATING THE EVENTS NETWORK -----------
+# Creating unipartite projections ----
+
+# To generate a network projection, one must multiply the incidence matrix
+# by its transpose. 
+# This is called the Cross-Product Method, applied here directly
+# through the multiplication of the matrices (instead of by packages, eg)
+
+
+#.... Projecting an Event-Event Network -----
+# To create the event-event matrix, multiplication order should be inverted
+
+# Event-Event Matrix through cross-Product Method
+matriz_eventos <- t(incidence_matrix) %*% incidence_matrix
+deleg_size_event <- diag(matriz_eventos) # diagonal gives us the size of events
+# Diagonal should be zero before projection to avoid node loops
+diag(matriz_eventos) <- 0 
+
+# Network: Projecting events as nodes, coparticipation as edges and weight
+eventNet <- graph.adjacency(matriz_eventos, mode = "undirected",
+                            weighted = TRUE)
+
+rm(matriz_eventos) # remove object to clear space
+```
+
+```{r inclusão atributos rede, include=FALSE}
+# Including attributes in the network ------------
+# We will now include some attributes for nodes, so that we can better
+# analyze and describe the network
+
+# to avoid problems, we will use as ref list of events with BR delegation
+eventos_comdeleg <- eventos %>% filter(id_evento %in% lista_eventos_comdeleg)
+
+# Include event name as 'confid'
+eventNet <- set_vertex_attr(eventNet, "confid", index = V(eventNet),
+                            as.character(eventos_comdeleg$conf))
+# Include general conference/treaty name as 'conference'
+eventNet <- set_vertex_attr(eventNet, "conference", index = V(eventNet),
+                            as.character(eventos_comdeleg$conference))
+# Include issue-area of event as 'tema'
+eventNet <- set_vertex_attr(eventNet, "tema", index = V(eventNet),
+                            as.character(eventos_comdeleg$tema))
+# Include year of event as 'ano'
+eventNet <- set_vertex_attr(eventNet, "ano", index = V(eventNet),
+                            as.character(eventos_comdeleg$ano))
+```
+
+```{r resumo dados rede}
+# We can now see all vertex attributes:
+# vertex.attributes(eventNet)
+summary(eventNet)
+```
+
+```{r labelsvisualiz, include=FALSE}
+#.... Including attributes for use in visualization
+# Include nodesize as proportional to node centrality
+# a) which centrality? should I use betweeness as well?
+
+# Include ConfID as labels
+V(eventNet)$label <- V(eventNet)$confid
+
+# adjust labels to better fit figures
+long_labels <- tibble(label = V(eventNet)$label, 
+                      nchar = nchar(V(eventNet)$label))
+
+# long_labels %>% filter(nchar > 10) %>% View # id long labels
+long_labels$newlab <- long_labels$label
+long_labels <- long_labels %>%
+  mutate(
+    newlab = str_replace(newlab,
+                         "Extraordinary Session", "ES"
+    )
+  ) %>% 
+  mutate(
+    newlab = str_replace(newlab,
+                         "Ad Hoc Working Group of Legal and Technical Experts for the Preparation of a Protocol on Chlorofluorocarbons to the Vienna Convention for the Protection of the Ozone Layer",
+                         "VC AHWG")
+  ) %>% 
+  mutate(
+    newlab = str_replace(newlab,
+                         "Ad Hoc Working Group of Experts on Biological Diversity",
+                         "AHWG")
+  ) %>% mutate(
+    newlab = str_replace(newlab,
+                         "Minamata", "MC"
+    )
+  ) %>% mutate(
+    newlab = str_replace(newlab,
+                         "Prep Committee", "PrepCom"
+    )
+  )%>% mutate(
+    newlab = str_replace(newlab,
+                         "UNESCO IOC", "IOC"
+    )
+  )%>% mutate(
+    newlab = str_replace(newlab,
+                         ", ", ",\n"
+    )
+  ) %>% mutate(
+    newlab = str_remove(newlab, "st |nd |rd |th |Session ")
+  )
+  
+
+V(eventNet)$label <- long_labels$newlab
+```
+
+```{r padroniza cor, include = FALSE}
+# Standardize color scheme by Issue-Area
+#### note: colors in graph legend were not made automatically,
+#### so if change here need to manually change there!
+## There is definitely a better way to do this (using the df_legend from below)
+
+V(eventNet)$color <- case_when(
+  V(eventNet)$tema == "Ozônio" ~ "dodgerblue3",
+  V(eventNet)$tema == "Biodiversidade - CBD" ~ "darkgreen",
+  V(eventNet)$tema == "Biodiversidade - Plantas" ~ "mediumvioletred",
+  V(eventNet)$tema == "Biodiversidade - Espécies" ~ "paleturquoise3",
+  V(eventNet)$tema == "Lixo tóxico e químicos" ~ "slateblue3",
+  V(eventNet)$tema == "Florestas" ~ "darkseagreen3",
+  V(eventNet)$tema == "Oceano" ~ "royalblue4",
+  V(eventNet)$tema == "Grandes conferências ONU" ~ "darkorange2",
+  V(eventNet)$tema == "Desertificação" ~ "goldenrod",
+  V(eventNet)$tema == "Governança ambiental" ~ "coral4",
+  V(eventNet)$tema == "Biodiversidade - UNESCO" ~ "pink4",
+  V(eventNet)$tema == "Clima" ~ "firebrick3"
+)
+
+```
+
+
+# EVENTS PROJECTED NETWORK
+
+```{r funcoes rede, include=FALSE}
+yearfilter_net <- function(net, min, max){
+  net <- induced_subgraph(net,
+                          V(net)[ano >= min & ano <= max])
+  net
+}
+```
+
+```{r funcao tabelagrau, include=FALSE}
+tabelar_grau <- function(eventNet, tamanhotabela = 30, legenda = "", incluirano = F){
+  Net_degree <- degree(eventNet, mode = 'all') %>% sort(decreasing = T)
+  top_Netdeg <- head(Net_degree, tamanhotabela) %>% names()
+  
+  Net_avg_degree <- mean(Net_degree)
+  Net_med_degree <- median(Net_degree)
+
+  if(incluirano == F){
+    df <- tibble(id = V(eventNet)$name,
+                 label = V(eventNet)$label,
+                 conference = V(eventNet)$conference,
+                 tema = V(eventNet)$tema#,
+                 #ano = V(simple_eventNet)$ano #na colapsada por conf, ano nao faz sentido
+                 ) %>% 
+      left_join(tibble(id = names(Net_degree), deg = Net_degree)) %>% 
+      mutate(deg_overavg = deg/Net_avg_degree, deg_overmedian = deg/Net_med_degree,
+             label = str_remove_all(label, "\\n")) %>% 
+      filter(id %in% top_Netdeg) %>%
+      arrange(-deg)
+    
+  }
+  
+  if(incluirano == T){
+    df <- tibble(id = V(eventNet)$name,
+                 label = V(eventNet)$label,
+                 conference = V(eventNet)$conference,
+                 tema = V(eventNet)$tema,
+                 ano = V(simple_eventNet)$ano #na colapsada por conf, ano nao faz sentido
+                 ) %>% 
+      left_join(tibble(id = names(Net_degree), deg = Net_degree)) %>% 
+      mutate(deg_overavg = deg/Net_avg_degree, deg_overmedian = deg/Net_med_degree,
+             label = str_remove_all(label, "\\n")) %>% 
+      filter(id %in% top_Netdeg) %>%
+      arrange(-deg)
+      
+    }
+
+  knitr::kable(df, caption = paste0(legenda, ", top ", tamanhotabela))
+}
+```
+
+
+```{r funcao topologia, include=FALSE}
+calcular_topologia <- function(eventNet){
+  # tamanho (n vertices) e ordem (n arestas) da rede 
+  nvertices <- vcount(eventNet)
+  narestas <- ecount(eventNet)
+  avg_deg <- mean(degree(eventNet))
+  avg_wdeg <- mean(strength(eventNet))
+  avg_edgeweight <- mean(E(eventNet)$weight)
+  
+  # Avg path length; diâmetro
+  avg_path <- mean_distance(eventNet, weights = NA, directed = F)
+  avg_pathweighted <- mean_distance(eventNet, directed = F)
+  diameter <- diameter(eventNet, weights = NA)
+  diameter_weighted <- diameter(eventNet)
+  
+  # densidade
+  density <- edge_density(eventNet)
+  
+  # global clustering coef (transitividade)
+    # clustering da rede como um todo: triangulos fechados (com todos os laços)/total de triangulos possiveis
+    # dá mais peso a nós com menor grau (vs avg clustering coef)
+  transitivity <- transitivity(eventNet, "global")
+  meantransitivity_weighted <- transitivity(eventNet, "weighted") %>% mean(na.rm = T)
+  
+  # avg clustering coef
+    # local clustering coef determina, p/ dado vértice, quao semelhante a uma clique são os vizinhos imediatamente conectados
+    # avg clustering coef = média dos coef locais. dá mais peso a nós com menor grau (vs transitividade)
+  avg_clustercoef <- transitivity(eventNet, "average")
+  
+  # N componentes isolados; cobertura da rede pelo maior componente
+  n_isolated_components <- components(eventNet)$no
+  coverage_largestcomponent <- max(components(eventNet)$csize)/sum(components(eventNet)$csize)
+  
+  # modularity
+  # modularidade precisa levar em conta alguma estrutura específica.
+  # calculo primeiro a modularidade cf clusters. os clusters serao calculados por meio do algoritmo de Blondel et al. 2008 (Fast unfolding of communities in large networks). É um método baseado em abordagem hierarquica e maximização da modularidade. Parâmetros (e.g., resolução) serão os padrões do igraph
+  c <- cluster_louvain(eventNet)
+  clusterlouvain_ncom <- length(c)
+  clusterlouvain_modularity <- modularity(c)
+  
+  # também posso calcular modularidade por tema (e/ou decada) dos eventos. modularidade é por var categorica
+  modularidade_tema <- modularity(eventNet, as.factor(V(eventNet)$tema))
+  modularidade_conf <- modularity(eventNet, as.factor(V(eventNet)$conference))
+  
+  
+  # assortativity coefficient
+  # mede homofilia da rede a partir de determinados atributos (no nosso caso, tema/ano)
+  # a diferença entre ele e modularidade é que assort pode ser calculado p/ variáveis contínuas, nao categórica
+  # prox 1 qdo nós com valores similares estão mais conectados; de 0 qdo laços sao aleatorios em relação ao valor
+
+  assortativity_ano <- assortativity(eventNet, V(eventNet)$ano, directed = F)
+  
+  
+  df <- tibble(
+    NVertices = nvertices,
+    NArestas = narestas,
+    GrauMed = avg_deg,
+    GrauMed_weighted = avg_wdeg,
+    PesoMedioAresta = avg_edgeweight,
+    Average_path_length = avg_path,
+    Average_path_length_weighted = avg_pathweighted,
+    Diameter = diameter,
+    Diameter_weighted = diameter_weighted,
+    Densidade = density,
+    Transitivity = transitivity,
+    Transitivity_weighted_mean = meantransitivity_weighted,
+    Average_clustering_coef = avg_clustercoef,
+    N_componentes_isolados = n_isolated_components,
+    Cobertura_maiorcomp = coverage_largestcomponent,
+    N_clustersLouvain = clusterlouvain_ncom,
+    Modularidade_clustersLouvain = clusterlouvain_modularity,
+    Modularidade_temas = modularidade_tema,
+    Modularidade_conference = modularidade_conf,
+    Assortativity_Ano = assortativity_ano
+  ) %>% 
+    pivot_longer(cols = everything(), names_to = "Statistic", values_to = "Value")
+  
+  df
+}
+```
+
+ Assortativity with respect to a specific feature is the Pearson correlation between the features of connected non-identical node pairs. Per this definition it is a number from -1 to 1. If this is positive, then connected nodes tend to have positively correlated features. If assortativity is negative, the connected node pairs tend to have negatively correlated features.
+ This definition makes sense only for features that can be rank ordered (e.g. number of links, height, age, wealth, etc) But for features that are not rank ordered (e.g. color), one might be interested in the Modularity or how nodes in a graph tend to connect to other nodes with the same module. Again using a non-directed graph as an example, modularity is a number we can calculate by comparing the number of links observed within a module/feature vs the average number of links within the same feature if the graph was randomly generated.
+Para cálculo da modularidade por clusters, foi usado o algoritmo multinível de otimização de modularidade de Blondel et al. (2008) para detecção de comunidades (função igraph::cluster_louvain). Foram usados os parâmetros padrão da função, considerando o peso das arestas (no caso, o nº de co-participantes).
+
+```{r tibtopologia, include=F}
+#criar tibble vazia para uso posterior
+topolog_completa <- tibble()
+```
+
+
+
+## Rede estática (1970-2018)
+```{r rede total}
+full_eventNet <- yearfilter_net(eventNet, 1970, 2018)
+```
+
+### Centralidade dos eventos/conferências
+
+```{r distrgrau redetotal, echo = F}
+Net_degree <- degree(full_eventNet, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede Eventos (1970-2018)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau redetotal, echo=FALSE}
+tabelar_grau(full_eventNet, 30, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+
+### Dados de topologia da rede
+```{r topologia redetotal, echo=FALSE}
+df <- calcular_topologia(full_eventNet)
+df$Network <- "EventosTotal"
+df$YearBegin <- "1970"
+df$YearEnd <- "2018"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+
+### Visualização
+```{r plot redetotal, echo=F}
+#.... Generating the figure ------
+full_eventNet2 <- full_eventNet
+# As there is much variation with the attributes (weight, degree, etc),
+# we do figures only partly proportional to attributes.
+# thus, we divide the variables and add absolute values
+
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+
+spaced_coords <- multienrichjam::layout_with_qfr(full_eventNet,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(full_eventNet)^3.2)-(8*10^5)
+)
+
+#repulse radius helps adjust relative spacing: the larger, the tighter
+# default = n(vertices)^repulse
+
+Ev_deg <- degree(full_eventNet, mode = 'all')
+
+
+# Only show label if node is among the top largest degrees
+top_deg <- Ev_deg %>% sort(decreasing = T) %>% head(5)
+V(full_eventNet)$origlabel <- V(full_eventNet)$label
+V(full_eventNet)$label <- if_else(V(full_eventNet)$name %in% names(top_deg),
+                             as.character(V(full_eventNet)$origlabel), "")
+
+
+
+
+#plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(full_eventNet, 
+     layout = spaced_coords,
+     # layout = multienrichjam::rotate_igraph_layout(layout = coords, degrees = -20),
+     vertex.size = 3 + Ev_deg/10,
+     # vertex.size = 5 + simpEv_betw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .5,
+     edge.width=E(full_eventNet)$weight/30
+     )
+
+# Including a legend
+  #### note: colors were not taken automatically, so if change above
+  #### need to manually change here
+df_legend <- tibble(
+  tema = c("Ozônio", "Biodiversidade - CBD","Biodiversidade - Plantas", "Biodiversidade - Espécies",
+           "Lixo tóxico e químicos", "Florestas", "Oceano",
+           "Grandes conferências ONU", "Desertificação", "Governança ambiental", 
+           "Biodiversidade - UNESCO", "Clima"),
+  labels = c("Ozone","CBD", "Plants", "Species",
+             "Chemical and Toxic Waste","Forests","Oceans",
+             "UN Sustainable Dev","Desertification","Env Governance",
+             "UNESCO Heritage","Climate"),
+  colors = c("dodgerblue3","darkgreen", "mediumvioletred", "paleturquoise3",
+             "slateblue3", "darkseagreen3", "royalblue4",
+             "darkorange2", "goldenrod", "coral4",
+             "pink4","firebrick3")
+)
+
+# Including title
+title("Multilateral Environmental Events Network (1970-2018)")
+
+# Including legend as separate figure
+plot.new()
+legend("center",legend=df_legend$labels,
+       col= df_legend$colors,
+       bty = "n", pt.cex = 1.5,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+# Still needs to be improved: legend is weird, would be nice to increase dist
+# between nodes, font/color in some labels are not working.
+#.... Saving output -------
+# dev.copy(pdf, paste0("Figures/","Fig2", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+full_eventNet <- full_eventNet2
+rm(full_eventNet2)
+```
+
+
+
+## Rede estática simplificada a nível de conferência (1970-2018)
+
+Para simplificar a rede e discernir mais claramente as estruturas, combinamos os vértices de eventos referentes às mesmas conferências.
+
+```{r rede simples por conf}
+# Generating a simplified event network ----
+
+# Collapse all nodes by conference to simplify full_eventNet
+
+# To do this, we need a mapping of existing conferences
+conf_list <- unique(V(full_eventNet)$conference)
+# We can then collapse the nodes with contract
+simple_eventNet <- contract(
+  full_eventNet,
+  mapping = as.numeric(
+    plyr::mapvalues(V(full_eventNet)$conference, from = conf_list, 
+                    to = 1:length(conf_list))
+  ),
+  vertex.attr.comb=list(#methods for combining attributes
+    weight="sum", "first")) #sum weights, keep first of others
+# contract generates a multilayer network, which we then simplify
+simple_eventNet <- simplify(simple_eventNet) # this also sums weight of edges
+```
+
+### Visualização
+
+Na visualização, usamos o grau simples (sem peso, só degree centrality) como base para o tamanho dos nós. Interesse é mais identificar as principais agendas (não necessariamente 'quais conectam as demais' etc). Grau com peso distorce demais devido ao peso da UNFCCC. Algoritmo para layout foi o force-directed GEM.
+
+```{r labels rede simplesconf, include=FALSE}
+#.... Organizing the simplified event net ---------
+# To properly visualize the network, we need to map the conference names
+# to shorter labels
+
+short_conf <- tibble(
+  conference = c(
+    "Montreal Protocol on Substances that Deplete the Ozone Layer",
+    "Convention on Biological Diversity",
+    "International Treaty on Plant Genetic Resources for Food and Agriculture",
+    "Basel Convention on the Control of Transboundary Movements of Hazardous Wastes and their Disposal",
+    "Convention on International Trade in Endangered Species of Wild Fauna and Flora",
+    "Convention on Migratory Species",
+    "FAO Committee on Forestry",
+    "International Plant Protection Convention",
+    "Conference on International Co-operation on Preparedness and Response to Pollution Incidents by Hazardous and Noxious Substances",
+    "UN Convention to Combat Desertification",
+    "International Conference on Chemicals Management",
+    "International Tropical Timber Organization",
+    "London Convention on the Prevention of Marine Pollution by Dumping of Wastes and Other Matter 1972",
+    "International Conference on the Revision of the HNS Convention",
+    "International Convention for the Prevention of Pollution from Ships",
+    "Minamata Convention on Mercury",
+    "Stockholm Convention on Persistent Organic Pollutants",
+    "Rotterdam Convention on the Prior Informed Consent Procedure for Certain Hazardous Chemicals and Pesticides in International Trade",
+    "International Convention for the Safe and Environmentally Sound Recycling of Ships",
+    "UNCED", "UNCHE", "UNCSD", "UN Environment Assembly",                                                                                                           
+    "UNEP Governing Council", "UNESCO IOC", "UNESCO World Heritage Convention",                                                                                                  
+    "UNFCCC", "United Nations Forum on Forests", 
+    "Vienna Convention for the Protection of the Ozone Layer",                                                                           
+    "WSSD"
+  ),
+  short = c("MP", "CBD", "ITPGRFA", "CHW","CITES","CMS","COFO",
+            "CPM","HNS-OPRC","ICCD","ICCM", "ITTO", "LC", "IMO\nLEG",
+            "MARPOL","MC","POPS","RC","SRC",
+            "UNCED", "UNCHE", "UNCSD", "UNEA",
+            "UNEP\nGC", "UNESCO\nIOC", "UNESCO\nWC",                                                                                                  
+            "UNFCCC", "UNFF", "VC", "WSSD")
+)
+
+# Include shortconf as an attribute
+simple_eventNet <- set_vertex_attr(simple_eventNet, 
+                                   "shortconf", index = V(simple_eventNet),
+                            as.character(short_conf$short))
+
+# Include shortconf as the label
+V(simple_eventNet)$label <- V(simple_eventNet)$shortconf
+```
+
+```{r centr rede simplesconf, include=FALSE}
+
+#.... Calculating node centrality -----
+# For the event graphs, we use simple degree centrality (n of connections). 
+# This reflects our goal of illustrating main agendas, not which connect
+# different parts of the community (as would betweenness)
+
+simpEv_deg <- degree(simple_eventNet, mode = 'all')
+
+# weighted degree
+# simpEv_wdeg <- strength(simple_eventNet, mode = "all") 
+# weight for UNFCCC is so large it just won't make any sense in the graph
+
+# betweeness centrality
+# simpEv_betw <- betweenness(simple_eventNet)
+
+```
+
+```{r plot redesimplesconf, echo=F}
+#.... Generating the figure ------
+
+# As there is much variation with the attributes (weight, degree, etc),
+# we do figures only partly proportional to attributes.
+# thus, we divide the variables and add absolute values
+
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+
+coords <- layout_(simple_eventNet, with_gem())
+
+#plot
+par(mar=c(2,1,1,1)+0.1) #set margins for the plot
+
+plot(simple_eventNet, layout = multienrichjam::rotate_igraph_layout(layout = coords, degrees = -20),
+     vertex.size = 5 + simpEv_deg/2.5,
+     # vertex.size = 5 + simpEv_betw/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width=E(simple_eventNet)$weight/30
+     )
+
+# Including a legend
+  #### note: colors were not taken automatically, so if change above
+  #### need to manually change here
+df_legend <- tibble(
+  tema = c("Ozônio", "Biodiversidade - CBD","Biodiversidade - Plantas", "Biodiversidade - Espécies",
+           "Lixo tóxico e químicos", "Florestas", "Oceano",
+           "Grandes conferências ONU", "Desertificação", "Governança ambiental", 
+           "Biodiversidade - UNESCO", "Clima"),
+  labels = c("Ozone","CBD", "Plants", "Species",
+             "Chemical and Toxic Waste","Forests","Oceans",
+             "UN Sustainable Dev","Desertification","Env Governance",
+             "UNESCO Heritage","Climate"),
+  colors = c("dodgerblue3","darkgreen", "mediumvioletred", "paleturquoise3",
+             "slateblue3", "darkseagreen3", "royalblue4",
+             "darkorange2", "goldenrod", "coral4",
+             "pink4","firebrick3")
+)
+
+# Including title
+title("Figure 2. Multilateral Environmental Events Network (1970-2018)",
+      sub = "Collapsed by conference/treaty")
+
+plot.new()
+
+legend("center",legend=df_legend$labels, 
+       col= df_legend$colors,
+       bty = "n", pt.cex = 1.5,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+# Still needs to be improved: legend is weird, would be nice to increase dist
+# between nodes, font/color in some labels are not working.
+#.... Saving output -------
+# dev.copy(pdf, paste0("Figures/","Fig2", "-",Sys.Date(),".pdf"),
+#          width  = par("din")[1]*4,
+#          height = par("din")[2]*2.5,
+#          #family = "Helvetica-Narrow"
+# )
+# dev.off()
+```
+
+
+### Centralidade dos eventos/conferências
+
+```{r distrgrau simplesconf, echo = F}
+Net_degree <- degree(simple_eventNet, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede simplificada por conf (1970-2018)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau redesimplesconf, echo=FALSE}
+tabelar_grau(simple_eventNet, 30, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+### Dados de topologia da rede
+
+```{r topologia redesimplesconf, echo=FALSE}
+df <- calcular_topologia(simple_eventNet)
+df$Network <- "SimplesConf"
+df$YearBegin <- "1970"
+df$YearEnd <- "2018"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+
+
+
+
+
+## Década de 1970 (1970-1979)
+
+```{r rede70}
+events70net <- yearfilter_net(full_eventNet, 1970, 1979)
+```
+
+### Dados de centralidade
+
+```{r distrgrau rede70, echo = F}
+Net_degree <- degree(events70net, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede Eventos (1970-1979)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau rede70, echo=FALSE}
+tabelar_grau(events70net, 10, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+
+### Dados de topologia da rede
+
+```{r topologia rede70, echo=FALSE}
+df <- calcular_topologia(events70net)
+df$Network <- "Eventos70"
+df$YearBegin <- "1970"
+df$YearEnd <- "1979"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+### Visualização
+
+Layout usa o Fruchterman-Reingold com os parâmetros padrão do igraph
+
+```{r plot70, echo = F}
+# The decade separated figures could be generated through a function
+# but since figures usually need some tweaking, will do manually
+
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+coords <- layout_(events70net, with_fr())
+  #using Fruchterman-Reingold with standard parameters
+
+# Calculate degree centrality
+Ev70_deg <- degree(events70net, mode = "all")
+
+plot(events70net,
+     layout = coords,
+     vertex.size = 10 + Ev70_deg,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 5 + E(events70net)$weight
+)
+
+# Including title
+title("Figure 3. Multilateral Environmental Events Network (1970-1979)")
+
+# Including legend as separate figure
+# legend should only have issues present at decade
+temas_presentes <- V(events70net)$tema %>% unique
+temp_legend <- filter(df_legend, tema %in% temas_presentes)
+
+plot.new()
+legend("center",legend=temp_legend$labels, 
+       col= temp_legend$colors,
+       bty = "n", pt.cex = 1,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+
+
+
+rm(events70net)
+```
+
+
+## Década de 1980 (1980-1989)
+```{r rede80}
+events80net <- yearfilter_net(full_eventNet, 1980, 1989)
+```
+
+
+### Dados de centralidade
+```{r distrgrau rede80, echo = F}
+Net_degree <- degree(events80net, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede Eventos (1980-1989)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau rede80, echo=FALSE}
+tabelar_grau(events80net, 10, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+### Dados de topologia da rede
+
+```{r topologia rede80, echo=FALSE}
+df <- calcular_topologia(events80net)
+df$Network <- "Eventos80"
+df$YearBegin <- "1980"
+df$YearEnd <- "1989"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+### Visualização
+```{r plot80, echo = F}
+
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+coords <- layout_(events80net, with_fr())
+
+# Calculate degree centrality
+Ev80_deg <- degree(events80net, mode = "all")
+
+plot(events80net,
+     layout = coords,
+     vertex.size = 10 + Ev80_deg,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .7,
+     edge.width= 5 + E(events80net)$weight
+)
+
+# Including title
+title("Figure 4. Multilateral Environmental Events Network (1980-1989)")
+
+# Including legend
+plot.new()
+temas_presentes <- V(events80net)$tema %>% unique
+temp_legend <- filter(df_legend, tema %in% temas_presentes)
+
+legend("center",legend=temp_legend$labels, 
+       col= temp_legend$colors,
+       bty = "n", pt.cex = 1,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+
+rm(events80net)
+```
+
+
+## Década de 1990 (1990-1999)
+
+Layout é F-R, mas altero parâmetros de repulsão pra deixar a figura mais visível.
+
+```{r rede90}
+events90net <- yearfilter_net(full_eventNet, 1990, 1999)
+```
+
+
+### Dados de centralidade
+```{r distrgrau rede90, echo = F}
+Net_degree <- degree(events90net, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede Eventos (1990-1999)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau rede90, echo=FALSE}
+tabelar_grau(events90net, 10, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+
+
+### Dados de topologia da rede
+
+```{r topologia rede90, echo=FALSE}
+df <- calcular_topologia(events90net)
+df$Network <- "Eventos90"
+df$YearBegin <- "1990"
+df$YearEnd <- "1999"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+### Visualização
+```{r plot90, echo=FALSE}
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+coords <- layout_(events90net, with_fr())
+  # this layout is bad, as too cluttered.
+  # igraph deprecated some of the commands to change parameters (eg repulsion)
+  # Using multienrichjam uses qgraph implementation to tweak them.
+  # remotes::install_github("jmw86069/multienrichjam",
+  #                         dependencies=TRUE);
+
+spaced_coords <- multienrichjam::layout_with_qfr(events90net,
+                                                 repulse = 4,
+                                                 repulse.rad = 67^4-(1.9*(10^7))
+) #repulse radius helps adjust relative spacing: the larger, the tighter
+# default = n(vertices)^repulse
+
+
+# Calculate degree centrality
+Ev90_deg <- degree(events90net, mode = "all")
+
+# As we now have too many events, must reduce labels
+# Only show label if node is among the top largest degrees
+top_deg <- Ev90_deg %>% sort(decreasing = T) %>% head(3)
+V(events90net)$origlabel <- V(events90net)$label
+V(events90net)$label <- if_else(V(events90net)$name %in% names(top_deg),
+                             as.character(V(events90net)$origlabel), "")
+
+
+
+
+# Making the plot
+
+par(mar=c(2,1,1,1)+0.1) #changes margins for plot
+
+plot(events90net,
+     layout = spaced_coords,
+     vertex.size = 3.5 + Ev90_deg/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .6,
+     edge.width= 1 + E(events90net)$weight/10
+)
+
+# Including title
+title("Figure 5. Multilateral Environmental Events Network (1990-1999)")
+
+# Including legend
+plot.new()
+temas_presentes <- V(events90net)$tema %>% unique
+temp_legend <- filter(df_legend, tema %in% temas_presentes)
+
+legend("center",legend=temp_legend$labels, 
+       col= temp_legend$colors,
+       bty = "n", pt.cex = 1,
+       cex = .7, pch=16,
+       inset = -0.1, xpd = TRUE
+)
+
+
+rm(events90net)
+```
+
+
+## Década de 2000 (2000-2009)
+
+Layout é F-R, mas altero parâmetros de repulsão pra deixar a figura mais visível.
+
+```{r rede00}
+events00net <- yearfilter_net(full_eventNet, 2000, 2009)
+```
+
+### Dados de centralidade
+
+```{r distrgrau rede00, echo = F}
+Net_degree <- degree(events00net, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede Eventos (2000-2009)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau rede00, echo=FALSE}
+tabelar_grau(events00net, 10, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+
+
+### Dados de topologia da rede
+
+```{r topologia rede00, echo=FALSE}
+df <- calcular_topologia(events00net)
+df$Network <- "Eventos00"
+df$YearBegin <- "2000"
+df$YearEnd <- "2009"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+### Visualização
+```{r plot00, echo=FALSE}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(events00net, with_fr())
+# this layout is bad, as too cluttered.
+# igraph deprecated some of the commands to change parameters (eg repulsion)
+# Using multienrichjam uses qgraph implementation to tweak them.
+# remotes::install_github("jmw86069/multienrichjam",
+#                         dependencies=TRUE);
+
+spaced_coords <- multienrichjam::layout_with_qfr(events00net,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(events00net)^3.2)-(2*10^5)
+                                                 )
+
+#repulse radius helps adjust relative spacing: the larger, the tighter
+# default = n(vertices)^repulse
+
+
+# Calculate degree centrality
+Ev00_deg <- degree(events00net, mode = "all")
+
+# As we now have too many events, must reduce labels
+# Only show label if node is among the top largest degree
+top_deg <- Ev00_deg %>% sort(decreasing = T) %>% head(3)
+V(events00net)$origlabel <- V(events00net)$label
+V(events00net)$label <- if_else(V(events00net)$name %in% names(top_deg),
+                                as.character(V(events00net)$origlabel), "")
+
+
+
+
+# Making the plot
+plot(events00net,
+     layout = spaced_coords,
+     vertex.size = 4 + Ev00_deg/5,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .6,
+     edge.width= 1 + E(events00net)$weight/10
+)
+
+# Including title
+title("Figure 6. Multilateral Environmental Events Network (2000-2009)")
+
+# Including legend
+plot.new()
+temas_presentes <- V(events00net)$tema %>% unique
+temp_legend <- filter(df_legend, tema %in% temas_presentes)
+
+legend("right",legend=temp_legend$labels, 
+       col= temp_legend$colors,
+       bty = "n", pt.cex = 1,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+
+rm(events00net)
+```
+
+
+### Década de 2010 (2010-2018)
+Layout é F-R, mas altero parâmetros de repulsão pra deixar a figura mais visível.
+
+```{r rede10}
+events10net <- yearfilter_net(full_eventNet, 2010, 2018)
+```
+
+### Dados de centralidade
+```{r distrgrau rede10, echo = F}
+Net_degree <- degree(events10net, mode = 'all') %>% sort(decreasing = T)
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_density() +
+  ggtitle("Distribuição do valor do grau por conferência (kdensity)")
+
+ggplot(as_tibble(Net_degree), aes(x=value)) + geom_histogram() +
+  ggtitle("Histograma do valor do grau por conferência") +
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))
+
+tibble(mean = mean(Net_degree),
+       sd = sd(Net_degree),
+       coef_var = sd(Net_degree) / mean(Net_degree),
+       median = median(Net_degree)) %>% 
+  knitr::kable(caption = "Estatísticas descritivas de grau - Rede eventos (2010-2018)")
+
+
+
+```
+
+Abaixo, as conferências com maior centralidade (grau simples)
+
+```{r topgrau rede10, echo=FALSE}
+tabelar_grau(events10net, 10, "Grau simples por conferências")
+# V(simple_eventNet)[V(simple_eventNet)$name %in% top_simpleNetdeg]$conference
+
+```
+
+
+
+
+### Dados de topologia da rede
+
+```{r topologia rede10, echo=FALSE}
+df <- calcular_topologia(events10net)
+df$Network <- "Eventos10"
+df$YearBegin <- "2010"
+df$YearEnd <- "2018"
+
+knitr::kable(df, caption = "Estatísticas de topologia da rede")
+topolog_completa <- topolog_completa %>% bind_rows(df)
+```
+
+
+```{r plot10, echo=FALSE}
+# Creating layout
+set.seed(123) #set seed to guarantee reproducibility of figure layout  
+# coords <- layout_(events10net, with_fr())
+# this layout is bad, as too cluttered.
+# igraph deprecated some of the commands to change parameters (eg repulsion)
+# Using multienrichjam uses qgraph implementation to tweak them.
+# remotes::install_github("jmw86069/multienrichjam",
+#                         dependencies=TRUE);
+
+spaced_coords <- multienrichjam::layout_with_qfr(events10net,
+                                                 repulse = 3.5,
+                                                 repulse.rad = (vcount(events10net)^3.2)-(3*10^5)
+)
+
+#repulse radius helps adjust relative spacing: the larger, the tighter
+# default = n(vertices)^repulse
+
+
+# Calculate degree centrality
+Ev10_deg <- degree(events10net, mode = "all")
+
+# As we now have too many events, must reduce labels
+# Only show label if node is among the top largest degree
+top_deg <- Ev10_deg %>% sort(decreasing = T) %>% head(3)
+V(events10net)$origlabel <- V(events10net)$label
+V(events10net)$label <- if_else(V(events10net)$name %in% names(top_deg),
+                                as.character(V(events10net)$origlabel), "")
+
+
+ 
+
+# Making the plot
+plot(events10net,
+     # layout = spaced_coords,
+     layout = multienrichjam::rotate_igraph_layout(layout = spaced_coords, degrees = -90),
+     vertex.size = 5 + Ev10_deg/10,
+     vertex.frame.color = "white",
+     vertex.label.color = 'black',
+     vertex.label.cex = .6,
+     edge.width= 1 + E(events10net)$weight/10
+)
+
+# Including title
+title("Figure. Multilateral Environmental Events Network (2010-2018)")
+
+
+# Including legend
+plot.new()
+temas_presentes <- V(events10net)$tema %>% unique
+temp_legend <- filter(df_legend, tema %in% temas_presentes)
+
+legend("center",legend=temp_legend$labels, 
+       col= temp_legend$colors,
+       bty = "n", pt.cex = 1,
+       cex = .7, pch=16,
+       inset = -0.15, xpd = TRUE
+)
+
+rm(events10net)
+```
+
+
+## Comparação da topologia das redes
+```{r tabelas compara_topolog, echo=FALSE, results='asis'}
+for (i in seq_along(unique(topolog_completa$Statistic))) {
+  topolog_completa %>% filter(Statistic == unique(topolog_completa$Statistic)[i]) %>% 
+    arrange(YearBegin, -Network) -> t
+  print(knitr::kable(t))
+  cat("\n")
+}
+```
+
+
+## Rede em janela de 2 anos
+Aqui a ideia era apresentar evolução das estatísticas ao longo do tempo, usando redes com janelas de N anos.
+
+### Medidas do tamanho da rede
+Aqui estou usando janelas de 3 anos (i.e., p/ 1970, incluímos 1970, 1971 e 1972). Na função, o parâmetro de tamanho da janela é 2.
+```{r funcao janela movel, include = F, message = FALSE}
+calcularvert_janela <- function(ano_inicial, tamanho_janela = 2){
+  net <- yearfilter_net(full_eventNet, ano_inicial - tamanho_janela, ano_inicial)
+  # df <- tibble(ano = ano_inicial - tamanho_janela, 
+  #              tamanho_janela = tamanho_janela, 
+  #              nvertices = vcount(net), nedges = ecount(net))
+  # df
+  df <- calcular_topologia(net)
+  df$ano <- ano_inicial - tamanho_janela
+  df$tamanho_janela <- tamanho_janela
+  df
+}
+```
+
+```{r plot tamanhorede janela, echo = F}
+full_df <- map_df(1972:2018, calcularvert_janela)
+
+full_df %>% filter(Statistic %in% c("NVertices", "NArestas")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
+  ylab("") + xlab("")
+```
+
+### Medidas da fragmentação da rede
+```{r plot fragm janela, echo = F}
+full_df %>% filter(Statistic %in% c("Average_path_length", "Diameter")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1) +
+  ylab("") + xlab("")
+
+full_df %>% filter(Statistic %in% c("N_componentes_isolados", "Cobertura_maiorcomp")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
+  ylab("") + xlab("")
+
+
+full_df %>% filter(Statistic %in% c("Modularidade_temas", "Modularidade_conference", "Modularidade_clustersLouvain")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
+  scale_y_continuous(name = "", limits = c(-0.5, 1)) +
+  xlab("")
+
+full_df %>% filter(Statistic %in% c("Average_clustering_coef", "Transitivity", "Densidade")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
+  scale_y_continuous(name = "") +
+  xlab("")
+
+```
+
