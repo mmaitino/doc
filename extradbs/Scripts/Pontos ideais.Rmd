@@ -441,42 +441,17 @@ g_list
 
 ### Pontos ideais - matriz total
 
-```{r rodando geral}
-
-# Revisando, acho que nao fazia sentido a implementação abaixo: 
-# estou fazendo merge de coop e conf, mas nao mudo os valores das matrizes.
-
-
-# # rodando 'votos' pró e contra de cada período em um mesmo rollcall
-# ls_confl <- lapply(periodos_analisados, criar_rc, matriz_conf)
-# # wnominate(ls_confl[[1]], polarity = c(1,1)) %>% summary
-# 
-# 
-# ls_rc_completa <- list()
-# for (i in seq_along(ls_rc)){
-#   rc_periodo <- dwnominate::merge_rollcalls(list(ls_rc[[i]], ls_confl[[i]]), by = "node_id")
-#   ls_rc_completa <- c(ls_rc_completa, list(rc_periodo))
-# }
-# 
-# # plotando
-# 
-# g_completa_list <- list()
-# 
-# for (i in seq_along(ls_rc)){
-#   ls_rc_completa[[i]] %>% wnominate(polarity=c(1,1)) %>% plotar_resultados(nfiltro = 20, 
-#                                                                   title = periodos_analisados[i]
-#                                                                   ) -> g_completa
-#   
-#   g_completa_list <- c(g_completa_list, list(g_completa))
-# }
-```
 
 ```{r rodando matriz_completa}
 periodos_analisados = c('FHC1', 'FHC2', 'LULA1', "LULA2","DILMA1")
 
 ls_rc <- lapply(periodos_analisados, criar_rc, matriz_dados = matriz_total,
-                yea_values = c(1,2,3), nay_values = c(4,5,6), 
-                missing_values = c(7,8,9),                notlegis_values = 0)
+                yea_values = c(1,2,3), nay_values = c(4,5,6),
+                missing_values = c(7,8,9), notlegis_values = 0)
+                # yea_values = 1, nay_values = 0, 
+                # missing_values = NA, notlegis_values = 9)
+                
+
 
 g_completa_list <- list()
 res_completa_list <- list()
@@ -526,7 +501,7 @@ Para rodar dwnominate, preciso de uma lista de rollcall objects. Até consegui f
 
 ```{r rc dw}
 criar_rc_anual <- function(ano, matriz_dados = matriz_apoios, 
-                     yea_values = c(1,2,3), nay_values = c(4,5,6), 
+                     yea_values = c(1,2,3), nay_values = c(4,5,6),
                      missing_values = c(7,8,9), notlegis_values = 0
                      ){
    matriz_dados_full <- matriz_dados %>% filter(year == ano) %>% 
@@ -552,7 +527,8 @@ criar_rc_anual <- function(ano, matriz_dados = matriz_apoios,
 
 
 criar_rc2 <- function(neg_phase, matriz_dados = matriz_total, 
-                     yea_values = c(1,2,3), nay_values = c(4,5,6), 
+                      # yea_values = 1, nay_values = 0, missing_values = NA, notlegis_values = 9
+                     yea_values = c(1,2,3), nay_values = c(4,5,6),
                      missing_values = c(7,8,9), notlegis_values = 0
                      ){
   
@@ -598,7 +574,7 @@ l <- lapply(periodos_analisados, criar_rc2)
 
 ```{r}
 
-# res_coop <- trydwnominate(l_coop)
+# res_coop <- dwnominate(l_coop)
 
 # res <- dwnominate(l)
 
@@ -611,6 +587,8 @@ l <- lapply(periodos_analisados, criar_rc2)
 
 ```{r}
 # library(idealstan)
+
+
 ```
 
 ## Barberá
