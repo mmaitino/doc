@@ -377,15 +377,23 @@ df_parts %>% filter(nparts > 0) %>%
   group_by(ano_part) %>%
   summarise(count_indparticipants = sum(count)) %>% 
   knitr::kable(caption = "Number of individual participants per year")
+  
+```
 
 
+```{r fig individuos ano, echo = FALSE, message=FALSE, , fig.width=11, fig.height=5}
 df_parts %>% filter(nparts > 0) %>% 
+  filter(ano_part <= 2018) %>% 
   group_by(ano_part, id_individuo) %>% summarise(count = n()) %>%
   group_by(ano_part) %>%
   summarise(count_indparticipants = sum(count)) %>% 
   ggplot() + geom_line(aes(x=ano_part, y=count_indparticipants)) +
+  geom_point(aes(x=ano_part, y=count_indparticipants)) +
+  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  scale_x_continuous(name = NULL, n.breaks = 12) +
+  scale_y_continuous(name = "Número de participantes registrados",
+                     n.breaks = 8, limits = c(0,1750)) +
   ggtitle("Number of individual participants per year")
-  
 ```
 
 A variação ano-a-ano pode ser uma medida problemática, porque os eventos têm periodicidade variável (e.g., COP UNFCCC é anual, mas CBD é bianual). Mas olhando o gráfico, acho que a tendência geral segue visível.
