@@ -436,6 +436,7 @@ calcular_topologia <- function(eventNet){
   df <- tibble(
     NVertices = nvertices,
     NArestas = narestas,
+    ArestasporVertice = narestas / nvertices,
     GrauMed = avg_deg,
     GrauMed_weighted = avg_wdeg,
     PesoMedioAresta = avg_edgeweight,
@@ -576,6 +577,11 @@ df_legend <- tibble(
              "Chemical and Toxic Waste","Forests","Oceans",
              "UN Sustainable Dev","Desertification","Env Governance",
              "UNESCO Heritage","Climate"),
+   labels_pt = c("Ozônio","CBD", "Plantas", "Espécies",
+             "Lixo Tóxico e Químicos","Florestas","Oceanos",
+             "Des. Sust.","Desertificação","Governança Ambiental",
+             "UNESCO Patrimônio","Clima"),
+  
   colors = c("dodgerblue3","darkgreen", "mediumvioletred", "paleturquoise3",
              "slateblue3", "darkseagreen3", "royalblue4",
              "darkorange2", "goldenrod", "coral4",
@@ -587,7 +593,7 @@ title("Multilateral Environmental Events Network (1970-2018)")
 
 # Including legend as separate figure
 plot.new()
-legend("center",legend=df_legend$labels,
+legend("center",legend=df_legend$labels_pt,
        col= df_legend$colors,
        bty = "n", pt.cex = 1.5,
        cex = .7, pch=16,
@@ -739,6 +745,10 @@ df_legend <- tibble(
              "Chemical and Toxic Waste","Forests","Oceans",
              "UN Sustainable Dev","Desertification","Env Governance",
              "UNESCO Heritage","Climate"),
+  labels_pt = c("Ozônio","CBD", "Plantas", "Espécies",
+             "Lixo Tóxico e Químicos","Florestas","Oceanos",
+             "Des. Sust.","Desertificação","Governança Ambiental",
+             "UNESCO Patrimônio","Clima"),
   colors = c("dodgerblue3","darkgreen", "mediumvioletred", "paleturquoise3",
              "slateblue3", "darkseagreen3", "royalblue4",
              "darkorange2", "goldenrod", "coral4",
@@ -751,7 +761,7 @@ title("Figure 2. Multilateral Environmental Events Network (1970-2018)",
 
 plot.new()
 
-legend("center",legend=df_legend$labels, 
+legend("center",legend=df_legend$labels_pt, 
        col= df_legend$colors,
        bty = "n", pt.cex = 1.5,
        cex = .7, pch=16,
@@ -900,7 +910,7 @@ temas_presentes <- V(events70net)$tema %>% unique
 temp_legend <- filter(df_legend, tema %in% temas_presentes)
 
 plot.new()
-legend("center",legend=temp_legend$labels, 
+legend("center",legend=temp_legend$labels_pt, 
        col= temp_legend$colors,
        bty = "n", pt.cex = 1,
        cex = .7, pch=16,
@@ -988,7 +998,7 @@ plot.new()
 temas_presentes <- V(events80net)$tema %>% unique
 temp_legend <- filter(df_legend, tema %in% temas_presentes)
 
-legend("center",legend=temp_legend$labels, 
+legend("center",legend=temp_legend$labels_pt, 
        col= temp_legend$colors,
        bty = "n", pt.cex = 1,
        cex = .7, pch=16,
@@ -1103,7 +1113,7 @@ plot.new()
 temas_presentes <- V(events90net)$tema %>% unique
 temp_legend <- filter(df_legend, tema %in% temas_presentes)
 
-legend("center",legend=temp_legend$labels, 
+legend("center",legend=temp_legend$labels_pt, 
        col= temp_legend$colors,
        bty = "n", pt.cex = 1,
        cex = .7, pch=16,
@@ -1218,7 +1228,7 @@ plot.new()
 temas_presentes <- V(events00net)$tema %>% unique
 temp_legend <- filter(df_legend, tema %in% temas_presentes)
 
-legend("right",legend=temp_legend$labels, 
+legend("center",legend=temp_legend$labels_pt, 
        col= temp_legend$colors,
        bty = "n", pt.cex = 1,
        cex = .7, pch=16,
@@ -1334,7 +1344,7 @@ plot.new()
 temas_presentes <- V(events10net)$tema %>% unique
 temp_legend <- filter(df_legend, tema %in% temas_presentes)
 
-legend("center",legend=temp_legend$labels, 
+legend("center",legend=temp_legend$labels_pt, 
        col= temp_legend$colors,
        bty = "n", pt.cex = 1,
        cex = .7, pch=16,
@@ -1349,7 +1359,7 @@ rm(events10net)
 ```{r tabelas compara_topolog, echo=FALSE, results='asis'}
 for (i in seq_along(unique(topolog_completa$Statistic))) {
   topolog_completa %>% filter(Statistic == unique(topolog_completa$Statistic)[i]) %>% 
-    arrange(YearBegin, -Network) -> t
+    arrange(YearBegin, rev(Network)) -> t
   print(knitr::kable(t))
   cat("\n")
 }
@@ -1360,7 +1370,7 @@ for (i in seq_along(unique(topolog_completa$Statistic))) {
 Aqui a ideia era apresentar evolução das estatísticas ao longo do tempo, usando redes com janelas de N anos.
 
 ### Medidas do tamanho da rede
-Aqui estou usando janelas de 3 anos (i.e., p/ 1970, incluímos 1970, 1971 e 1972). Na função, o parâmetro de tamanho da janela é 2.
+Aqui estou usando janelas de 3 anos (i.e., p/ 1972, incluímos 1970, 1971 e 1972). Na função, o parâmetro de tamanho da janela é 2.
 ```{r funcao janela movel, include = F, message = FALSE}
 calcularvert_janela <- function(ano_inicial, tamanho_janela = 2){
   net <- yearfilter_net(full_eventNet, ano_inicial - tamanho_janela, ano_inicial)
@@ -1369,7 +1379,7 @@ calcularvert_janela <- function(ano_inicial, tamanho_janela = 2){
   #              nvertices = vcount(net), nedges = ecount(net))
   # df
   df <- calcular_topologia(net)
-  df$ano <- ano_inicial - tamanho_janela
+  df$ano <- ano_inicial
   df$tamanho_janela <- tamanho_janela
   df
 }
@@ -1379,6 +1389,23 @@ calcularvert_janela <- function(ano_inicial, tamanho_janela = 2){
 full_df <- map_df(1972:2018, calcularvert_janela)
 
 full_df %>% filter(Statistic %in% c("NVertices", "NArestas")) %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
+  ylab("") + xlab("")
+
+```
+```{r plot razao arestas vertices}
+full_df %>% filter(Statistic == "ArestasporVertice") %>% 
+  ggplot(aes(x = ano, y = Value)) + geom_point() + 
+  geom_line() +  ylab("") + xlab("")
+
+
+full_df %>% filter(Statistic %in% c("NVertices", "NArestas", "ArestasporVertice")) %>% 
+  mutate(Statistic = case_when( Statistic == "NVertices" ~ "Nº de Eventos (Vértices)",
+                                Statistic == "NArestas" ~ "Nº de Conexões (Arestas)",
+                                Statistic == "ArestasporVertice" ~ "Conexões por evento (Razão Arestas/Vértices)"
+                                )) %>% 
+
   ggplot(aes(x = ano, y = Value)) + geom_point() + 
   geom_line() + facet_wrap(~fct_rev(Statistic), ncol = 1, scales = "free_y") +
   ylab("") + xlab("")
