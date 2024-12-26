@@ -208,7 +208,8 @@ attgraphdf %>% filter(!is.na(count) &
   geom_line() + geom_point() +
   geom_vline(xintercept = c(1997, 2009, 2015), 
              linetype = 'dotted', color = 'blue') +
-  labs(title = "Total attendance at UNFCCC COPs")
+  labs(title = "Total attendance at UNFCCC COPs", 
+       subtitle = "Source: UNFCCC Secretariat, compiled by McSweeney/CarbonBrief")
 
 #grafico partes e ngo observers
 attgraphdf %>% filter(parttype %in% c("Parties", "NGO observers",
@@ -372,7 +373,8 @@ countries_delegsize <- delegsize %>% filter(
 ggplot(global_delegsize, aes(x =Year)) +
   geom_line(aes(y = average_delegsize, color = "Mean")) +
   geom_line(aes(y = median_delegsize, color = "Median")) +
-  labs(title = "Average delegation size at the UNFCCC COPs") +
+  labs(title = "Average delegation size at the UNFCCC COPs",
+       subtitle = "Source: Kaya & Schofield") +
    scale_color_manual(#name = "Statistic", 
                       values = c("Mean" = "darkblue", 
                                  "Median" = "red"
@@ -400,6 +402,7 @@ ggplot(global_delegsize, aes(x =Year)) +
                                  "Brazil" = "darkgreen"
                                  )) +
   ylab("Number of participants") +
+  scale_x_continuous(name = "") +
   theme(legend.position="bottom")
 
 ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "CHN", "IND")), 
@@ -414,7 +417,9 @@ ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "CHN", "IND")),
                                  "IND" = "orange",
                                  "World Mean" = "darkgrey"
                                  )) +
-  ylab("Number of participants") 
+  ylab("Number of participants")  +
+  scale_x_continuous(name = "") +
+  theme(legend.position="bottom")
 
 
 ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "ARG", "IDN", "ZAF")), 
@@ -430,7 +435,8 @@ ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "ARG", "IDN", "Z
                                  "ZAF" = "magenta",
                                  "World Mean" = "darkgrey"
                                  )) +
-  ylab("Number of participants") + xlab("")
+  ylab("Number of participants") + xlab("") +
+  theme(legend.position="bottom")
 ```
 
 ### Ainda a fazer
