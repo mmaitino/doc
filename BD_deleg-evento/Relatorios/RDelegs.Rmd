@@ -552,6 +552,8 @@ ggplot(deleg_size %>% filter(!tema %in% c("Grandes conferências ONU",
                      limits = c(0,25)) +
   scale_x_continuous(name = NULL, n.breaks = 12) +
   theme(plot.title = element_text(size=22), 
+        strip.text = element_text(size=12),
+        panel.spacing = unit(1.5, "lines"),
         # legend.text = element_text(size=10),
         # legend.title = element_text(size =12),
         legend.position="none")
@@ -663,6 +665,7 @@ ggplot(freq_orgs, aes(x = ano, y = total_orgs)) +
   annotate("text", x = 1992, y = 102, label = "Rio 92", size = 3) +
   annotate("text", x = 2012, y = 410, label = "Rio+20", size = 3) +
   labs(title = "Número de organizações presentes nas delegações por ano") +
+  scale_y_continuous(name = "Número de organizações distintas") +
   scale_x_continuous(NULL, n.breaks = 12) +
   theme(plot.title = element_text(size=22), 
         legend.text = element_text(size=10),
@@ -749,6 +752,7 @@ ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),],
   # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano") +
   scale_x_continuous(NULL, n.breaks = 12) +
+  scale_y_continuous(name = "Número de organizações distintas") +
   theme(plot.title = element_text(size=16), 
         legend.text = element_text(size=10),
         legend.title = element_blank(),
@@ -763,8 +767,9 @@ ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),] %>%
   # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano") +
   scale_x_continuous(NULL, n.breaks = 12) +
-  scale_y_continuous(breaks = c(2,4,6,8,10)) +
+  scale_y_continuous(name = "Número de organizações distintas", breaks = c(2,4,6,8,10)) +
   theme(plot.title = element_text(size=16), 
+        strip.text = element_text(size=12),
         legend.text = element_text(size=10),
         legend.title = element_blank(),
         legend.position="bottom")
@@ -778,8 +783,9 @@ ggplot(freq_orgs_tema[!is.na(freq_orgs_tema$total_orgs),] %>%
   # geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano") +
   scale_x_continuous(NULL, n.breaks = 12) +
-  scale_y_continuous(breaks = c(2,4,6,8,10)) +
-  theme(plot.title = element_text(size=16), 
+  scale_y_continuous(name = "Número de organizações distintas", breaks = c(2,4,6,8,10)) +
+  theme(plot.title = element_text(size=16),
+        strip.text = element_text(size=14),
         legend.text = element_text(size=10),
         legend.title = element_blank(),
         legend.position="bottom")
@@ -795,9 +801,11 @@ ggplot(filter(freq_orgs_tema, tema == "Clima" | tema == "Biodiversidade - CBD"
        aes(x = ano, y = total_orgs)) +
   geom_line() + geom_point() +
   facet_wrap(~ tema, ncol = 1) +
-  geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
+  geom_vline(data = freq_orgs_tema %>% filter(tema == "Clima"),
+             aes(xintercept = 2015), linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano") +
   scale_x_continuous(NULL, n.breaks = 12) +
+  scale_y_continuous(name = "Número de organizações distintas") +
   theme(plot.title = element_text(size=16), 
         legend.text = element_text(size=10),
         legend.title = element_blank(),
@@ -840,7 +848,7 @@ Vale a pena observar se há diferença na tendência de evolução a depender do
 *[talvez valesse a pena refazer os cálculos de modo a manter os anos nos quais não ocorrem reuniões do tema como NA - estão como delegação vazia aqui, e isso pode induzir a interpretações equivocadas (a linha, por exemplo, fica mais errática quando nao precisaria ser assim)]*
 
 
-```{r plotando n org com facet por tipo-org, echo = FALSE, message=FALSE, fig.width=11, fig.height=11}
+```{r plotando n org com facet por tipo-org, echo = FALSE, message=FALSE, fig.width=11, fig.height=9}
 
 freq_orgs_tipo <- orgs_ano %>% select(-c(conf)) %>% distinct %>% 
   group_by(ano, tipo_org_reduzido) %>% summarise(total_orgs = n()) %>% ungroup() %>% 
@@ -850,16 +858,19 @@ freq_orgs_tipo <- orgs_ano %>% select(-c(conf)) %>% distinct %>%
 ggplot(freq_orgs_tipo %>% 
          filter(!(tipo_org_reduzido %in% c("Governo federal MRE", "Outro", 
                                            "Não identificado", "Legislativo federal"))
-                                   ),
+                                   ) %>% 
+         mutate(tipo_org_reduzido = if_else(str_detect(tipo_org_reduzido, "subnaciona"),
+                                            "Governos subnacionais", tipo_org_reduzido)),
        aes(x = ano, y = total_orgs)) +
   geom_line() + geom_point() +
-  facet_wrap(~ tipo_org_reduzido, ncol = 2) +
+  facet_wrap(~ fct_rev(tipo_org_reduzido), ncol = 2, dir = "v", as.table = F) +
   geom_vline(xintercept = 2015, linetype = 'dotted', color = 'red') +
   labs(title = "Número de organizações presentes nas delegações por ano",
        subtitle = "exceto MRE, Legislativo e não classificados") +
   scale_x_continuous(NULL, n.breaks = 12) +
   scale_y_continuous(NULL, n.breaks = 6) +
   theme(plot.title = element_text(size=16), 
+        strip.text = element_text(size=14),
         legend.text = element_text(size=10),
         legend.title = element_blank(),
         legend.position="bottom")
@@ -1318,6 +1329,7 @@ MRE_conffacet %>%
   scale_x_continuous(name = NULL, n.breaks = 12) +
   scale_size(range = c(1, 5), name="Tamanho da delegação") +
   theme(plot.title = element_text(size=22), 
+        strip.text = element_text(size=14),
         legend.text = element_text(size=10),
         legend.title = element_text(size =12),
         legend.position="bottom")
@@ -1338,6 +1350,7 @@ MRE_conffacet %>%
   scale_x_continuous(name = NULL, n.breaks = 12) +
   scale_size(range = c(1, 5), name="Tamanho da delegação") +
   theme(plot.title = element_text(size=22), 
+        strip.text = element_text(size=14),
         legend.text = element_text(size=10),
         legend.title = element_text(size =12),
         legend.position="bottom")
@@ -1389,25 +1402,39 @@ freq_tipoorgs_tempo %>%
        subtitle = "por tipo de organização, em percentual dos participantes no ano") +
   scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
   scale_x_continuous(name = NULL, n.breaks = 12) +
-  theme(plot.title = element_text(size=18))
+  theme(plot.title = element_text(size=18),
+        strip.text = element_text(size=14))
 
 ```
 
 Agora a mesma figura, mas com menos orgaos
-```{r facet parts tipo_org filtrado, echo = FALSE, fig.width = 12, fig.height = 12}
+```{r facet parts tipo_org filtrado, echo = FALSE, fig.width = 12, fig.height = 8}
 freq_tipoorgs_tempo %>% filter(tipo_factor %in% c(
   "Governo federal MRE", "Governo federal não-MRE",
   "Governos subnacionais","Sociedade civil, sindicatos, movimentos sociais",
-  "Setor empresarial")) %>% 
+  "Setor empresarial")) %>% ## mudar a ordem do factor pra comparar governo verticalmente
+  mutate(tipo_factor = factor(tipo_factor, 
+                              levels =  c(
+                                "Sociedade civil, sindicatos, movimentos sociais",
+                                "Setor empresarial",
+                                "Governos subnacionais",
+                                "Governo federal MRE",
+                                "Governo federal não-MRE"
+                                ))
+         ) %>%
   ggplot(aes(x=ano, y = percentual)) +
   geom_line() + geom_point() +
-  lemon::facet_rep_wrap(~tipo_factor, ncol = 2,
+  lemon::facet_rep_wrap(~tipo_factor, ncol = 2, 
+                        dir = "v", as.table = FALSE, #placement segue seq vertical
                         repeat.tick.labels = "bottom") +
   labs(title = "Composição das delegações brasileiras a conferências ambientais", 
        subtitle = "por tipo de organização, em percentual dos participantes no ano") +
-  scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
-  scale_x_continuous(name = NULL, n.breaks = 12) +
-  theme(plot.title = element_text(size=18))
+  scale_y_continuous(name = "% dos participantes no ano", 
+                     sec.axis = dup_axis(),
+                     labels = scales::percent) +
+  scale_x_continuous(name = NULL, n.breaks = 12,) +
+  theme(plot.title = element_text(size=18),
+        strip.text = element_text(size=14))
 
 ```
 
@@ -1422,7 +1449,8 @@ freq_tipoorgs_tempo %>% filter(tipo_factor == "Governo federal MRE") %>%
   labs(title = "Percentual de participantes vinculados ao MRE") +
   scale_y_continuous(name = "% dos participantes no ano", labels = scales::percent) +
   scale_x_continuous(name = NULL, n.breaks = 12) +
-  theme(plot.title = element_text(size=18))
+  theme(plot.title = element_text(size=18),
+        strip.text = element_text(size=14))
 
 ```
 
@@ -1608,7 +1636,7 @@ freq_tipoorgs_tempotema <- deleg_evento %>%
 freq_tipoorgs_tempotema %>% 
   filter(tema %in% c("Clima","Grandes conferências ONU", "Biodiversidade - CBD")) %>% 
   mutate(tema = if_else(tema == "Grandes conferências ONU", "Des. Sustentável", tema)) %>% 
-   group_by(ano, tema) %>% summarise(hhi_tipoorg = sum(percentual^2)) %>% 
+  group_by(ano, tema) %>% summarise(hhi_tipoorg = sum(percentual^2)) %>% 
   # grafico
   ggplot(aes(x=ano, y=hhi_tipoorg)) +
   facet_wrap(~tema, ncol = 1) +
@@ -1619,7 +1647,8 @@ freq_tipoorgs_tempotema %>%
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970,2020)) +
   scale_y_continuous(name = "Índice HHI") +
-  theme(plot.title = element_text(size=22))
+  theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14))
 
 # Só clima e cbd
 freq_tipoorgs_tempotema %>% 
@@ -1630,12 +1659,15 @@ freq_tipoorgs_tempotema %>%
   facet_wrap(~tema, ncol = 1) +
   geom_line() +
   geom_point() +
+  geom_vline(data = freq_tipoorgs_tempotema %>% filter(tema == "Clima"), aes(xintercept = 2015),
+             linetype = 'dotted', color = 'red') +
   labs(title = "Grau de concentração da comunidade (1988-2018)",
        subtitle = "Índice Herfindahl-Hirschman para principais temas ambientais internacionais") +
   scale_x_continuous(name = NULL, n.breaks = 10,
                      limits = c(1988,2018)) +
   scale_y_continuous(name = "Índice HHI") +
-  theme(plot.title = element_text(size=22))
+  theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14))
 
 
 # Demais temas
@@ -1652,7 +1684,8 @@ freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências O
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970,2020)) +
   scale_y_continuous(name = "Índice HHI") +
-  theme(plot.title = element_text(size=22))
+  theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14))
 
 # varios temas versao alternativa
 freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências ONU",
@@ -1670,7 +1703,8 @@ freq_tipoorgs_tempotema %>% filter(!tema %in% c("Clima","Grandes conferências O
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970,2020)) +
   scale_y_continuous(name = "Índice HHI") +
-  theme(plot.title = element_text(size=22))
+  theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14))
 ```
 
 ```{r tabelas hhi por tema}
@@ -1964,7 +1998,8 @@ MAPA inclui EMBRAPA e IBDF. MME inclui EPE, conselhos de políticas e ANEEL.") +
                      labels = scales::percent,
                      n.breaks = 6) +
   scale_x_continuous(name = NULL, n.breaks = 12) +
-  theme(plot.title = element_text(size=22))
+  theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14))
 ```
 
 Quebrando agora a participação por tema
@@ -1987,6 +2022,7 @@ freq_minist_tema %>% filter(Tema == "Clima") %>%
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970,2020)) +
   theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14),
         axis.ticks.length=unit(-0.1, "cm"),
         legend.position = 'none')
 
@@ -2010,6 +2046,7 @@ freq_minist_tema %>% filter(Tema == "Biodiversidade") %>%
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970, 2020)) +
   theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14),
         axis.ticks.length=unit(-0.1, "cm"),
         legend.position = 'none')
 
@@ -2032,6 +2069,7 @@ freq_minist_tema %>% filter(Tema == "Outros") %>%
   scale_x_continuous(name = NULL, n.breaks = 12,
                      limits = c(1970,2020)) +
   theme(plot.title = element_text(size=22),
+        strip.text = element_text(size=14),
         axis.ticks.length=unit(-0.1, "cm"),
         legend.position = 'none')
 
