@@ -1612,10 +1612,11 @@ hhi_tipoorg_ano <- freq_tipoorgs_tempo %>% group_by(ano) %>% summarise(hhi_tipoo
 knitr::kable(hhi_tipoorg_ano, label = "HHI index concentração de tipo_org (1970-2018)")
 ```
 
-```{r grafico hhi tipoorg, echo = FALSE, warning = FALSE, message=FALSE, fig.width = 12, fig.height = 7}
+```{r grafico hhi tipo_org, echo = FALSE, warning = FALSE, message=FALSE, fig.width = 12, fig.height = 7}
 ggplot(hhi_tipoorg_ano, aes(x=ano, y=hhi_tipoorg)) +
   geom_line() +
   geom_point() +
+  geom_vline(aes(xintercept = 2015), linetype = 'dotted', color = 'red') +
   labs(title = "Grau de concentração da comunidade (1970-2018)",
        subtitle = "Índice Herfindahl-Hirschman") +
   scale_x_continuous(name = NULL, n.breaks = 12,
