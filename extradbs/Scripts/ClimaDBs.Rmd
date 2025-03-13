@@ -372,7 +372,9 @@ countries_delegsize <- delegsize %>% filter(
 
 ggplot(global_delegsize, aes(x =Year)) +
   geom_line(aes(y = average_delegsize, color = "Mean")) +
+  geom_point(aes(y = average_delegsize, color = "Mean")) +
   geom_line(aes(y = median_delegsize, color = "Median")) +
+  geom_point(aes(y = median_delegsize, color = "Median")) +
   labs(title = "Average delegation size at the UNFCCC COPs",
        subtitle = "Source: Kaya & Schofield") +
    scale_color_manual(#name = "Statistic", 
@@ -391,8 +393,12 @@ countries_delegsize <- delegsize %>% filter(
 
 ggplot(global_delegsize, aes(x =Year)) +
   geom_line(aes(y = max_delegsize, color = "Max")) +
+  geom_point(aes(y = max_delegsize, color = "Max")) +
   geom_line(aes(y = median_delegsize, color = "Median")) +
+  geom_point(aes(y = median_delegsize, color = "Median")) +
   geom_line(data = countries_delegsize %>% filter(CountryCode == "BRA"),
+            aes(x = Year, y= Delegates0, color = "Brazil")) +
+  geom_point(data = countries_delegsize %>% filter(CountryCode == "BRA"),
             aes(x = Year, y= Delegates0, color = "Brazil")) +
   labs(title = "Delegation size at the UNFCCC COPs") +
    scale_color_manual(name = "", 
@@ -407,8 +413,10 @@ ggplot(global_delegsize, aes(x =Year)) +
 
 ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "CHN", "IND")), 
        aes(x = Year, y = Delegates0, color = CountryCode)) +
-  geom_line() +
+  geom_line() + geom_point() +
   geom_line(data = global_delegsize, aes(y = average_delegsize, 
+                                         color = "World Mean")) +
+  geom_point(data = global_delegsize, aes(y = average_delegsize, 
                                          color = "World Mean")) +
   labs(title = "Emerging countries delegation size at the UNFCCC COPs") +
    scale_color_manual(name = "Countries", 
@@ -424,8 +432,10 @@ ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "CHN", "IND")),
 
 ggplot(countries_delegsize %>% filter(CountryCode %in% c("BRA", "ARG", "IDN", "ZAF")), 
        aes(x = Year, y = Delegates0, color = CountryCode)) +
-  geom_line() +
+  geom_line() + geom_point() +
   geom_line(data = global_delegsize, aes(y = average_delegsize, 
+                                         color = "World Mean")) +
+  geom_point(data = global_delegsize, aes(y = average_delegsize, 
                                          color = "World Mean")) +
   labs(title = "Delegation size at the UNFCCC COPs") +
    scale_color_manual(name = "Countries", 
