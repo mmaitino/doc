@@ -9,7 +9,7 @@ output:
     keep_md: true
   
     
-date: "`r Sys.Date()`"
+date: "2025-05-30"
 ---
 
 Dados do working paper _Diplomacia subnacional na Amazônia Legal em temas de clima e biodiversidade: um estudo comparativo (1995-2024)_.
@@ -21,39 +21,28 @@ A escolha de Belém como sede da COP 30 lançou luz sobre a inserção de govern
 
 # Código
 
-```{r setup, include = F}
-#working directory
-knitr::opts_knit$set(root.dir = here::here())
 
-## Carregando pacotes
-library(tidyverse)
-```
 
 
 ## Preparo da base
 São usados os dados do banco de Atores e Eventos da PEB Ambiental, atualizando as delegações brasileiras enviadas à UNFCCC e CDB até 2024.
 
-Relatório mais recente: "`r Sys.Date()`"
-```{r get_latest function, include=FALSE}
-get_latest <- function(basefilename){
-  file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
-  date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
-  date
-}
-```
+Relatório mais recente: "2025-05-30"
 
-**Versão da planilha deleg**: `r get_latest("deleg")`
 
-**Versão da planilha orgs**: `r get_latest("orgs")`
+**Versão da planilha deleg**: 2023-12-20
 
-**Versão da planilha class**: `r get_latest("class")`
+**Versão da planilha orgs**: 2023-11-23, 2023-12-20
 
-**Versão da planilha eventos**: `r get_latest("eventos")`
+**Versão da planilha class**: 2022-06-29
+
+**Versão da planilha eventos**: 2023-12-14
 
 
 Iniciamos, portanto, com a importação dos dados da base.
 
-```{r importando bases, warning=FALSE, results='hide',message=FALSE}
+
+``` r
 ## Importando os dados ------------
 getlatest_file <- function(basefilename){
   list.files(pattern = paste0(basefilename, "-.+\\.csv"))
@@ -92,7 +81,8 @@ eventos <- read_delim(getlatest_file("eventos"),
 
 Em seguida, integramos e organizamos os dados
 
-```{r integrando bases, warning=FALSE, results='hide',message=FALSE}
+
+``` r
 # Criando deleg_completo (deleg+orgs+class) --------
 orgs_classificado <- left_join(orgs, class) %>% select(-c(org_sujo, org_detalhe_sujo))
 # N de rows aumenta, porque tem orgs que ficaram apenas na class e saíram da lista orgs (foram erros na padronização e corrigidos posteriormente)
@@ -106,7 +96,8 @@ deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim
 rm(deleg, orgs, class)
 ```
 
-```{r limpando base eventos, warning=FALSE, results='hide',message=FALSE}
+
+``` r
 # Limpando a base dos eventos --------
 
 ### Limpar e renomear colunas
@@ -144,7 +135,8 @@ eventos <- eventos %>% mutate(
 eventos <- eventos %>% mutate(across(where(is.character), str_trim))
 ```
 
-```{r preparando base deleg_evento, warning=FALSE, results='hide',message=FALSE}
+
+``` r
 #preparar a base do tamanho deleg
 deleg_evento <- left_join(deleg_completo,
                           select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
@@ -161,7 +153,8 @@ deleg_size <- deleg_evento %>% group_by(conf, ano) %>% summarize(count = n()) %>
 
 Podemos, agora, filtrar apenas os eventos e participantes relevantes para nosso estudo: a) as COPs de Clima e Biodiversidade e b) os participantes vinculados a órgãos subnacionais.
 
-```{r filtro}
+
+``` r
 bd <- deleg_completo %>% filter(str_detect(conf, "(UNFCCC|CBD)")) %>% 
   group_by(conf) %>% mutate(BRdeleg_size = n()) %>% ungroup() %>% 
   filter(tipo_org_reduzido == "Governos subnacionais (Executivo, Legislativo, Empresas Públicas ou Autarquias)") %>% 
@@ -170,8 +163,13 @@ bd <- deleg_completo %>% filter(str_detect(conf, "(UNFCCC|CBD)")) %>%
 bd <- left_join(bd, select(eventos, c(conf, data, location, tipo_evento, ano)))
 ```
 
+```
+## Joining with `by = join_by(conf)`
+```
 
-```{r eventos e orgs relevantes}
+
+
+``` r
 eventos_relevantes <- eventos %>% filter(str_detect(conf, "(UNFCCC|CBD)")) %>% 
   select(conf, data, location, tipo_evento, ano) %>% 
   mutate(tratado = if_else(str_detect(conf, "UNFCCC"), "UNFCCC", "CBD"))
@@ -181,8 +179,25 @@ eventos_relevantes <- eventos %>% filter(str_detect(conf, "(UNFCCC|CBD)")) %>%
 orgs_subnac <- read_csv2(here::here("orgs_subnac.csv"))
 ```
 
+```
+## ℹ Using "','" as decimal and "'.'" as grouping mark. Use `read_delim()` for more control.
+```
 
-```{r correcoes erros banco}
+```
+## Rows: 86 Columns: 6
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ";"
+## chr (3): org_limpo, tipo, sigla_estado
+## dbl (1): id_org_unica
+## lgl (2): misclass_drop, amz_legal
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+
+
+``` r
 # identifiquei alguns erros do banco que precisam ser corrigidos
 # enquanto nao atualizo os dados no banco original, fazemos nesse tratamento:
 bd <- bd %>% 
@@ -193,18 +208,16 @@ bd <- bd %>%
 
 # retira orgs que nao deveriam estar na lista
 bd <- bd %>% filter(! id_org_unica %in% (filter(orgs_subnac, misclass_drop) %>% pull(id_org_unica)) )
-
 ```
 
 
 
-```{r limpeza environment, include=FALSE}
-rm(deleg_completo, deleg_evento, deleg_size, eventos_semdeleg, eventos, orgs_classificado)
-```
+
 
 ## Evolução da participação ao longo do tempo
 
-```{r bd base}
+
+``` r
 subnacdeleg_size <- bd %>% group_by(conf, id_org_unica) %>% summarise(org_deleg_size = n()) %>% 
   # completar orgs e eventos com org_deleg size = 0
   ungroup() %>% complete(conf = eventos_relevantes$conf, 
@@ -214,9 +227,17 @@ subnacdeleg_size <- bd %>% group_by(conf, id_org_unica) %>% summarise(org_deleg_
   left_join(eventos_relevantes) %>% left_join(orgs_subnac) #incluir detalhes
 ```
 
+```
+## `summarise()` has grouped output by 'conf'. You can override using the
+## `.groups` argument.
+## Joining with `by = join_by(conf)`
+## Joining with `by = join_by(id_org_unica)`
+```
+
 ### Nº total de participantes subnacionais
 
-```{r subnac ano}
+
+``` r
 # grafico
 ggplot(subnacdeleg_size, aes(x = ano, y = subnacdeleg_size, color = tratado)) +
   geom_line() + geom_point() +
@@ -227,14 +248,41 @@ ggplot(subnacdeleg_size, aes(x = ano, y = subnacdeleg_size, color = tratado)) +
   theme(legend.position = "bottom")
 ```
 
+```
+## Warning: Removed 1550 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+```
+## Warning: Removed 1550 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](ArtigoAmz_files/figure-html/subnac ano-1.png)<!-- -->
+
 ### Divisão por região
 
-```{r amz leg ano}
+
+``` r
 subnacdeleg_size %>% filter(!is.na(amz_legal)) %>% 
   group_by(conf, amz_legal) %>% 
   summarise(amz_deleg_size = sum(org_deleg_size)) -> amz_deleg_size
+```
 
+```
+## `summarise()` has grouped output by 'conf'. You can override using the
+## `.groups` argument.
+```
+
+``` r
 amz_deleg_size <- left_join(amz_deleg_size, eventos_relevantes)
+```
+
+```
+## Joining with `by = join_by(conf)`
+```
+
+``` r
 amz_deleg_size <- amz_deleg_size %>% mutate(regiao = if_else(amz_legal, "Amazônia Legal","Demais"))
 
 # tst <- amz_deleg_size %>% select(-amz_legal) %>%
@@ -253,13 +301,41 @@ amz_deleg_size %>%
   theme(legend.position = "bottom")
 ```
 
+```
+## Warning: Removed 22 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
 
-```{r amz estados ano}
+```
+## Warning: Removed 50 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](ArtigoAmz_files/figure-html/amz leg ano-1.png)<!-- -->
+
+
+
+``` r
 # (dividir total e só estados)
 estadosdeleg_size <- subnacdeleg_size %>% filter(!is.na(amz_legal)) %>% filter(tipo == "estado") %>% 
   group_by(conf, amz_legal) %>% 
   summarise(amz_deleg_size = sum(org_deleg_size))
+```
+
+```
+## `summarise()` has grouped output by 'conf'. You can override using the
+## `.groups` argument.
+```
+
+``` r
 estadosdeleg_size <- left_join(estadosdeleg_size, eventos_relevantes)
+```
+
+```
+## Joining with `by = join_by(conf)`
+```
+
+``` r
 estadosdeleg_size <- estadosdeleg_size %>% mutate(regiao = if_else(amz_legal, "Amazônia Legal","Demais"))
 
 
@@ -274,8 +350,21 @@ estadosdeleg_size %>%
   theme(legend.position = "bottom")
 ```
 
+```
+## Warning: Removed 22 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
 
-```{r parts regiao ano}
+```
+## Warning: Removed 50 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](ArtigoAmz_files/figure-html/amz estados ano-1.png)<!-- -->
+
+
+
+``` r
 estado_regiao <- orgs_subnac %>% 
   select(sigla_estado) %>% distinct() %>% 
   mutate(regiao = case_when(sigla_estado %in% c("AC", "AM", "RO", "RR", "PA", "AP", "TO") ~ "Norte",
@@ -299,8 +388,27 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
   scale_y_continuous(n.breaks = 8, name = "") +
   scale_x_continuous(name = NULL, n.breaks = 12, limits = c(1995, 2025)) +
   theme(legend.position = "bottom")
+```
 
+```
+## Joining with `by = join_by(sigla_estado)`
+## `summarise()` has grouped output by 'ano'. You can override using the `.groups`
+## argument.
+```
 
+```
+## Warning: Removed 30 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+```
+## Warning: Removed 30 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](ArtigoAmz_files/figure-html/parts regiao ano-1.png)<!-- -->
+
+``` r
 subnacdeleg_size %>% left_join(estado_regiao) %>% 
   filter(regiao == c("Sudeste", "Norte")) %>% group_by(ano, regiao) %>% 
   summarise(deleg_size = sum(org_deleg_size)) %>% 
@@ -313,27 +421,46 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
   scale_y_continuous(n.breaks = 8, name = "") +
   scale_x_continuous(name = NULL, n.breaks = 12, limits = c(1995, 2025)) +
   theme(legend.position = "bottom")
+```
 
 ```
+## Joining with `by = join_by(sigla_estado)`
+## `summarise()` has grouped output by 'ano'. You can override using the `.groups`
+## argument.
+```
+
+```
+## Warning: Removed 12 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+```
+## Warning: Removed 12 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](ArtigoAmz_files/figure-html/parts regiao ano-2.png)<!-- -->
 
 
 ### Top estados / top municipios
-```{r top subnac}
+
+``` r
 # AmzLegal entra de alguma forma no gráfico (cor, tracejado, tipo de ponto)
 # dúvida sobre Clima x CBD
 
 # top X estados ao longo do tempo
 # top X municipios ao longo do tempo 
-
 ```
 
 ## Participação geral
 
-```{r munics regiao}
+
+``` r
 # sem olhar evoluçao temporal, n munic por regiao/AmzLegal
 ```
 
-```{r tabela estados}
+
+``` r
 # (tabelas diferentes por tratado)
 # row = estado, col = n por ano e total?
 # possibilidade: fazer mapa(s) no futuro com isso
