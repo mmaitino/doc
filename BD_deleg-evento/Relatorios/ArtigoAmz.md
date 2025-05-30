@@ -258,7 +258,7 @@ ggplot(subnacdeleg_size, aes(x = ano, y = subnacdeleg_size, color = tratado)) +
 ## (`geom_point()`).
 ```
 
-![](ArtigoAmz_files/figure-html/subnac ano-1.png)<!-- -->
+![](ArtigoAmz_files/figure-html/subnac_ano-1.png)<!-- -->
 
 ### Divisão por região
 
@@ -311,7 +311,7 @@ amz_deleg_size %>%
 ## (`geom_point()`).
 ```
 
-![](ArtigoAmz_files/figure-html/amz leg ano-1.png)<!-- -->
+![](ArtigoAmz_files/figure-html/amz_leg_ano-1.png)<!-- -->
 
 
 
@@ -360,7 +360,7 @@ estadosdeleg_size %>%
 ## (`geom_point()`).
 ```
 
-![](ArtigoAmz_files/figure-html/amz estados ano-1.png)<!-- -->
+![](ArtigoAmz_files/figure-html/amz_estados_ano-1.png)<!-- -->
 
 
 
@@ -406,7 +406,7 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
 ## (`geom_point()`).
 ```
 
-![](ArtigoAmz_files/figure-html/parts regiao ano-1.png)<!-- -->
+![](ArtigoAmz_files/figure-html/parts_regiao_ano-1.png)<!-- -->
 
 ``` r
 subnacdeleg_size %>% left_join(estado_regiao) %>% 
@@ -439,7 +439,7 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
 ## (`geom_point()`).
 ```
 
-![](ArtigoAmz_files/figure-html/parts regiao ano-2.png)<!-- -->
+![](ArtigoAmz_files/figure-html/parts_regiao_ano-2.png)<!-- -->
 
 
 ### Top estados / top municipios

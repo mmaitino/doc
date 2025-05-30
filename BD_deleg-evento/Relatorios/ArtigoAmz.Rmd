@@ -34,7 +34,7 @@ library(tidyverse)
 São usados os dados do banco de Atores e Eventos da PEB Ambiental, atualizando as delegações brasileiras enviadas à UNFCCC e CDB até 2024.
 
 Relatório mais recente: "`r Sys.Date()`"
-```{r get_latest function, include=FALSE}
+```{r get_latest-function, include=FALSE}
 get_latest <- function(basefilename){
   file_name <- list.files(pattern = paste0(basefilename, "-.+\\.csv"))
   date <- stringr::str_remove_all(file_name, paste0(basefilename,"-", "|\\.csv"))
@@ -53,7 +53,7 @@ get_latest <- function(basefilename){
 
 Iniciamos, portanto, com a importação dos dados da base.
 
-```{r importando bases, warning=FALSE, results='hide',message=FALSE}
+```{r importando_bases, warning=FALSE, results='hide',message=FALSE}
 ## Importando os dados ------------
 getlatest_file <- function(basefilename){
   list.files(pattern = paste0(basefilename, "-.+\\.csv"))
@@ -92,7 +92,7 @@ eventos <- read_delim(getlatest_file("eventos"),
 
 Em seguida, integramos e organizamos os dados
 
-```{r integrando bases, warning=FALSE, results='hide',message=FALSE}
+```{r integrando_bases, warning=FALSE, results='hide',message=FALSE}
 # Criando deleg_completo (deleg+orgs+class) --------
 orgs_classificado <- left_join(orgs, class) %>% select(-c(org_sujo, org_detalhe_sujo))
 # N de rows aumenta, porque tem orgs que ficaram apenas na class e saíram da lista orgs (foram erros na padronização e corrigidos posteriormente)
@@ -106,7 +106,7 @@ deleg_completo <- deleg_completo %>% mutate(across(where(is.character), str_trim
 rm(deleg, orgs, class)
 ```
 
-```{r limpando base eventos, warning=FALSE, results='hide',message=FALSE}
+```{r limpando_base_eventos, warning=FALSE, results='hide',message=FALSE}
 # Limpando a base dos eventos --------
 
 ### Limpar e renomear colunas
@@ -144,7 +144,7 @@ eventos <- eventos %>% mutate(
 eventos <- eventos %>% mutate(across(where(is.character), str_trim))
 ```
 
-```{r preparando base deleg_evento, warning=FALSE, results='hide',message=FALSE}
+```{r preparandobase_deleg_evento, warning=FALSE, results='hide',message=FALSE}
 #preparar a base do tamanho deleg
 deleg_evento <- left_join(deleg_completo,
                           select(eventos, c(conf, tema, ano, tipo_evento, infMEA_list)))
@@ -171,7 +171,7 @@ bd <- left_join(bd, select(eventos, c(conf, data, location, tipo_evento, ano)))
 ```
 
 
-```{r eventos e orgs relevantes}
+```{r eventos_orgs_relevantes}
 eventos_relevantes <- eventos %>% filter(str_detect(conf, "(UNFCCC|CBD)")) %>% 
   select(conf, data, location, tipo_evento, ano) %>% 
   mutate(tratado = if_else(str_detect(conf, "UNFCCC"), "UNFCCC", "CBD"))
@@ -182,7 +182,7 @@ orgs_subnac <- read_csv2(here::here("orgs_subnac.csv"))
 ```
 
 
-```{r correcoes erros banco}
+```{r correcoes_erros_banco}
 # identifiquei alguns erros do banco que precisam ser corrigidos
 # enquanto nao atualizo os dados no banco original, fazemos nesse tratamento:
 bd <- bd %>% 
@@ -198,13 +198,13 @@ bd <- bd %>% filter(! id_org_unica %in% (filter(orgs_subnac, misclass_drop) %>% 
 
 
 
-```{r limpeza environment, include=FALSE}
+```{r limpeza_environment, include=FALSE}
 rm(deleg_completo, deleg_evento, deleg_size, eventos_semdeleg, eventos, orgs_classificado)
 ```
 
 ## Evolução da participação ao longo do tempo
 
-```{r bd base}
+```{r bd_base}
 subnacdeleg_size <- bd %>% group_by(conf, id_org_unica) %>% summarise(org_deleg_size = n()) %>% 
   # completar orgs e eventos com org_deleg size = 0
   ungroup() %>% complete(conf = eventos_relevantes$conf, 
@@ -216,7 +216,7 @@ subnacdeleg_size <- bd %>% group_by(conf, id_org_unica) %>% summarise(org_deleg_
 
 ### Nº total de participantes subnacionais
 
-```{r subnac ano}
+```{r subnac_ano}
 # grafico
 ggplot(subnacdeleg_size, aes(x = ano, y = subnacdeleg_size, color = tratado)) +
   geom_line() + geom_point() +
@@ -229,7 +229,7 @@ ggplot(subnacdeleg_size, aes(x = ano, y = subnacdeleg_size, color = tratado)) +
 
 ### Divisão por região
 
-```{r amz leg ano}
+```{r amz_leg_ano}
 subnacdeleg_size %>% filter(!is.na(amz_legal)) %>% 
   group_by(conf, amz_legal) %>% 
   summarise(amz_deleg_size = sum(org_deleg_size)) -> amz_deleg_size
@@ -254,7 +254,7 @@ amz_deleg_size %>%
 ```
 
 
-```{r amz estados ano}
+```{r amz_estados_ano}
 # (dividir total e só estados)
 estadosdeleg_size <- subnacdeleg_size %>% filter(!is.na(amz_legal)) %>% filter(tipo == "estado") %>% 
   group_by(conf, amz_legal) %>% 
@@ -275,7 +275,7 @@ estadosdeleg_size %>%
 ```
 
 
-```{r parts regiao ano}
+```{r parts_regiao_ano}
 estado_regiao <- orgs_subnac %>% 
   select(sigla_estado) %>% distinct() %>% 
   mutate(regiao = case_when(sigla_estado %in% c("AC", "AM", "RO", "RR", "PA", "AP", "TO") ~ "Norte",
@@ -318,7 +318,7 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
 
 
 ### Top estados / top municipios
-```{r top subnac}
+```{r top_subnac}
 # AmzLegal entra de alguma forma no gráfico (cor, tracejado, tipo de ponto)
 # dúvida sobre Clima x CBD
 
@@ -329,11 +329,11 @@ subnacdeleg_size %>% left_join(estado_regiao) %>%
 
 ## Participação geral
 
-```{r munics regiao}
+```{r munics_regiao}
 # sem olhar evoluçao temporal, n munic por regiao/AmzLegal
 ```
 
-```{r tabela estados}
+```{r tabela_estados}
 # (tabelas diferentes por tratado)
 # row = estado, col = n por ano e total?
 # possibilidade: fazer mapa(s) no futuro com isso
