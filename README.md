@@ -6,7 +6,7 @@ Repositório criado para manter o histórico e backup das alterações das bases
 **Financiamento**: FAPESP (Processos 	2020/07387-1 e 2022/10926-7)
 
 **Publicações resultantes**: 
-- Maitino, Martin Egon. "Participação e política externa ambiental brasileira (1970-2018): atores domésticos e a definição da posição do Brasil", Tese (Doutorado em Ciência Política), Universidade de São Paulo, 2025.
+- Maitino, Martin Egon. "Participação e política externa ambiental brasileira (1970-2018): atores domésticos e a definição da posição do Brasil", Tese (Doutorado em Ciência Política), Universidade de São Paulo, 2025. [Link](https://doi.org/10.11606/T.8.2025.tde-29052025-150405)
 
 # Estrutura do repositório e dos dados
 O repositório está centrado em dois subprojetos, referentes à organização e análise do banco de dados original *Atores e eventos da política externa ambiental brasileira (1970-2018)*: _BD_deleg-evento_ e _rede_parts_. 
@@ -23,7 +23,7 @@ São incluídos, ainda, outros projetos paralelos que não constam da tese final
 - O projeto _webscraping_, também interrompido, trabalhava com a ideia de construir redes a partir da participação comum de atores em Side Events nas COPs. Por fim, o projeto _extradbs_ agrupa bancos de dados produzidos por outros pesquisadores que foram considerados úteis para a análise da tese - de particular interesse aqui são as análises construídas a partir do banco de dados de Paula Castro, como os scores de cooperação e o cálculo de pontos ideais nas interações da UNFCCC.
 
 ## Diagrama das relações entre os bancos de dados
-
+![Diagrama](modelos_db.png?raw=true)
 
 # Processo de construção dos bancos
-Para mais informações, ver Maitino (2025), Cap. 2
+Para mais informações, ver [Maitino (2025)](https://doi.org/10.11606/T.8.2025.tde-29052025-150405), Cap. 2
