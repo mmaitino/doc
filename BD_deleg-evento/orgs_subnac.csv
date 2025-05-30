@@ -1,0 +1,87 @@
+﻿id_org_unica;org_limpo;misclass_drop;tipo;sigla_estado;amz_legal
+174;Consórcio da Amazônia Legal;F;consorcio;;T
+4;ABEMA - Associação Brasileira de Entidades Estaduais de Meio Ambiente;F;entidade;;
+12;ABM - Associação Brasileira de Municípios;F;entidade;;
+28;AICESIS - International Association of Economic and Social Councils and Similar Institutions;T;entidade;;
+36;ANAMMA - Associação Nacional de Órgãos Municipais de Meio Ambiente;F;entidade;;
+39;ANDIFES - Associação Nacional dos Dirigentes das Instituições Federais de Ensino Superior;T;entidade;;
+61;Associação Brasileira de Institutos Ambientais;F;entidade;;
+66;Autoridade Pública Olímpica;T;entidade;;
+139;CNM - Confederação Nacional de Municípios;F;entidade;;
+167;CONSED - Conselho Nacional de Secretários de Educação;F;entidade;;
+281;Frente Nacional de Prefeitos;F;entidade;;
+332;ICLEI - Local Governments for Sustainability;T;entidade;;
+357;Instituto Águas da Terra;F;entidade;PR;F
+391;INTOSAI - International Organization of Supreme Audit Institutions;F;entidade;;
+605;UNALE - União Nacional dos Legisladores e Legislativos Estaduais;F;entidade;;
+606;UNDIME - União Nacional dos Dirigentes Municipais de Educação;F;entidade;;
+198;Distrito Federal;F;estado;DF;F
+222;Estado da Bahia;F;estado;BA;F
+223;Estado da Paraíba;F;estado;PB;F
+224;Estado de Alagoas;F;estado;AL;F
+225;Estado de Goiás;F;estado;GO;F
+226;Estado de Mato Grosso;F;estado;MT;T
+227;Estado de Minas Gerais;F;estado;MG;F
+228;Estado de Pernambuco;F;estado;PE;F
+229;Estado de Rondônia;F;estado;RO;T
+230;Estado de Roraima;F;estado;RR;T
+231;Estado de Santa Catarina;F;estado;SC;F
+232;Estado de São Paulo;F;estado;SP;F
+234;Estado de Tocantins;F;estado;TO;T
+235;Estado do Acre;F;estado;AC;T
+236;Estado do Amapá;F;estado;AP;T
+237;Estado do Amazonas;F;estado;AM;T
+238;Estado do Ceará;F;estado;CE;F
+239;Estado do Espírito Santo;F;estado;ES;F
+240;Estado do Maranhão;F;estado;MA;T
+241;Estado do Mato Grosso;F;estado;MT;T
+242;Estado do Pará;F;estado;PA;T
+243;Estado do Paraná;F;estado;PR;F
+244;Estado do Piauí;F;estado;PI;F
+245;Estado do Rio de Janeiro;F;estado;RJ;F
+246;Estado do Rio Grande do Norte;F;estado;RN;F
+247;Estado do Rio Grande do Sul;F;estado;RS;F
+248;Estado do Tocantins;F;estado;TO;T
+249;Estado não identificado;F;estado;;
+256;FAPESC;T;estado;SC;F
+547;SANESP - Companhia Metropolitana de Saneamento de São Paulo;F;estado;SP;F
+684;Estado de Sergipe;F;estado;SE;F
+685;Estado de Mato Grosso do Sul;F;estado;MS;F
+459;Município de Aracaju;F;munic;SE;F
+460;Município de Belém;F;munic;PA;T
+461;Município de Belo Horizonte;F;munic;MG;F
+462;Município de Boa Vista;F;munic;RR;T
+463;Município de Brasileia;F;munic;AC;T
+464;Município de Campinas;F;munic;SP;F
+465;Município de Cotriguaçu;F;munic;MT;T
+466;Município de Curitiba;F;munic;PR;F
+467;Município de Cururupu;F;munic;MA;T
+468;Município de Fortaleza;F;munic;CE;F
+469;Município de Goiânia;F;munic;GO;F
+470;Município de Itu;F;munic;SP;F
+471;Município de João Pessoa;F;munic;PB;F
+472;Município de Jundiaí;F;munic;SP;F
+473;Município de Londrina;F;munic;PR;F
+474;Município de Macapá;F;munic;AP;T
+475;Município de Maceió;F;munic;AL;F
+476;Município de Manaus;F;munic;AM;T
+477;Município de Marechal Thaumaturgo;F;munic;AC;T
+478;Município de Natal;F;munic;RN;F
+479;Município de Nova Iguacu;F;munic;RJ;F
+480;Município de Palmas;F;munic;TO;T
+481;Município de Paragominas;F;munic;PA;T
+482;Município de Porto Alegre;F;munic;RS;F
+483;Município de Porto Velho;F;munic;RO;T
+484;Município de Rio de Janeiro;F;munic;RJ;F
+485;Município de Salvador;F;munic;BA;F
+486;Município de Santa Terezinha de Goiás;F;munic;GO;F
+487;Município de Sâo Bento do Una;F;munic;PE;F
+488;Município de São Luís;F;munic;MA;T
+489;Município de São Paulo;F;munic;SP;F
+490;Município de Vitória;F;munic;ES;F
+491;Município de Vitória do Jari;F;munic;AP;T
+492;Município do Recife;F;munic;PE;F
+493;Município do Rio de Janeiro;F;munic;RJ;F
+675;Município de Alto Paraíso;F;munic;GO;F
+676;Município de Campos dos Goytacazes;F;munic;RJ;F
+738;Município de São José do Rio Preto;F;munic;SP;F
