@@ -1,6 +1,8 @@
 ---
 title: "DadosClima"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 date: "2023-11-29"
 ---
 
