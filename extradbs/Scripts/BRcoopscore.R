@@ -279,8 +279,9 @@ finish_coop_scores <- function(coopdb){
 # ou serem por ele mencionados). Talvez isso explique distância de BASIC?
 
 BReu <- calculate_coop("EU", "Brazil", relationdb) %>% finish_coop_scores()
+BRaosis <- calculate_coop("AOSIS", "Brazil", relationdb) %>% finish_coop_scores()
 BRg77 <- calculate_coop("G77", "Brazil", relationdb) %>% finish_coop_scores()
-BRbasic <- calculate_coop( "BASIC", "Brazil", relationdb)
+BRbasic <- calculate_coop( "BASIC", "Brazil", relationdb) %>% finish_coop_scores()
 BRumb <- calculate_coop("Umbrella", "Brazil", relationdb)
 
 bind_rows(BReu, BRg77) %>% ggplot(aes(x=year, color = grouping)) + 
