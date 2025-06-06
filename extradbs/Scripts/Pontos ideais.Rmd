@@ -6,6 +6,7 @@ output:
     toc: true
     toc_depth: 3
     number_sections: true
+    keep_md: true
     
 date: "`r Sys.Date()`"
 ---
