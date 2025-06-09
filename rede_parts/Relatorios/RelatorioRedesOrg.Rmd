@@ -6,6 +6,7 @@ output:
     toc: true
     toc_depth: 3
     number_sections: true
+    keep_md: true
     
 date: "`r Sys.Date()`"
 ---
@@ -491,7 +492,7 @@ fullstats <- central_stats(orgdecadenet, "betweenness", lglnormal = F, "ditadura
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "ditadura", invertweight = F)  )
 ```
 
-```{r plot ditadura, echo = F, message = F}
+```{r plotditadura, echo = F, message = F}
 #.... Generating the figure ------
 
 # Creating layout
@@ -573,7 +574,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "sarney", invertweight = F)  )
 ```
 
-```{r plot sarney, echo = F, message = F}
+```{r plotsarney, echo = F, message = F}
 #.... Generating the figure ------
 
 # Creating layout
@@ -680,7 +681,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "colloritamar", invertweight = F)  )
 ```
 
-```{r plot colloritamar, echo = F}
+```{r plotcolloritamar, echo = F}
 # Creating layout
 set.seed(123) #set seed to guarantee reproducibility of figure layout  
 # coords <- layout_(orgdecadenet, with_fr())
@@ -762,7 +763,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "fhc1", invertweight = F)  )
 ```
 
-```{r plot fhc1, echo = F}
+```{r plotfhc1, echo = F}
 #.... Generating the figure ------
 
 # Creating layout
@@ -854,7 +855,7 @@ fullstats <- fullstats %>%
 ```
 
 
-```{r plot fhc2, echo = F}
+```{r plotfhc2, echo = F}
 #.... Generating the figure ------
 
 filtdecadenet <- induced_subgraph(orgdecadenet, 
@@ -949,7 +950,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula1", invertweight = F)  )
 ```
 
-```{r plot lula1, echo = F}
+```{r plotlula1, echo = F}
 #.... Generating the figure ------
 
 filtdecadenet <- induced_subgraph(orgdecadenet, 
@@ -1044,7 +1045,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "eigenvector", T, "lula2", invertweight = F)  )
 ```
 
-```{r plot lula2, echo = F, message = FALSE}
+```{r plotlula2, echo = F, message = FALSE}
 #.... Generating the figure ------
 
 filtdecadenet <- induced_subgraph(orgdecadenet, 
@@ -1144,7 +1145,7 @@ fullstats <- fullstats %>%
 ```
 
 
-```{r plot dilma1, echo = F}
+```{r plotdilma1, echo = F}
 #.... Generating the figure ------
 
 filtdecadenet <- induced_subgraph(orgdecadenet, 
@@ -1238,7 +1239,7 @@ fullstats <- fullstats %>%
 ```
 
 
-```{r plot dilmatemer, echo = F}
+```{r plotdilmatemer, echo = F}
 #.... Generating the figure ------
 
 filtdecadenet <- induced_subgraph(orgdecadenet, 
@@ -1319,7 +1320,7 @@ title("Organizations Network Dilma2-Temer (2015-2018) - Orgs with 3+ participati
 
 ### Visualização das estatísticas por mandato presidencial
 (Betweenness, normalized and inverted weights)
-```{r plot betwcentr mandatos, echo = F}
+```{r plot-betwcentr-mandatos, echo = F}
 fullstats %>% filter(weightinverted == T & normalized == T) %>% 
   filter(decade %in% c("ditadura","sarney","colloritamar", 
                        "fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
@@ -1345,7 +1346,7 @@ fullstats %>% filter(weightinverted == T & normalized == T) %>%
 ```
 
 (Eigenvector, normalized and inverted weights)
-```{r plot eigencentr mandatos, echo = F}
+```{r plot-eigencentr-mandatos, echo = F}
 fullstats %>% filter(weightinverted == T) %>% 
   filter(decade %in% c("ditadura","sarney","colloritamar",
                        "fhc1", "fhc2", "lula1", "lula2", "dilma1", "dilmatemer")) %>% 
@@ -1443,7 +1444,7 @@ fullstats <- fullstats %>%
 ```
 
 
-```{r plot net 70s, echo = F}
+```{r plot-net70s, echo = F}
 #.... Generating the figure ------
 
 # Creating layout
@@ -1529,7 +1530,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "80s", invertweight = T)  )
 ```
 
-```{r plot net 80s, echo = F}
+```{r plot-net80s, echo = F}
 # Creating layout
 set.seed(123) #set seed to guarantee reproducibility of figure layout  
 # coords <- layout_(orgdecadenet, with_fr())
@@ -1646,7 +1647,7 @@ fullstats <- fullstats %>%
 ```
 
 
-```{r plot net 90s, echo = F}
+```{r plot-net90s, echo = F}
 # Creating layout
 set.seed(123) #set seed to guarantee reproducibility of figure layout  
 # coords <- layout_(orgdecadenet, with_fr())
@@ -1717,7 +1718,7 @@ To clear up the graph and better look at the community structure, it might be mo
 *3 ou mais participações da organização*
 
 Idealmente, incluir os nomes das organizações de novo. Como a rede é induzida da rede anterior, já chega com nomes corrigidos (e apagados). Tem alguns que já estavam sem label. Rever código para ver como fazer isso. (É a função prepare nodes?)
-```{r plot filtnet90, echo = F}
+```{r plot-filtnet90, echo = F}
 filtdecadenet <- induced_subgraph(orgdecadenet, 
                  V(orgdecadenet)[nparticipations  >= 3]) %>% preparing_nodeappearance(30)
 
@@ -1791,7 +1792,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "00s", invertweight = T)  )
 ```
 
-```{r plot net 00s, echo = F, message = F}
+```{r plot-net00s, echo = F, message = F}
 # Creating layout
 set.seed(123) #set seed to guarantee reproducibility of figure layout  
 # coords <- layout_(orgdecadenet, with_fr())
@@ -1870,7 +1871,7 @@ To clear up the graph and better look at the community structure, it might be mo
 
 *10 ou mais participações da organização*
 
-```{r plot filtnet 00s, echo = F}
+```{r plot-filtnet00s, echo = F}
 #.... Alternative figure: only orgs with 10+ participations -----
 # To clear up the graph and better look at the community structure, 
 # it might be more interesting to limit the organizations in the figure.
@@ -1964,7 +1965,7 @@ fullstats <- fullstats %>%
   bind_rows( central_stats(orgdecadenet, "betweenness", T, "10s", invertweight = T)  )
 ```
 
-```{r plot net 10s, echo = F, message = F}
+```{r plot-net10s, echo = F, message = F}
 # Creating layout
 set.seed(123) #set seed to guarantee reproducibility of figure layout  
 # coords <- layout_(orgdecadenet, with_fr())
@@ -2043,7 +2044,7 @@ To clear up the graph and better look at the community structure, it might be mo
 
 *10 ou mais participações da organização*
 
-```{r plot filtnet 10s, echo = F}
+```{r plot-filtnet10s, echo = F}
 #.... Alternative figure: only orgs with 10+ participations -----
 # To clear up the graph and better look at the community structure, 
 # it might be more interesting to limit the organizations in the figure.
@@ -2125,7 +2126,7 @@ title("Figure. Filtered Organizations Network (2010-2018, 10+)",
 ```
 
 
-```{r plot filtnet 10s 20plus, echo = F}
+```{r plot-filtnet10s-20plus, echo = F}
 #.... Alternative figure: only orgs with 10+ participations -----
 # To clear up the graph and better look at the community structure, 
 # it might be more interesting to limit the organizations in the figure.
@@ -2213,7 +2214,7 @@ title("Figure. Filtered Organizations Network (2010-2018, 20+)",
 
 ## Visualização das estatísticas por década
 (Betweenness, normalized and inverted weights)
-```{r plot betwcentr decada, echo = F}
+```{r plot-betwcentr-decada, echo = F}
 fullstats %>% filter(weightinverted == T & normalized == T) %>% 
   filter(decade %in% c("70s","80s","90s","00s","10s")) %>% 
   mutate(year = case_when(decade == "70s" ~ 1970,
@@ -2261,7 +2262,7 @@ full_centr3 <- map_df(1973:2018, calcularcent_janela)
 ### Centralidade de intermediação (betweenness)
 
 #### Visualização de betweenness
-```{r plot betw jan4, echo = F}
+```{r plot-betw-jan4, echo = F}
 full_centr3 %>% 
   mutate(org = if_else(is.na(org), "Average", org)) %>% 
   ggplot(aes(x = decade, y=value, color = org)) +
@@ -2272,9 +2273,45 @@ full_centr3 %>%
 ```
 
 
+```{r}
+full_centr2 <- map_df(1973:2018, calcularcent_janela, tamanho_janela = 2)
+
+full_centr2 %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = decade, y=value, color = org)) +
+  geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  theme(legend.position = "none") +
+  ggtitle("Normalized betweenness centrality, 3 year window network")
+```
+
+```{r}
+full_centr4 <- map_df(1973:2018, calcularcent_janela, tamanho_janela = 4)
+
+full_centr4 %>% 
+  mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  ggplot(aes(x = decade, y=value, color = org)) +
+  geom_line() + geom_point() +
+  facet_wrap(~org, ncol = 1) +
+  theme(legend.position = "none") +
+  ggtitle("Normalized betweenness centrality, 5 year window network")
+```
+
 #### Tabela dados betweenness
 ```{r tabela betwcentrality jan4, echo = F}
 full_centr3 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
   select(decade, org, value) %>% rename(decade = "year") %>% 
   knitr::kable(caption = "Normalized betweenness centrality, 4 year window network")
+```
+
+```{r tabela betwcentrality jan5, echo = F}
+full_centr4 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  select(decade, org, value) %>% rename(decade = "year") %>% 
+  knitr::kable(caption = "Normalized betweenness centrality, 5 year window network")
+```
+
+```{r tabela betwcentrality jan3, echo = F}
+full_centr2 %>% mutate(org = if_else(is.na(org), "Average", org)) %>% 
+  select(decade, org, value) %>% rename(decade = "year") %>% 
+  knitr::kable(caption = "Normalized betweenness centrality, 3 year window network")
 ```
