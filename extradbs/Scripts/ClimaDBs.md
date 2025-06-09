@@ -41,7 +41,7 @@ Os dados de 2022 (COP27) incluídos na série são os da lista provisória - **�
 
 
 ### Gráfico dos dados
-![](ClimaDBs_files/figure-html/plot attendance-1.png)<!-- -->![](ClimaDBs_files/figure-html/plot attendance-2.png)<!-- -->![](ClimaDBs_files/figure-html/plot attendance-3.png)<!-- -->![](ClimaDBs_files/figure-html/plot attendance-4.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-attendance-1.png)<!-- -->![](ClimaDBs_files/figure-html/plot-attendance-2.png)<!-- -->![](ClimaDBs_files/figure-html/plot-attendance-3.png)<!-- -->![](ClimaDBs_files/figure-html/plot-attendance-4.png)<!-- -->
 
 Notar que plotar por ano tem problema de duas COPs em 2000. depois fazer uma variavel mais refinada de data pro ponto de novembro ficar levemente mais pra frente
 Talvez valha fazer linhas marcando Kyoto, Copenhagen e Paris (Cops de acordo)
@@ -57,7 +57,7 @@ Interessante ver que as tendências diferem. A participação da mídia é relat
 ## (`geom_point()`).
 ```
 
-![](ClimaDBs_files/figure-html/graficos attendance parties br-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/graficos-attendance-parties-br-1.png)<!-- -->
 
 Vemos que a trajetória de participação no Brasil segue o ritmo geral observado na UNFCCC como um todo, mas tem algumas especificidades tanto em relação às partes como aos observadores não-estatais. 
 Os picos nas Partes se dão em 2009 e 2015, com queda em seguida. Período 2010 a 2014 é baixo e relativamente estável. Pós 2015, um novo patamar, mais alto.
@@ -94,7 +94,7 @@ attbrgeral %>% filter(parttype %in% c("Parties", "Brazil government")) %>%
 ## (`geom_point()`).
 ```
 
-![](ClimaDBs_files/figure-html/graficos att br tipo part-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/graficos-att-br-tipo-part-1.png)<!-- -->
 
 ``` r
 attbrgeral %>% filter(parttype %in% c("Parties",
@@ -112,7 +112,7 @@ attbrgeral %>% filter(parttype %in% c("Parties",
 ## (`geom_point()`).
 ```
 
-![](ClimaDBs_files/figure-html/graficos att br tipo part-2.png)<!-- -->
+![](ClimaDBs_files/figure-html/graficos-att-br-tipo-part-2.png)<!-- -->
 
 ``` r
 attbrgeral %>% filter(parttype %in% c("NGO observers", 
@@ -131,7 +131,7 @@ attbrgeral %>% filter(parttype %in% c("NGO observers",
 ## (`geom_point()`).
 ```
 
-![](ClimaDBs_files/figure-html/graficos att br tipo part-3.png)<!-- -->
+![](ClimaDBs_files/figure-html/graficos-att-br-tipo-part-3.png)<!-- -->
 
 
 
@@ -154,9 +154,9 @@ delegsize <- read.csv(here::here("dbs","Schofield", "ClimateChangeAttendanceFPA.
 ```
 
 
-![](ClimaDBs_files/figure-html/plot averagedelegsize-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-averagedelegsize-1.png)<!-- -->
 
-![](ClimaDBs_files/figure-html/plot BR deleg-1.png)<!-- -->![](ClimaDBs_files/figure-html/plot BR deleg-2.png)<!-- -->![](ClimaDBs_files/figure-html/plot BR deleg-3.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-BR-deleg-1.png)<!-- -->![](ClimaDBs_files/figure-html/plot-BR-deleg-2.png)<!-- -->![](ClimaDBs_files/figure-html/plot-BR-deleg-3.png)<!-- -->
 
 ### Ainda a fazer
 - calcular e plotar médias de grupos de países (categorias de renda, anexo 1 vs nao anexo 1). pra Annex1 já tem uma dummy e a base tem outras variáveis disponíveis tb, mas categoria de renda do Banco Mundial teria que pegar.
@@ -177,13 +177,13 @@ Aqui uso os dados de Skovgaard e Gallant, os quais são, por sua vez, expansão 
 
 Comparemos agora o Brasil e outros países
 
-![](ClimaDBs_files/figure-html/grafico br vs Emerging-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/grafico-br-vs-Emerging-1.png)<!-- -->
 
 
-![](ClimaDBs_files/figure-html/grafico br vs Developed-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/grafico-br-vs-Developed-1.png)<!-- -->
 
 
-![](ClimaDBs_files/figure-html/grafico br vs ldc-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/grafico-br-vs-ldc-1.png)<!-- -->
 
 
 # VISIBILIDADE DO TEMA NO MUNDO
@@ -209,21 +209,21 @@ Nesse relatório, estou usando a atualização cobrindo **outubro de 2023 (2023-
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/plot media-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-media-1.png)<!-- -->
 
 ```
 ## Warning: Removed 2 rows containing missing values or values outside the scale range
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/plot media-2.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-media-2.png)<!-- -->
 
 ```
 ## Warning: Removed 2 rows containing missing values or values outside the scale range
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/plot media-3.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-media-3.png)<!-- -->
 
 
 ```
@@ -231,14 +231,14 @@ Nesse relatório, estou usando a atualização cobrindo **outubro de 2023 (2023-
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/plot midia brasil-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-midia-brasil-1.png)<!-- -->
 
 ```
 ## Warning: Removed 14 rows containing missing values or values outside the scale range
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/plot midia brasil-2.png)<!-- -->
+![](ClimaDBs_files/figure-html/plot-midia-brasil-2.png)<!-- -->
 
 
 
@@ -263,7 +263,7 @@ left_join(
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/compara br e mundo total-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/compara-br-e-mundo-total-1.png)<!-- -->
 
 ``` r
 left_join(
@@ -287,7 +287,7 @@ left_join(
 ## (`geom_line()`).
 ```
 
-![](ClimaDBs_files/figure-html/compara br e mundo total-2.png)<!-- -->
+![](ClimaDBs_files/figure-html/compara-br-e-mundo-total-2.png)<!-- -->
 
 Como é de se esperar, a cobertura midiática de clima no Brasil (2 jornais na amostra) representa uma parcela ínfima da cobertura no mundo (131 na amostra (*checar se for o caso - talvez seja menos, porque sao só os jornais e esse numero pode cobrir tv etc*)). 
 A diferença de escalas, porém, não nos impede de observar que a tendência da cobertura no Brasil segue, em vários momentos, a mesma tendência da observada no mundo. Há, porém, momentos de diferença importante: 
@@ -319,7 +319,7 @@ Allan e Bhandary compilaram o número de subitens presente nas agendas, dividind
 
 
 O gráfico abaixo mostra o volume total por ano, somando os vários órgãos da convenção
-![](ClimaDBs_files/figure-html/grafico agendantopics-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/grafico-agendantopics-1.png)<!-- -->
 
 
 ```
@@ -327,7 +327,7 @@ O gráfico abaixo mostra o volume total por ano, somando os vários órgãos da 
 ## (`geom_point()`).
 ```
 
-![](ClimaDBs_files/figure-html/grafico ntopics delegsize-1.png)<!-- -->
+![](ClimaDBs_files/figure-html/grafico-ntopics-delegsize-1.png)<!-- -->
 
 ### Ainda a fazer
 - Dados da agenda separados por tema (esp alguns temas especificos)
