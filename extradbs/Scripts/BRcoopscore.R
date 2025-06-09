@@ -532,6 +532,8 @@ fviz_contrib(pca, choice = "var", axes = 1, top = 10)
 fviz_contrib(pca, choice = "var", axes = 2, top = 10)
 fviz_contrib(pca, choice = "var", axes = 3, top = 10)
 
+
+
 df2 <- df %>% 
   select(-c(weighted_score, weighted_score_avg, coop_score, coop_score_2)) %>%
   pivot_wider(names_from = "grouping", values_from = "coop_avg") %>% 
