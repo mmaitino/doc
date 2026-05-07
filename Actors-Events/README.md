@@ -4,7 +4,7 @@
 **Financiamento:** FAPESP (Processos 2020/07387-1 e 2022/10926-7)
 
 ## Publicações relacionadas
-* Maitino, Martin Egon. **"Participação e política externa ambiental brasileira (1970-2018): atores domésticos e a definição da posição do Brasil"**, Tese (Doutorado em Ciência Política), Universidade de São Paulo, 2025. [Link para a tese]
+* Maitino, Martin Egon. **"Participação e política externa ambiental brasileira (1970-2018): atores domésticos e a definição da posição do Brasil"**, Tese (Doutorado em Ciência Política), Universidade de São Paulo, 2025. [Link para a tese (https://doi.org/10.11606/T.8.2025.tde-29052025-150405)]
 
 ---
 
